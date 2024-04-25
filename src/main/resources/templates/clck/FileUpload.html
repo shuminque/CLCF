@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Excel File and Display Data</title>
+    <link rel="stylesheet" href="/static/lib/layui-v2.8.17/css/layui.css" media="all">
+    <script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/js/http_unpkg.com_html5-qrcode.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/js/jquery-2.1.0.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/js/jquery.qrcode.js" charset="utf-8"></script>
+    <style>
+        @media print {
+            body * {
+                visibility: hidden; /* Hide all content in body during print, except for elements that are explicitly visible */
+            }
+            #qrcodeDisplayArea, #qrcodeDisplayArea * {
+                visibility: visible; /* Make QR codes visible */
+            }
+            #qrcodeDisplayArea {
+                position: absolute;
+                left: 0;
+                top: 0;
+            }
+        }
+        #qrcodeDisplayArea div {
+            display: inline-block;
+            margin: 10px; /* Add space around each QR code */
+            padding: 10px; /* Optional: Adds padding around the QR code for better visibility */
+            border: 1px solid #ccc; /* Optional: Adds a border around each QR code */
+            background-color: #f9f9f9; /* Optional: Sets a background color for each QR code area */
+        }
+        table {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<input type="file" id="excelFile" accept=".xlsx, .xls"><br><br>
+<button onclick="uploadFile()">导入</button>
+<button onclick="printQRCode()">打印二维码</button>
+<table class="layui-hide" id="recordTable"></table> <!-- Layui Table Container -->
+<div id="qrcodeDisplayArea"></div> <!-- Area to display QR codes -->
+
+<script>
+    function uploadFile() {
+        const fileInput = document.getElementById('excelFile');
+        const file = fileInput.files[0];
+        const formData = new FormData();
+        formData.append("file", file);
+
+        fetch('/upload', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                displayData(data);
+                generateQRCode(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+    function displayData(shipments) {
+        layui.use('table', function() {
+            var table = layui.table;
+            table.render({
+                elem: '#recordTable',
+                data: shipments, // 使用返回的数据直接渲染表格
+                cellMinWidth: 150, // Set minimum cell width
+                height: 600, // 设置表格高度
+                cols: [ [
+                    {field: 'id', title: 'id',hide:true},
+                    {field: 'invoiceNumber', title: '发票编号'},
+                    {field: 'customer', title: '客户'},
+                    {field: 'tradeMode', title: '贸易方式'},
+                    {field: 'deliveryPoint', title: '到货点'},
+                    {field: 'arrivalPortDate', title: '到港日期',templet: function(d) {
+                            return formatDate(d.arrivalPortDate);
+                        }},
+                    {field: 'arrivalDate', title: '到达日期',templet: function(d) {
+                            return formatDate(d.arrivalDate);
+                        }},
+                    {field: 'dimensions', title: '尺寸'},
+                    {field: 'weight', title: '重量'},
+                    {field: 'steelMill', title: '钢厂'},
+                    {field: 'furnaceNumber', title: '炉号'},
+                    {field: 'invoiceApplication', title: '发票申请'},
+                    {field: 'operationType', title: '操作类型'},
+                    {field: 'supplierBatchNumber', title: '供应商生产批号'},
+                    {field: 'bundleCount', title: '支数'},
+                    {field: 'placementArea', title: '放置区域'}
+                ]]
+            });
+        });
+    }
+    function formatDate(dateStr) {
+        if (!dateStr) return '';
+        let date = new Date(dateStr);
+        let year = date.getFullYear();
+        let month = (date.getMonth() + 1).toString().padStart(2, '0');
+        let day = date.getDate().toString().padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+    function generateQRCode(shipments) {
+        const qrcodeDisplayArea = document.getElementById('qrcodeDisplayArea');
+        shipments.forEach(shipment => {
+            let containerDiv = document.createElement('div'); // Container for each QR code and its text
+            containerDiv.className = 'container';
+            containerDiv.style.display = 'flex';
+            containerDiv.style.alignItems = 'center'; // Align the QR code and text vertically
+            containerDiv.style.marginBottom = '20px'; // Space between each set of QR code and text
+            let qrDiv = document.createElement('div'); // Div for the QR code
+            let textDiv = document.createElement('div'); // Div for the text description
+            textDiv.style.marginLeft = '5px'; // Space between QR code and text
+            textDiv.innerHTML = `
+                             <strong>日期:</strong> ${formatDate(shipment.arrivalDate)}<br>
+                             <strong>Customer:</strong> ${shipment.customer}<br>
+                             <strong>Furnace Number:</strong> ${shipment.furnaceNumber}<br>
+                             <strong>Bundle Count:</strong> ${shipment.bundleCount}<br>
+                             <strong>Weight:</strong> ${shipment.weight}<br>
+                             <strong>Supplier BatchNumber:</strong> ${shipment.supplierBatchNumber}<br>
+                             <strong>Steel Mill:</strong> ${shipment.steelMill}`;
+            $(qrDiv).qrcode({
+                text: Object.values({
+                    arrival_date:formatDate(shipment.arrivalDate),
+                    furnaceNumber: shipment.furnaceNumber,
+                    customer: shipment.customer,
+                    bundleCount: shipment.bundleCount,
+                    steelMill: shipment.steelMill,
+                    supplierBatchNumber: shipment.supplierBatchNumber,
+                    weight: shipment.weight
+                }).join('|'),
+                width: 128,
+                height: 128,
+                correctLevel: 3
+            });
+
+            containerDiv.appendChild(qrDiv); // Append the QR code to the container
+            containerDiv.appendChild(textDiv); // Append the text to the container
+            qrcodeDisplayArea.appendChild(containerDiv); // Append the container to the QR code display area
+        });
+    }
+
+    function printQRCode() {
+        window.print();
+    }
+</script>
+</body>
+</html>

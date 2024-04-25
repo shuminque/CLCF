@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="../../static/css/index.css">
+    <title>数字化分析</title>
+<!--    <script src="../../static/js/jquery-2.2.1.min.js"></script>旧版本-->
+    <script src="/static/js/http_ajax.googleapis.com_ajax_libs_jquery_3.5.1_jquery.js"></script>
+    <script src="../../static/js/rem.js"></script>
+    <script src="../../static/js/echarts.min.js"></script>
+    <script src="../../static/js/index.js"></script>
+</head>
+<body>
+    <div class="t_container">
+        <main class="t_main">
+            <header class="t_title">
+                <h2>各客户库存概况</h2>
+                <div>
+                    <input type="date" id="cutoff-date">
+                    <select id="depository-select">
+                        <option value="ALL">所有厂区</option>
+                        <option value="SAB">SAB</option>
+                        <option value="ZAB">ZAB</option>
+                    </select>
+                    <select id="state-select">
+                        <option value="ALL">所有状态</option>
+                        <option value="正常">正常</option>
+                        <option value="死库">死库</option>
+                    </select>
+                </div>
+            </header>
+            <div class="t_box">
+                <div id="chart_2" style="width: 100%; height: 100%;"></div>
+            </div>
+        </main>
+    </div>
+    <script>
+        // 添加事件监听器，当日期或厂区改变时，更新图表数据
+        document.getElementById('cutoff-date').addEventListener('change', updateChartData);
+        document.getElementById('depository-select').addEventListener('change', updateChartData);
+        document.getElementById('state-select').addEventListener('change', updateChartData);
+
+        function updateChartData() {
+            const selectedDate = document.getElementById('cutoff-date').value;
+            const selectedDepository = document.getElementById('depository-select').value;
+            const selectedState = document.getElementById('state-select').value;
+            if (selectedDate) {
+                fetchChartDataAndUpdateEchart(selectedDate, selectedDepository, selectedState);
+            }
+        }
+        function loadInitialChartData() {
+            const today = new Date().toISOString().split('T')[0]; // 获取今天的日期，格式为YYYY-MM-DD
+            document.getElementById('cutoff-date').value = today; // 设置日期选择器为今天
+            updateChartData(); // 使用今天的日期加载图表数据
+        }
+        // 获取并更新图表数据的函数，根据指定的截止日期
+        function fetchChartDataAndUpdateEchart(cutoffDate, depository, state) {
+            // 构建请求URL，根据是否选择了“所有厂区”来调整参数
+            let url = `/bearingRecords/customer-status?cutoffDate=${cutoffDate}`;
+            if (depository !== 'ALL') {
+                url += `&depository=${depository}`;
+            }
+            if (state !== 'ALL') {
+                url += `&state=${state}`;
+            }
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    echart_2(data); // 使用获取的数据更新图表
+                })
+                .catch(error => console.error('Error fetching chart data:', error));
+        }
+
+        function echart_2(chartData) {
+            // 基于准备好的dom，初始化echarts实例
+            var myChart = echarts.init(document.getElementById('chart_2'));
+            const customers = [...new Set(chartData.map(item => item.customer))]; // 假设chartData是您的数据
+            const colors = customers.map(() => generateRandomColor());
+            // 处理从后端获取的数据
+            const yAxisData = chartData.map(item => item.customer); // 顾客名称
+            const totalLA = chartData.reduce((sum, item) => sum + item.LA_quantity, 0);
+            const totalLB = chartData.reduce((sum, item) => sum + item.LB_quantity, 0);
+            const totals = chartData.reduce((acc, item) => {
+                acc.totalLA += item.LA_quantity;
+                acc.totalLB += item.LB_quantity;
+                return acc;
+            }, { totalLA: 0, totalLB: 0 });
+            const legendData = yAxisData;
+            const barSeriesData = chartData.map(item => item.LA_quantity + item.LB_quantity); // 假设后端数据有LA_quantity属性
+            const pieSeriesData = chartData.map(item => ({
+                value: 1,
+                name: item.customer, // 使用name作为饼图的名称
+                LA_quantity: item.LA_quantity, // 在这里添加LB的数量
+                LB_quantity: item.LB_quantity // 在这里添加LB的数量
+            }));
+
+            myChart.setOption({
+                // graphic: {
+                //     elements: [{
+                //         type: 'image',
+                //         style: {
+                //             width: 30,
+                //             height: 30
+                //         },
+                //         left: '73%',
+                //         top: 'center'
+                //     }]
+                // },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'shadow' }
+                },
+                grid: {
+                    left: '5%',
+                    right: '80%',
+                    top: '10%',
+                    bottom: '10%',
+                    containLabel: true,
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['LA', 'LB'], // X轴显示LA和LB
+                    axisLine: { show: true },
+                    axisLabel: {
+                        show: false,
+                        color: '#FFFFFF' // 设置X轴标签颜色为白色
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: { show: true },
+                    axisLabel: { show: false, color: '#FFFFFF' }
+                },
+                legend: {
+                    data: legendData, // 设置图例数据
+                    orient: 'vertical', // 图例排列方向，垂直排列
+                    right: '5%',
+                    top: 'middle', // 垂直居中
+                    textStyle: {
+                        color: '#FFFFFF' // 设置图例文字颜色为白色
+                    }
+                },
+                // xAxis: {
+                //     type: 'value',
+                //     position:'top',
+                //     splitLine: {show: false},
+                //     boundaryGap: [0, 0.01],
+                //     axisTick: {
+                //         show: false
+                //     },
+                //     axisLine: { show: false }, // 如果您也想隐藏轴线，可以设置为 false
+                //     axisLabel: { show: false }, // 设置为false来隐藏轴的刻度标签
+                // },
+                // yAxis: {
+                //     type: 'category',
+                //     data: yAxisData,
+                //     position:'left',
+                //     axisTick: {
+                //         show: false
+                //     },
+                //     splitLine: {
+                //         show: false
+                //     },
+                //     axisLabel: {
+                //         textStyle: {
+                //             color: '#FFFFFF',
+                //             fontSize: 12
+                //         }
+                //     },
+                //     axisLine: {
+                //         show: true,
+                //         lineStyle: {
+                //             color: '#6173A3'
+                //         }
+                //     },
+                // },
+                series: [
+                //     {
+                //         type: 'bar',
+                //         itemStyle: {
+                //         normal: {
+                //             color: function(params) {
+                //                 // 这里使用params.dataIndex来获取当前数据项的索引，然后使用该索引从colors数组中获取颜色
+                //                 return colors[params.dataIndex % colors.length]; // 使用模运算确保索引不会超出数组长度
+                //             },
+                //             shadowBlur: 20,
+                //             shadowColor: 'rgba(0, 0, 0, 0.5)'
+                //         }
+                //     },
+                //     data: barSeriesData
+                // },    上述注释为各客户具体数量，目前为LA,LB总量统计
+                    {
+                        name: '总量',
+                        type: 'bar',
+                        data: [
+                            {
+                                value: totals.totalLA,
+                                label: {
+                                    show: true,
+                                    position: 'top',
+                                    color: '#FFFFFF',
+                                    formatter: function(params) {
+                                        // 使用Intl.NumberFormat进行千分位格式化
+                                        const formattedValue = new Intl.NumberFormat('en-US').format(params.value);
+                                        return `外轮库存总数: \n ${formattedValue}`;
+                                    }
+                                },
+                                itemStyle: {
+                                    color: '#1f77b4' // 为总LA设置一种颜色
+                                }
+                            },
+                            {
+                                value: totals.totalLB,
+                                label: {
+                                    show: true,
+                                    position: 'top',
+                                    color: '#FFFFFF',
+                                    formatter: function(params) {
+                                        // 使用Intl.NumberFormat进行千分位格式化
+                                        const formattedValue = new Intl.NumberFormat('en-US').format(params.value);
+                                        return `内轮库存总数: \n ${formattedValue}`;
+                                    }
+                                },
+                                itemStyle: {
+                                    color: '#ff7f0e' // 为总LB设置另一种颜色
+                                }
+                            }
+                        ],
+                        itemStyle: {
+                            color: function(params) {
+                                // 根据条目的类型（LA或LB）为其分配颜色
+                                return params.dataIndex === 0 ? '#1f77b4' : '#ff7f0e';
+                            }
+                        }
+                    },
+                    {
+                        type: 'pie',
+                        radius: ['50%', '77%'],
+                        center: ['55%', '50%'],
+                        roseType: 'radius',
+                            color: function(params) {
+                                // 这里使用params.dataIndex来获取当前数据项的索引，然后使用该索引从colors数组中获取颜色
+                                return colors[params.dataIndex % colors.length]; // 使用模运算确保索引不会超出数组长度
+                            },
+                        data: pieSeriesData,
+                        label: {
+                            normal: {
+                                rich: {
+                                    nameStyle: {
+                                        // 名称样式
+                                        color: '#FFFFFF',
+                                        align: 'left',
+                                        fontSize: 13,
+                                        lineHeight: 12
+                                    },
+                                    valueStyle: {
+                                        // 数值样式
+                                        color: '#FFFFFF',
+                                        align: 'left',
+                                        fontSize: 13,
+                                        lineHeight: 12
+                                    }
+                                },
+                                formatter: function(param) {
+                                    const formatter = new Intl.NumberFormat('en-US');
+                                    const LA_quantityFormatted = formatter.format(param.data.LA_quantity);
+                                    const LB_quantityFormatted = formatter.format(param.data.LB_quantity);
+
+                                    return [
+                                        '{nameStyle|' + param.name + '}',
+                                        '{valueStyle|外轮: ' + LA_quantityFormatted + '}',
+                                        '{valueStyle|内轮: ' + LB_quantityFormatted + '}'
+                                    ].join('\n');
+                                },
+                                padding: [0, 10] // 根据需要调整padding来对齐文本
+                            }
+                        },
+                        // tooltip: {
+                            //     trigger: 'item',
+                            //     formatter: function(param) {
+                            //         return `${param.name}: <br>外轮:${param.data.LA_quantity}<br>内轮:${param.data.LB_quantity}`;
+                            //     }
+                            // },
+                            labelLine: {
+                                normal: {
+                                    length: 30, // 调整指向线的起始部分长度
+                                    length2: 15, // 调整指向线从转折点到标签的部分长度
+                                    smooth: 0.2, // 可以尝试启用平滑
+                                    lineStyle: {
+                                        color: '#FFFFFF' // 设置线条颜色为白色
+                                    }
+                                }
+                            },
+                            itemStyle: {
+                            normal: {
+                                shadowBlur: 30,
+                                shadowColor: 'rgba(0, 0, 0, 0.4)'
+                            }
+                        },
+                        animationType: 'scale',
+                        animationEasing: 'elasticOut',
+                        animationDelay: function(idx) {
+                            return Math.random() * 200;
+                        }
+                    }
+                ]
+            });
+        }
+
+        // 页面加载完成后，自动加载数据
+        document.addEventListener('DOMContentLoaded', loadInitialChartData);
+
+
+        function generateRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+    </script>
+</body>
+</html>

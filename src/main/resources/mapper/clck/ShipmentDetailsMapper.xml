@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.depository_manage.mapper.clck.ShipmentDetailsMapper">
+    <!-- ResultMap 定义 -->
+    <resultMap id="shipmentDetailsMap" type="com.depository_manage.entity.ShipmentDetails">
+        <id column="id" property="id" />
+        <result column="invoice_number" property="invoiceNumber" />
+        <result column="customer" property="customer" />
+        <result column="trade_mode" property="tradeMode" />
+        <result column="delivery_point" property="deliveryPoint" />
+        <result column="arrival_port_date" property="arrivalPortDate" jdbcType="DATE" />
+        <result column="arrival_date" property="arrivalDate" jdbcType="DATE" />
+        <result column="dimensions" property="dimensions" />
+        <result column="weight" property="weight" jdbcType="DOUBLE" />
+        <result column="steel_mill" property="steelMill" />
+        <result column="furnace_number" property="furnaceNumber" />
+        <result column="invoice_application" property="invoiceApplication" />
+        <result column="operation_type" property="operationType" />
+        <result column="supplier_batch_number" property="supplierBatchNumber" />
+        <result column="bundle_count" property="bundleCount" jdbcType="INTEGER" />
+        <result column="placement_area" property="placementArea" />
+    </resultMap>
+    <!-- 插入操作 -->
+    <insert id="insertShipmentDetail" parameterType="com.depository_manage.entity.ShipmentDetails">
+        INSERT INTO shipment_details (
+            invoice_number, customer, trade_mode, delivery_point, arrival_port_date,
+            arrival_date, dimensions, weight, steel_mill, furnace_number, invoice_application,
+            operation_type, supplier_batch_number, bundle_count, placement_area
+        ) VALUES (
+                     #{invoiceNumber}, #{customer}, #{tradeMode}, #{deliveryPoint}, #{arrivalPortDate},
+                     #{arrivalDate}, #{dimensions}, #{weight}, #{steelMill}, #{furnaceNumber}, #{invoiceApplication},
+                     #{operationType}, #{supplierBatchNumber}, #{bundleCount}, #{placementArea}
+                 )
+    </insert>
+    <!-- Batch insert operation -->
+    <insert id="insertShipmentDetails" parameterType="java.util.List">
+        INSERT INTO shipment_details (
+        invoice_number, customer, trade_mode, delivery_point, arrival_port_date,
+        arrival_date, dimensions, weight, steel_mill, furnace_number, invoice_application,
+        operation_type, supplier_batch_number, bundle_count, placement_area
+        ) VALUES
+        <foreach collection="list" item="detail" separator=",">
+            (
+            #{detail.invoiceNumber}, #{detail.customer}, #{detail.tradeMode}, #{detail.deliveryPoint},
+            #{detail.arrivalPortDate}, #{detail.arrivalDate}, #{detail.dimensions}, #{detail.weight},
+            #{detail.steelMill}, #{detail.furnaceNumber}, #{detail.invoiceApplication},
+            #{detail.operationType}, #{detail.supplierBatchNumber}, #{detail.bundleCount}, #{detail.placementArea}
+            )
+        </foreach>
+    </insert>
+
+    <!-- 使用resultMap的查询 -->
+    <select id="selectShipmentDetailById" parameterType="int" resultMap="shipmentDetailsMap">
+        SELECT * FROM shipment_details WHERE id = #{id}
+    </select>
+    <!-- 查询所有记录操作 -->
+    <select id="selectAllShipmentDetails" resultType="com.depository_manage.entity.ShipmentDetails">
+        SELECT * FROM shipment_details
+    </select>
+
+    <!-- 更新操作 -->
+    <update id="updateShipmentDetail" parameterType="com.depository_manage.entity.ShipmentDetails">
+        UPDATE shipment_details
+        SET
+            invoice_number = #{invoiceNumber},
+            customer = #{customer},
+            trade_mode = #{tradeMode},
+            delivery_point = #{deliveryPoint},
+            arrival_port_date = #{arrivalPortDate},
+            arrival_date = #{arrivalDate},
+            dimensions = #{dimensions},
+            weight = #{weight},
+            steel_mill = #{steelMill},
+            furnace_number = #{furnaceNumber},
+            invoice_application = #{invoiceApplication},
+            operation_type = #{operationType},
+            supplier_batch_number = #{supplierBatchNumber},
+            bundle_count = #{bundleCount},
+            placement_area = #{placementArea}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除操作 -->
+    <delete id="deleteShipmentDetail" parameterType="int">
+        DELETE FROM shipment_details WHERE id = #{id}
+    </delete>
+
+</mapper>
