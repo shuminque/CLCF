@@ -14,6 +14,7 @@ public class ShipmentDetails {
     private String deliveryPoint;
     private Date arrivalPortDate;
     private Date arrivalDate;
+    private String steelGrade;
     private String dimensions;
     private Double weight;
     private String steelMill;

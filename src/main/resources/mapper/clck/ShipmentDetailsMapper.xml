@@ -10,6 +10,7 @@
         <result column="delivery_point" property="deliveryPoint" />
         <result column="arrival_port_date" property="arrivalPortDate" jdbcType="DATE" />
         <result column="arrival_date" property="arrivalDate" jdbcType="DATE" />
+        <result column="steel_grade" property="steelGrade" />
         <result column="dimensions" property="dimensions" />
         <result column="weight" property="weight" jdbcType="DOUBLE" />
         <result column="steel_mill" property="steelMill" />
@@ -24,11 +25,11 @@
     <insert id="insertShipmentDetail" parameterType="com.depository_manage.entity.ShipmentDetails">
         INSERT INTO shipment_details (
             invoice_number, customer, trade_mode, delivery_point, arrival_port_date,
-            arrival_date, dimensions, weight, steel_mill, furnace_number, invoice_application,
+            arrival_date, steel_grade, dimensions, weight, steel_mill, furnace_number, invoice_application,
             operation_type, supplier_batch_number, bundle_count, placement_area
         ) VALUES (
                      #{invoiceNumber}, #{customer}, #{tradeMode}, #{deliveryPoint}, #{arrivalPortDate},
-                     #{arrivalDate}, #{dimensions}, #{weight}, #{steelMill}, #{furnaceNumber}, #{invoiceApplication},
+                     #{arrivalDate}, #{steelGrade}, #{dimensions}, #{weight}, #{steelMill}, #{furnaceNumber}, #{invoiceApplication},
                      #{operationType}, #{supplierBatchNumber}, #{bundleCount}, #{placementArea}
                  )
     </insert>
@@ -36,13 +37,13 @@
     <insert id="insertShipmentDetails" parameterType="java.util.List">
         INSERT INTO shipment_details (
         invoice_number, customer, trade_mode, delivery_point, arrival_port_date,
-        arrival_date, dimensions, weight, steel_mill, furnace_number, invoice_application,
+        arrival_date, steel_grade, dimensions, weight, steel_mill, furnace_number, invoice_application,
         operation_type, supplier_batch_number, bundle_count, placement_area
         ) VALUES
         <foreach collection="list" item="detail" separator=",">
             (
             #{detail.invoiceNumber}, #{detail.customer}, #{detail.tradeMode}, #{detail.deliveryPoint},
-            #{detail.arrivalPortDate}, #{detail.arrivalDate}, #{detail.dimensions}, #{detail.weight},
+            #{detail.arrivalPortDate}, #{detail.arrivalDate}, #{detail.steelGrade}, #{detail.dimensions}, #{detail.weight},
             #{detail.steelMill}, #{detail.furnaceNumber}, #{detail.invoiceApplication},
             #{detail.operationType}, #{detail.supplierBatchNumber}, #{detail.bundleCount}, #{detail.placementArea}
             )
@@ -68,6 +69,7 @@
             delivery_point = #{deliveryPoint},
             arrival_port_date = #{arrivalPortDate},
             arrival_date = #{arrivalDate},
+            steel_grade = #{steelGrade},
             dimensions = #{dimensions},
             weight = #{weight},
             steel_mill = #{steelMill},

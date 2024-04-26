@@ -27,7 +27,11 @@ public class FileUploadController {
     private ShipmentDetailsService shipmentDetailsService;
 
     @PostMapping
-    public ResponseEntity<List<ShipmentDetails>> handleFileUpload(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<List<ShipmentDetails>> handleFileUpload(@RequestParam("file") MultipartFile file,
+                                                                  @RequestParam("invoiceNumber") String invoiceNumber,
+                                                                  @RequestParam("customer") String customer,
+                                                                  @RequestParam("tradeMode") String tradeMode,
+                                                                  @RequestParam("deliveryPoint") String deliveryPoint) {
         List<ShipmentDetails> shipments = new ArrayList<>();
         try (InputStream inputStream = file.getInputStream()) {
             Workbook workbook;
@@ -38,11 +42,10 @@ public class FileUploadController {
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); // Bad request if file type is unsupported
             }
-
             Sheet sheet = workbook.getSheetAt(0); // Assuming there is at least one sheet
             for (Row row : sheet) {
                 if (row.getRowNum() == 0) continue; // Skip header row
-                ShipmentDetails shipment = parseShipmentDetails(row);
+                ShipmentDetails shipment = parseShipmentDetails(row,invoiceNumber, customer,tradeMode,deliveryPoint );
                 if (shipment != null) {
                     shipments.add(shipment);
                 }
@@ -54,33 +57,25 @@ public class FileUploadController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-    private ShipmentDetails parseShipmentDetails(Row row) {
+    private ShipmentDetails parseShipmentDetails(Row row,String invoiceNumber,String customer,String tradeMode,String deliveryPoint) {
         if (row == null) {
             return null;
         }
         ShipmentDetails shipment = new ShipmentDetails();
         int filledFieldsCount = 0;
+            shipment.setInvoiceNumber(invoiceNumber);
+            shipment.setCustomer(customer);
+            shipment.setTradeMode(tradeMode);
+            shipment.setDeliveryPoint(deliveryPoint);
 
-        if (getCellValueAsString(row.getCell(0)) != null) {
-            shipment.setInvoiceNumber(getCellValueAsString(row.getCell(0)));
-            filledFieldsCount++;
-        }
-        if (getCellValueAsString(row.getCell(1)) != null) {
-            shipment.setCustomer(getCellValueAsString(row.getCell(1)));
-            filledFieldsCount++;
-        }
-        if (getCellValueAsString(row.getCell(8)) != null) {
-            shipment.setTradeMode(getCellValueAsString(row.getCell(8)));
-            filledFieldsCount++;
-        }
-        if (getCellValueAsString(row.getCell(0)) != null) {
-            shipment.setDeliveryPoint(getCellValueAsString(row.getCell(0)));
-            filledFieldsCount++;
-        }
         if (getCellValueAsDate(row.getCell(8)) != null) {
             shipment.setArrivalPortDate(getCellValueAsDate(row.getCell(8)));
             shipment.setArrivalDate(getCellValueAsDate(row.getCell(8)));
             filledFieldsCount++; // Count as one since both dates are the same
+        }
+        if (getCellValueAsString(row.getCell(2)) != null) {
+            shipment.setSteelGrade(getCellValueAsString(row.getCell(2)));
+            filledFieldsCount++;
         }
         if (getCellValueAsString(row.getCell(3)) != null) {
             shipment.setDimensions(getCellValueAsString(row.getCell(3)));
@@ -118,8 +113,8 @@ public class FileUploadController {
             shipment.setPlacementArea(getCellValueAsString(row.getCell(12)));
             filledFieldsCount++;
         }
-        if (filledFieldsCount < 6) {
-            return null; // Not enough fields filled to consider this a valid record
+        if (filledFieldsCount < 7) {
+            return null;
         }
 
         return shipment;

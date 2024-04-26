@@ -43,8 +43,15 @@ public class PageController {
         return "pages/user/login";
     }
     @GetMapping("/uploadExcel")
-    public String uploadExcel() {
-        return "clck/FileUpload";
+    public ModelAndView uploadExcel() {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("clck/FileUpload");
+        mv.addObject("productCategorys", productCategoryService.findAll());
+        mv.addObject("steelGrades", steelGradeService.findAll());
+        mv.addObject("steelTypes", steelTypeService.findAll());
+        mv.addObject("customers", customerService.findAll());
+
+        return mv;
     }
     @GetMapping("/s1")
     public String s1() {
