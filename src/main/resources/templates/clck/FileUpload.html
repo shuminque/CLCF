@@ -44,8 +44,15 @@
     <form class="layui-form" action="javascript:uploadFile()">
         <div class="layui-form-item">
             <label class="layui-form-label">发票编号:</label>
-            <div class="layui-input-block">
-                <input type="text" id="invoiceNumber" name="invoiceNumber" required lay-verify="required" placeholder="请输入发票编号" class="layui-input">
+            <div class="layui-input-inline">
+                <input type="text" id="invoiceNumber" name="invoiceNumber" required lay-verify="required" placeholder="请输入发票编号" class="layui-input" autocomplete="off">
+            </div>
+            <label class="layui-form-label">到货点:</label>
+            <div class="layui-input-inline">
+                <select name="deliveryPoint" id="deliveryPoint" required lay-verify="required">
+                    <option value="ZAB" selected>ZAB</option>
+                    <option value="SAB" >SAB</option>
+                </select>
             </div>
         </div>
         <div class="layui-form-item">
@@ -58,8 +65,6 @@
                             th:text="${customer.name}"></option>
                 </select>
             </div>
-        </div>
-        <div class="layui-form-item">
             <label class="layui-form-label">贸易方式:</label>
             <div class="layui-input-inline">
                 <select name="tradeMode" id="tradeMode" required lay-verify="required">
@@ -71,24 +76,13 @@
             </div>
         </div>
         <div class="layui-form-item">
-            <label class="layui-form-label">到货点:</label>
-            <div class="layui-input-inline">
-                <select name="deliveryPoint" id="deliveryPoint" required lay-verify="required">
-                    <option value="ZAB" selected>ZAB</option>
-                    <option value="SAB" >SAB</option>
-                </select>
-            </div>
-        </div>
-        <div class="layui-form-item">
             <label class="layui-form-label">到港日期:</label>
-            <div class="layui-input-block">
-                <input type="date" id="arrivalPortDate" name="arrivalPortDate" required lay-verify="required" class="layui-input">
+            <div class="layui-input-inline">
+                <input id="arrivalPortDate" name="arrivalPortDate" placeholder="请输入到港日期" required lay-verify="required" class="layui-input" autocomplete="off">
             </div>
-        </div>
-        <div class="layui-form-item">
             <label class="layui-form-label">到达日期:</label>
-            <div class="layui-input-block">
-                <input type="date" id="arrivalDate" name="arrivalDate" required lay-verify="required" class="layui-input">
+            <div class="layui-input-inline">
+                <input id="arrivalDate" name="arrivalDate"  placeholder="请输入到达日期" required lay-verify="required" class="layui-input" autocomplete="off">
             </div>
         </div>
         <div class="layui-form-item">
@@ -121,7 +115,7 @@
         const file = fileInput.files[0];
         const formData = new FormData();
         formData.append("file", file);
-// 添加表单字段
+        // 添加表单字段
         formData.append("invoiceNumber", document.getElementById('invoiceNumber').value);
         formData.append("customer", document.getElementById('customer').value);
         formData.append("tradeMode", document.getElementById('tradeMode').value);

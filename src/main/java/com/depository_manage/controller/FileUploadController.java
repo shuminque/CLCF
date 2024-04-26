@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/upload")
@@ -35,7 +36,7 @@ public class FileUploadController {
         List<ShipmentDetails> shipments = new ArrayList<>();
         try (InputStream inputStream = file.getInputStream()) {
             Workbook workbook;
-            if (file.getOriginalFilename().endsWith(".xls")) {
+            if (Objects.requireNonNull(file.getOriginalFilename()).endsWith(".xls")) {
                 workbook = new HSSFWorkbook(inputStream);
             } else if (file.getOriginalFilename().endsWith(".xlsx")) {
                 workbook = new XSSFWorkbook(inputStream);
