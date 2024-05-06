@@ -24,5 +24,6 @@ public class ShipmentDetails {
     private String supplierBatchNumber;
     private Integer bundleCount;
     private String placementArea;
+    private String purchaser;
     // Getters and Setters
 }

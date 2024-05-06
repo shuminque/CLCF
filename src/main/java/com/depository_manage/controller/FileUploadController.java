@@ -4,6 +4,7 @@ import com.depository_manage.entity.ShipmentDetails;
 import com.depository_manage.service.ShipmentDetailsService;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -32,7 +33,10 @@ public class FileUploadController {
                                                                   @RequestParam("invoiceNumber") String invoiceNumber,
                                                                   @RequestParam("customer") String customer,
                                                                   @RequestParam("tradeMode") String tradeMode,
-                                                                  @RequestParam("deliveryPoint") String deliveryPoint) {
+                                                                  @RequestParam("deliveryPoint") String deliveryPoint,
+                                                                  @RequestParam("purchaser") String purchaser,
+                @RequestParam("arrivalPortDate") @DateTimeFormat(pattern="yyyy-MM-dd") Date arrivalPortDate,
+                @RequestParam("arrivalDate") @DateTimeFormat(pattern="yyyy-MM-dd") Date arrivalDate){
         List<ShipmentDetails> shipments = new ArrayList<>();
         try (InputStream inputStream = file.getInputStream()) {
             Workbook workbook;
@@ -46,7 +50,7 @@ public class FileUploadController {
             Sheet sheet = workbook.getSheetAt(0); // Assuming there is at least one sheet
             for (Row row : sheet) {
                 if (row.getRowNum() == 0) continue; // Skip header row
-                ShipmentDetails shipment = parseShipmentDetails(row,invoiceNumber, customer,tradeMode,deliveryPoint );
+                ShipmentDetails shipment = parseShipmentDetails(row,invoiceNumber, customer,tradeMode,deliveryPoint,purchaser,arrivalPortDate,arrivalDate);
                 if (shipment != null) {
                     shipments.add(shipment);
                 }
@@ -58,7 +62,8 @@ public class FileUploadController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-    private ShipmentDetails parseShipmentDetails(Row row,String invoiceNumber,String customer,String tradeMode,String deliveryPoint) {
+    private ShipmentDetails parseShipmentDetails(Row row, String invoiceNumber, String customer, String tradeMode,
+                                                 String deliveryPoint, String purchaser,Date arrivalPortDate, Date arrivalDate) {
         if (row == null) {
             return null;
         }
@@ -68,12 +73,15 @@ public class FileUploadController {
             shipment.setCustomer(customer);
             shipment.setTradeMode(tradeMode);
             shipment.setDeliveryPoint(deliveryPoint);
+            shipment.setPurchaser(purchaser);
+            shipment.setArrivalPortDate(arrivalPortDate);
+            shipment.setArrivalDate(arrivalDate);
 
-        if (getCellValueAsDate(row.getCell(8)) != null) {
-            shipment.setArrivalPortDate(getCellValueAsDate(row.getCell(8)));
-            shipment.setArrivalDate(getCellValueAsDate(row.getCell(8)));
-            filledFieldsCount++; // Count as one since both dates are the same
-        }
+//        if (getCellValueAsDate(row.getCell(8)) != null) {
+//            shipment.setArrivalPortDate(getCellValueAsDate(row.getCell(8)));
+//            shipment.setArrivalDate(getCellValueAsDate(row.getCell(8)));
+//            filledFieldsCount++; // Count as one since both dates are the same
+//        }
         if (getCellValueAsString(row.getCell(2)) != null) {
             shipment.setSteelGrade(getCellValueAsString(row.getCell(2)));
             filledFieldsCount++;

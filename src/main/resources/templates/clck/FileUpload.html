@@ -37,15 +37,12 @@
 </head>
 <body class="layui-layout-body">
 <div class="layui-container">
-    <h2>选择文件进行导入</h2>
-    <input type="file" id="excelFile" accept=".xlsx, .xls" class="layui-btn">
-    <br><br>
     <!-- Form for additional fields -->
     <form class="layui-form" action="javascript:uploadFile()">
         <div class="layui-form-item">
             <label class="layui-form-label">发票编号:</label>
             <div class="layui-input-inline">
-                <input type="text" id="invoiceNumber" name="invoiceNumber" required lay-verify="required" placeholder="请输入发票编号" class="layui-input" autocomplete="off">
+                <input type="text" id="invoiceNumber" name="invoiceNumber"  placeholder="请输入发票编号" class="layui-input" autocomplete="off">
             </div>
             <label class="layui-form-label">到货点:</label>
             <div class="layui-input-inline">
@@ -54,28 +51,26 @@
                     <option value="SAB" >SAB</option>
                 </select>
             </div>
-        </div>
-        <div class="layui-form-item">
             <label class="layui-form-label">客户:</label>
             <div class="layui-input-inline">
-                <select name="customer" id="customer">
+                <select name="customer" id="customer" required lay-verify="required">
                     <option value="" selected>搜索客户</option>
                     <option th:each="customer : ${customers}"
                             th:value="${customer.name}"
                             th:text="${customer.name}"></option>
                 </select>
             </div>
+        </div>
+        <div class="layui-form-item">
             <label class="layui-form-label">贸易方式:</label>
             <div class="layui-input-inline">
                 <select name="tradeMode" id="tradeMode" required lay-verify="required">
-                    <option value="a" selected>请选择贸易方式</option>
+                    <option value="" selected>请选择贸易方式</option>
                     <option value="A" >A</option>
                     <option value="B" >B</option>
                     <option value="C" >C</option>
                 </select>
             </div>
-        </div>
-        <div class="layui-form-item">
             <label class="layui-form-label">到港日期:</label>
             <div class="layui-input-inline">
                 <input id="arrivalPortDate" name="arrivalPortDate" placeholder="请输入到港日期" required lay-verify="required" class="layui-input" autocomplete="off">
@@ -84,10 +79,24 @@
             <div class="layui-input-inline">
                 <input id="arrivalDate" name="arrivalDate"  placeholder="请输入到达日期" required lay-verify="required" class="layui-input" autocomplete="off">
             </div>
+            <label class="layui-form-label">购买方:</label>
+            <div class="layui-input-inline">
+                <select name="tradeMode" id="purchaser" required lay-verify="required">
+                    <option value="" selected>请选择购买方</option>
+                    <option value="浙江旭日绵轴承有限公司" >浙江旭日绵轴承有限公司</option>
+                    <option value="浙江旭日轴承有限公司" >浙江旭日轴承有限公司</option>
+                    <option value="日本旭" >日本旭</option>
+                </select>
+            </div>
         </div>
+        <div style="display: flex; justify-content: center; align-items: center;  flex-direction: column;">
+            <h3 style="margin: 10px 0;">选择文件进行导入</h3>
+            <input type="file" id="excelFile" accept=".xlsx, .xls">
+        </div>
+        <br><br>
         <div class="layui-form-item">
-            <div class="layui-input-block">
-                <button type="submit" class="layui-btn" lay-submit>导入</button>
+            <div class="layui-input-block" style="display: flex; justify-content: end">
+                <button type="submit" class="layui-btn" lay-submit>生成二维码</button>
                 <button type="button" class="layui-btn layui-btn-primary" onclick="printQRCode()">打印二维码</button>
             </div>
         </div>
@@ -120,6 +129,7 @@
         formData.append("customer", document.getElementById('customer').value);
         formData.append("tradeMode", document.getElementById('tradeMode').value);
         formData.append("deliveryPoint", document.getElementById('deliveryPoint').value);
+        formData.append("purchaser", document.getElementById('purchaser').value);
         formData.append("arrivalPortDate", document.getElementById('arrivalPortDate').value);
         formData.append("arrivalDate", document.getElementById('arrivalDate').value);
         fetch('/upload', {
@@ -164,7 +174,8 @@
                     {field: 'operationType', title: '操作类型'},
                     {field: 'supplierBatchNumber', title: '供应商生产批号'},
                     {field: 'bundleCount', title: '支数'},
-                    {field: 'placementArea', title: '放置区域'}
+                    {field: 'placementArea', title: '放置区域'},
+                    {field: 'purchaser', title: '购买方'},
                 ]]
             });
         });
@@ -190,21 +201,25 @@
             textDiv.style.marginLeft = '5px'; // Space between QR code and text
             textDiv.innerHTML = `
                              <strong>日期:</strong> ${formatDate(shipment.arrivalDate)}<br>
-                             <strong>Customer:</strong> ${shipment.customer}<br>
-                             <strong>Furnace Number:</strong> ${shipment.furnaceNumber}<br>
-                             <strong>Bundle Count:</strong> ${shipment.bundleCount}<br>
-                             <strong>Weight:</strong> ${shipment.weight}<br>
-                             <strong>Supplier BatchNumber:</strong> ${shipment.supplierBatchNumber}<br>
-                             <strong>Steel Mill:</strong> ${shipment.steelMill}`;
+                             <strong>钢厂:</strong> ${shipment.steelMill}<br>
+                             <strong>钢材等级:</strong> ${shipment.steelGrade}<br>
+                             <strong>炉号:</strong> ${shipment.furnaceNumber}<br>
+                             <strong>重量:</strong> ${shipment.weight}<br>
+                             <strong>购买方:</strong> ${shipment.purchaser}<br>
+                             <strong>贸易方式:</strong> ${shipment.tradeMode}`;
             $(qrDiv).qrcode({
                 text: Object.values({
                     arrival_date:formatDate(shipment.arrivalDate),
-                    furnaceNumber: shipment.furnaceNumber,
-                    customer: shipment.customer,
-                    bundleCount: shipment.bundleCount,
                     steelMill: shipment.steelMill,
-                    supplierBatchNumber: shipment.supplierBatchNumber,
-                    weight: shipment.weight
+                    steel_grade: shipment.steelGrade,
+                    furnaceNumber: shipment.furnaceNumber,
+                    weight: shipment.weight,
+                    bundleCount: shipment.bundleCount,
+                    purchaser: shipment.purchaser,
+                    trade_mode: shipment.trade_mode,
+                    customer: shipment.customer,
+                    delivery_point: shipment.delivery_point,
+                    supplierBatchNumber: shipment.supplierBatchNumber
                 }).join('|'),
                 width: 128,
                 height: 128,
@@ -214,6 +229,7 @@
             containerDiv.appendChild(qrDiv); // Append the QR code to the container
             containerDiv.appendChild(textDiv); // Append the text to the container
             qrcodeDisplayArea.appendChild(containerDiv); // Append the container to the QR code display area
+
         });
     }
 

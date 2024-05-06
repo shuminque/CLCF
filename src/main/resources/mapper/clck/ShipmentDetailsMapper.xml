@@ -20,17 +20,18 @@
         <result column="supplier_batch_number" property="supplierBatchNumber" />
         <result column="bundle_count" property="bundleCount" jdbcType="INTEGER" />
         <result column="placement_area" property="placementArea" />
+        <result column="purchaser" property="purchaser" />
     </resultMap>
     <!-- 插入操作 -->
     <insert id="insertShipmentDetail" parameterType="com.depository_manage.entity.ShipmentDetails">
         INSERT INTO shipment_details (
             invoice_number, customer, trade_mode, delivery_point, arrival_port_date,
             arrival_date, steel_grade, dimensions, weight, steel_mill, furnace_number, invoice_application,
-            operation_type, supplier_batch_number, bundle_count, placement_area
+            operation_type, supplier_batch_number, bundle_count, placement_area, purchaser
         ) VALUES (
                      #{invoiceNumber}, #{customer}, #{tradeMode}, #{deliveryPoint}, #{arrivalPortDate},
                      #{arrivalDate}, #{steelGrade}, #{dimensions}, #{weight}, #{steelMill}, #{furnaceNumber}, #{invoiceApplication},
-                     #{operationType}, #{supplierBatchNumber}, #{bundleCount}, #{placementArea}
+                     #{operationType}, #{supplierBatchNumber}, #{bundleCount}, #{placementArea}, #{purchaser}
                  )
     </insert>
     <!-- Batch insert operation -->
@@ -38,14 +39,14 @@
         INSERT INTO shipment_details (
         invoice_number, customer, trade_mode, delivery_point, arrival_port_date,
         arrival_date, steel_grade, dimensions, weight, steel_mill, furnace_number, invoice_application,
-        operation_type, supplier_batch_number, bundle_count, placement_area
+        operation_type, supplier_batch_number, bundle_count, placement_area, purchaser
         ) VALUES
         <foreach collection="list" item="detail" separator=",">
             (
             #{detail.invoiceNumber}, #{detail.customer}, #{detail.tradeMode}, #{detail.deliveryPoint},
             #{detail.arrivalPortDate}, #{detail.arrivalDate}, #{detail.steelGrade}, #{detail.dimensions}, #{detail.weight},
             #{detail.steelMill}, #{detail.furnaceNumber}, #{detail.invoiceApplication},
-            #{detail.operationType}, #{detail.supplierBatchNumber}, #{detail.bundleCount}, #{detail.placementArea}
+            #{detail.operationType}, #{detail.supplierBatchNumber}, #{detail.bundleCount}, #{detail.placementArea}, #{detail.purchaser}
             )
         </foreach>
     </insert>
@@ -78,7 +79,8 @@
             operation_type = #{operationType},
             supplier_batch_number = #{supplierBatchNumber},
             bundle_count = #{bundleCount},
-            placement_area = #{placementArea}
+            placement_area = #{placementArea},
+            purchaser= #{purchaser}
         WHERE id = #{id}
     </update>
 
