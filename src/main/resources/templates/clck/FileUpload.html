@@ -98,12 +98,21 @@
                 <input id="arrivalDate" name="arrivalDate"  placeholder="请输入到达日期" required lay-verify="required" class="layui-input" autocomplete="off">
             </div>
             <label class="layui-form-label">购买方:</label>
-            <div class="layui-input-inline">
+            <div class="layui-input-inline" style="width: 140px">
                 <select name="tradeMode" id="purchaser" required lay-verify="required">
                     <option value="" selected>请选择购买方</option>
                     <option th:each="purchaser : ${purchasers}"
                             th:value="${purchaser.purchaser}"
                             th:text="${purchaser.purchaser}"></option>
+                </select>
+            </div>
+            <label class="layui-form-label">尺寸:</label>
+            <div class="layui-input-inline"  style="width: 140px">
+                <select name="steelType" id="steelSize">
+                    <option value="" selected>搜索尺寸</option>
+                    <option th:each="steel_size : ${steelSizes}"
+                            th:value="${steel_size.size}"
+                            th:text="${steel_size.size}"></option>
                 </select>
             </div>
         </div>

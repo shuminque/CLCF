@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.depository_manage.mapper.cpck.SteelSizeMapper">
+    <resultMap id="SteelSizeMap" type="com.depository_manage.entity.SteelSize">
+        <id property="id" column="id" />
+        <result property="size" column="size" />
+    </resultMap>
+
+    <select id="findAll" resultMap="SteelSizeMap">
+        SELECT * FROM steel_size order by size
+    </select>
+
+    <select id="findById" parameterType="int" resultMap="SteelSizeMap">
+        SELECT * FROM steel_size WHERE id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="com.depository_manage.entity.SteelSize">
+        INSERT INTO steel_size (size)
+        VALUES (#{size})
+    </insert>
+
+    <update id="update" parameterType="com.depository_manage.entity.SteelSize">
+        UPDATE steel_size
+        SET size = #{size}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="int">
+        DELETE FROM steel_size WHERE id = #{id}
+    </delete>
+</mapper>

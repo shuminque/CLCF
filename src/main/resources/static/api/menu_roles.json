@@ -194,6 +194,13 @@
                             "roles": ["SAB_cg","SAB_sh","ZAB_cg","ZAB_sh","ALL"]
                         },
                         {
+                            "title": "尺寸信息",
+                            "href": "/bearing-steel-size",
+                            "icon": "layui-icon layui-icon-engine",
+                            "target": "_self",
+                            "roles": ["SAB_cg","SAB_sh","ZAB_cg","ZAB_sh","ALL"]
+                        },
+                        {
                             "title": "客户信息",
                             "href": "/customer-management",
                             "icon": "layui-icon layui-icon-user",
