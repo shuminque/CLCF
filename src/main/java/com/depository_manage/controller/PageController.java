@@ -2,6 +2,7 @@ package com.depository_manage.controller;
 
 import com.depository_manage.security.bean.UserToken;
 import com.depository_manage.service.*;
+import com.depository_manage.service.clck.PurchaserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,6 +39,8 @@ public class PageController {
     private SteelTypeService steelTypeService;
     @Autowired
     private CustomerService customerService;
+    @Autowired
+    private PurchaserService purchaserService;
     @GetMapping("/login")
     public String login() {
         return "pages/user/login";
@@ -50,7 +53,7 @@ public class PageController {
         mv.addObject("steelGrades", steelGradeService.findAll());
         mv.addObject("steelTypes", steelTypeService.findAll());
         mv.addObject("customers", customerService.findAll());
-
+        mv.addObject("purchasers", purchaserService.findAll());
         return mv;
     }
     @GetMapping("/s1")

@@ -45,7 +45,7 @@
                 <input type="text" id="invoiceNumber" name="invoiceNumber"  placeholder="请输入发票编号" class="layui-input" autocomplete="off">
             </div>
             <label class="layui-form-label">到货点:</label>
-            <div class="layui-input-inline">
+            <div class="layui-input-inline" style="width: 80px">
                 <select name="deliveryPoint" id="deliveryPoint" required lay-verify="required">
                     <option value="ZAB" selected>ZAB</option>
                     <option value="SAB" >SAB</option>
@@ -60,6 +60,24 @@
                             th:text="${customer.name}"></option>
                 </select>
             </div>
+            <label class="layui-form-label">钢材等级:</label>
+            <div class="layui-input-inline"  style="width: 120px">
+                <select name="steelGrade" id="steelGrade" required lay-verify="required">
+                    <option value="" selected>选择钢等</option>
+                    <option th:each="steel_grade : ${steelGrades}"
+                            th:value="${steel_grade.grade}"
+                            th:text="${steel_grade.grade}"></option>
+                </select>
+            </div>
+            <label class="layui-form-label">钢厂:</label>
+            <div class="layui-input-inline"  style="width: 140px">
+                <select name="steelType" id="steelType">
+                    <option value="" selected>搜索钢种</option>
+                    <option th:each="steel_type : ${steelTypes}"
+                            th:value="${steel_type.name}"
+                            th:text="${steel_type.name}"></option>
+                </select>
+            </div>
         </div>
         <div class="layui-form-item">
             <label class="layui-form-label">贸易方式:</label>
@@ -72,20 +90,20 @@
                 </select>
             </div>
             <label class="layui-form-label">到港日期:</label>
-            <div class="layui-input-inline">
+            <div class="layui-input-inline" style="width: 130px">
                 <input id="arrivalPortDate" name="arrivalPortDate" placeholder="请输入到港日期" required lay-verify="required" class="layui-input" autocomplete="off">
             </div>
             <label class="layui-form-label">到达日期:</label>
-            <div class="layui-input-inline">
+            <div class="layui-input-inline" style="width: 130px">
                 <input id="arrivalDate" name="arrivalDate"  placeholder="请输入到达日期" required lay-verify="required" class="layui-input" autocomplete="off">
             </div>
             <label class="layui-form-label">购买方:</label>
             <div class="layui-input-inline">
                 <select name="tradeMode" id="purchaser" required lay-verify="required">
                     <option value="" selected>请选择购买方</option>
-                    <option value="浙江旭日绵轴承有限公司" >浙江旭日绵轴承有限公司</option>
-                    <option value="浙江旭日轴承有限公司" >浙江旭日轴承有限公司</option>
-                    <option value="日本旭" >日本旭</option>
+                    <option th:each="purchaser : ${purchasers}"
+                            th:value="${purchaser.purchaser}"
+                            th:text="${purchaser.purchaser}"></option>
                 </select>
             </div>
         </div>
@@ -204,7 +222,7 @@
                              <strong>钢厂:</strong> ${shipment.steelMill}<br>
                              <strong>钢材等级:</strong> ${shipment.steelGrade}<br>
                              <strong>炉号:</strong> ${shipment.furnaceNumber}<br>
-                             <strong>重量:</strong> ${shipment.weight}<br>
+                             <strong>重量:</strong> ${shipment.weight}<span></span><strong>尺寸:</strong> ${shipment.dimensions}<br>
                              <strong>购买方:</strong> ${shipment.purchaser}<br>
                              <strong>贸易方式:</strong> ${shipment.tradeMode}`;
             $(qrDiv).qrcode({
