@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>库位管理</title>
+    <!-- LayUI CSS -->
+    <link rel="stylesheet" href="/static/lib/layui-v2.8.17/css/layui.css" media="all">
+    <!-- jQuery 库 -->
+    <script src="/static/js/http_ajax.googleapis.com_ajax_libs_jquery_3.5.1_jquery.js"></script>
+    <script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <button id="addSteelTypeBtn" class="layui-btn">添加库位</button>
+    <div style="display: flex; align-items: flex-start;">
+        <div>
+            <h3 data-area="A" class="area-title">A区: 二车间前面雨棚</h3>
+            <h3 data-area="B" class="area-title">B区: 二车间切断房 棒材领料区</h3>
+            <h3 data-area="C" class="area-title">C区: 二车间后 棒材仓库</h3>
+        </div>
+        <div style="margin-left: 20px;">
+            <h3 data-area="D" class="area-title">D区: 二车间后 锻体仓库</h3>
+            <h3 data-area="E" class="area-title">E区: 一车间前 管材领料区</h3>
+            <h3 data-area="F" class="area-title">F区: 一车间前 管材仓库</h3>
+        </div>
+    </div>
+    <br>
+    <table id="areaTable" lay-filter="areaTableFilter"></table>
+</div>
+<script type="text/html" id="actionBar">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="delete">删除</a>
+</script>
+
+<div id="addSteelTypeForm" style="display: none; padding: 20px;">
+    <form class="layui-form" lay-filter="addForm">
+        <div class="layui-form-item">
+            <label class="layui-form-label">库位：</label>
+            <div class="layui-input-block">
+                <input type="text" name="area" required lay-verify="required" placeholder="请输入库位" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">备注：</label>
+            <div class="layui-input-block">
+                <input type="text" name="introduce" placeholder="请输入备注" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button type="submit" class="layui-btn" lay-submit lay-filter="submitAddForm">提交</button>
+            </div>
+        </div>
+    </form>
+</div>
+<!-- 编辑钢材种类的表单模板 -->
+<script type="text/template" id="editGradeModelTemplate">
+    <form class="layui-form" lay-filter="editGradeFormFilter">
+        <div class="layui-form-item">
+            <label class="layui-form-label">编号：</label>
+            <div class="layui-input-block">
+                <input type="text" name="id" required class="layui-input" readonly>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">库位：</label>
+            <div class="layui-input-block">
+                <input type="text" name="area" required lay-verify="required" placeholder="请输入库位" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">备注：</label>
+            <div class="layui-input-block">
+                <input type="text" name="introduce"  placeholder="请输入备注" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item" style="text-align: center;">
+            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="editGradeSubmitBtnFilter">
+                更新
+            </button>
+        </div>
+    </form>
+</script>
+<script>
+    layui.use(['table', 'form', 'layer', 'jquery'], function(){
+        var table = layui.table;
+        var form = layui.form;
+        var layer = layui.layer;
+        var $ = layui.jquery;
+        table.render({
+            elem: '#areaTable',
+            url: '/areas/',
+            where: {},
+            parseData: function(res) {
+                return {
+                    "code": 0,
+                    "msg": "",
+                    "count": res.length,
+                    "data": res
+                };
+            },
+            cols: [ [
+                {field: 'id', title: 'ID', sort: true},
+                {field: 'area', title: '库位', sort: true},
+                {field: 'introduce', title: '备注'},
+                {title: '操作', toolbar: '#actionBar'}
+            ]],
+            limits: [100,200,500],
+            limit: 100,
+            page: true,
+            done: function(res, curr, count) {
+                if (this.where && this.where.area) {
+                    // 如果有过滤条件，高亮显示匹配行
+                    $("#areaTable").next(".layui-table-view").find('.layui-table-body tr').each(function() {
+                        var $row = $(this);
+                        var rowData = table.cache['areaTable'][$row.index()];
+                        if (rowData && rowData.area.startsWith(this.where.area)) {
+                            $row.css("background-color", "#FFF0F5"); // 设置高亮颜色
+                        }
+                    });
+                }
+            }
+        });
+        $('.area-title').on('click', function() {
+            var area = $(this).data('area'); // 获取点击的区域
+            table.reload('areaTable', {
+                where: {area: area}
+            });
+        });
+
+
+        $('#addSteelTypeBtn').click(function() {
+            layer.open({
+                type: 1,
+                title: '添加库位',
+                content: $('#addSteelTypeForm'),
+                area: ['500px', '300px']
+            });
+        });
+
+        form.on('submit(submitAddForm)', function(data) {
+            var formData = data.field;
+            // 发送 AJAX 请求到服务器
+            $.ajax({
+                url: '/areas/', // 服务器端的添加分类接口
+                type: 'POST',
+                contentType: 'application/json', // 发送数据的格式
+                data: JSON.stringify(formData), // 将表单数据转换为 JSON 字符串
+                success: function(response) {
+                    // 这里处理请求成功的情况
+                    console.log(response); // 打印服务器返回的数据
+                    layer.msg('添加成功！', {icon: 1, time: 2000}); // 弹出成功消息
+                    table.reload('areaTable'); // 重新加载表格数据
+                },
+                error: function(xhr, status, error) {
+                    // 这里处理请求失败的情况
+                    console.error(error); // 打印错误信息
+                    layer.msg('添加失败！', {icon: 2, time: 2000}); // 弹出失败消息
+                },
+                complete: function () {
+                    form.val("addForm",{
+                        'id':"",
+                        'area':"",
+                        'introduce':""
+                    })
+                }
+            });
+            return false;
+        });
+
+        table.on('tool(areaTableFilter)', function(obj) {
+            var data = obj.data;
+            var layEvent = obj.event;
+            if (layEvent === 'edit') {
+                editArea(data);
+            } else if (layEvent === 'delete') {
+                deleteArea(data.id);
+            }
+        });
+
+        function editArea(data) {
+            // 打开弹出层
+            layer.open({
+                type: 1,
+                title: '编辑',
+                content: $('#editGradeModelTemplate').html(), // 使用模板的内容
+                area: ['500px', '300px'],
+                success: function(layero, index) {
+                    // 使用 layui.form 来填充表单数据
+                    layui.form.val('editGradeFormFilter', {
+                        'id': data.id,
+                        'area': data.area,
+                        'introduce': data.introduce
+                    });
+                    layui.form.render();
+                }
+            });
+        }
+        // 监听编辑表单的提交事件
+        layui.form.on('submit(editGradeSubmitBtnFilter)', function(data) {
+            var formData = data.field; // 获取表单数据
+            // 发送 AJAX 请求来更新数据
+            $.ajax({
+                url: '/areas/' + formData.id, // 假设这是更新分类的接口
+                type: 'PUT', // 使用 PUT 方法更新
+                contentType: 'application/json', // 发送数据的格式
+                data: JSON.stringify(formData), // 将表单数据转换为 JSON 字符串
+                success: function(response) {
+                    layer.close(this.layerIndex);
+                    // 处理请求成功的情况
+                    layer.msg('更新成功！', {icon: 1, time: 3000});
+                    table.reload('areaTable'); // 重新加载表格数据
+                    layer.closeAll(); // 关闭所有弹出层
+                },
+                error: function(xhr, status, error) {
+                    // 处理请求失败的情况
+                    layer.msg('更新失败！', {icon: 2, time: 3000});
+                }
+            });
+            return false; // 阻止表单跳转
+        });
+        function deleteArea(id) {
+            layer.confirm('确定要删除吗？', function (index) {
+                $.ajax({
+                    url: '/areas/' + id,
+                    type: 'DELETE',
+                    success: function(res) {
+                        layer.msg('删除成功！');
+                        layui.table.reload('areaTable'); // 重新加载表格
+                    },
+                    error: function(err) {
+                        layer.msg('删除失败！');
+                    }
+                });
+                layer.close(index);
+            });
+        }
+    });
+</script>
+</body>
+</html>

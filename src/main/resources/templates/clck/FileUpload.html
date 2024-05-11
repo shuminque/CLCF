@@ -83,10 +83,10 @@
             <label class="layui-form-label">贸易方式:</label>
             <div class="layui-input-inline">
                 <select name="tradeMode" id="tradeMode" required lay-verify="required">
-                    <option value="" selected>请选择贸易方式</option>
-                    <option value="A" >A</option>
-                    <option value="B" >B</option>
-                    <option value="C" >C</option>
+                    <option value="" selected>选择方式</option>
+                    <option th:each="trade_mode : ${tradeModes}"
+                            th:value="${trade_mode.mode}"
+                            th:text="${trade_mode.mode}"></option>
                 </select>
             </div>
             <label class="layui-form-label">到港日期:</label>

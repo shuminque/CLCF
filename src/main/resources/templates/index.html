@@ -174,7 +174,7 @@
                 // $.getJSON("/static/api/" + (role === "onlyRead" ? "menu_onlyRead.json" : "menu_roles.json"), function(menuData) {
                 $.getJSON("/static/api/menu_roles.json", function(menuData) {
                     if (userDepositoryId === 0) {
-                        menuData.logoInfo.title = "综合仓库";
+                        menuData.logoInfo.title = "材料仓库";
                     } else if (userDepositoryId === 1) {
                         menuData.logoInfo.title = "SAB";
                     } else if (userDepositoryId === 2) {

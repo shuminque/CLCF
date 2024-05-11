@@ -4,7 +4,7 @@
         "href": "/welcome"
     },
     "logoInfo": {
-        "title": "综合仓库",
+        "title": "材料仓库",
         "image": "static/images/xuri-logo.jpeg",
         "href": "/index#//welcome"
     },
@@ -166,6 +166,13 @@
                     ],
                     "child": [
                         {
+                            "title": "库位信息",
+                            "href": "/area",
+                            "icon": "layui-icon layui-icon-file",
+                            "target": "_self",
+                            "roles": ["SAB_cg","SAB_sh","ZAB_cg","ZAB_sh","ALL"]
+                        },
+                        {
                             "title": "成品信息",
                             "href": "/bearings",
                             "icon": "layui-icon layui-icon-file",
@@ -208,11 +215,11 @@
                             "roles": ["SAB_cg","SAB_sh","ZAB_cg","ZAB_sh","ALL"]
                         },
                         {
-                            "title": "IDS信息",
-                            "href": "/bearing-ids",
+                            "title": "贸易方式信息",
+                            "href": "/trade-mode",
                             "icon": "layui-icon layui-icon-file",
                             "target": "_self",
-                            "roles": ["ALL"]
+                            "roles": ["SAB_cg","SAB_sh","ZAB_cg","ZAB_sh","ALL"]
                         },
                         {
                             "title": "厂区信息",

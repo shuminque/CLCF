@@ -50,7 +50,8 @@ public class FileUploadController {
             Sheet sheet = workbook.getSheetAt(0); // Assuming there is at least one sheet
             for (Row row : sheet) {
                 if (row.getRowNum() == 0) continue; // Skip header row
-                ShipmentDetails shipment = parseShipmentDetails(row,invoiceNumber, customer,tradeMode,deliveryPoint,purchaser,arrivalPortDate,arrivalDate);
+                ShipmentDetails shipment = parseShipmentDetails(row,invoiceNumber, customer,tradeMode,deliveryPoint,purchaser,
+                        arrivalPortDate,arrivalDate);
                 if (shipment != null) {
                     shipments.add(shipment);
                 }
@@ -77,11 +78,6 @@ public class FileUploadController {
             shipment.setArrivalPortDate(arrivalPortDate);
             shipment.setArrivalDate(arrivalDate);
 
-//        if (getCellValueAsDate(row.getCell(8)) != null) {
-//            shipment.setArrivalPortDate(getCellValueAsDate(row.getCell(8)));
-//            shipment.setArrivalDate(getCellValueAsDate(row.getCell(8)));
-//            filledFieldsCount++; // Count as one since both dates are the same
-//        }
         if (getCellValueAsString(row.getCell(2)) != null) {
             shipment.setSteelGrade(getCellValueAsString(row.getCell(2)));
             filledFieldsCount++;
@@ -106,20 +102,12 @@ public class FileUploadController {
             shipment.setInvoiceApplication(getCellValueAsString(row.getCell(10)));
             filledFieldsCount++;
         }
-
-            shipment.setOperationType("入库");
-            filledFieldsCount++;
-
         if (getCellValueAsString(row.getCell(4)) != null) {
             shipment.setSupplierBatchNumber(getCellValueAsString(row.getCell(4)));
             filledFieldsCount++;
         }
         if (getCellValueAsInteger(row.getCell(7)) != null) {
             shipment.setBundleCount(getCellValueAsInteger(row.getCell(7)));
-            filledFieldsCount++;
-        }
-        if (getCellValueAsString(row.getCell(12)) != null) {
-            shipment.setPlacementArea(getCellValueAsString(row.getCell(12)));
             filledFieldsCount++;
         }
         if (filledFieldsCount < 7) {
