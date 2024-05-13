@@ -2,6 +2,7 @@ package com.depository_manage.controller;
 
 import com.depository_manage.security.bean.UserToken;
 import com.depository_manage.service.*;
+import com.depository_manage.service.clck.AreaService;
 import com.depository_manage.service.clck.PurchaserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -45,6 +46,8 @@ public class PageController {
     private PurchaserService purchaserService;
     @Autowired
     private TradeModeService  tradeModeService;
+    @Autowired
+    private AreaService areaService;
     @GetMapping("/login")
     public String login() {
         return "pages/user/login";
@@ -60,6 +63,13 @@ public class PageController {
         mv.addObject("purchasers", purchaserService.findAll());
         mv.addObject("steelSizes", steelSizeService.findAll());
         mv.addObject("tradeModes", tradeModeService.findAll());
+        return mv;
+    }
+    @GetMapping("/pda1")
+    public ModelAndView pda(Map<String, Object> params) {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName( "clck/pdapage/pda");
+        mv.addObject("areas",areaService.findAll(params));
         return mv;
     }
     @GetMapping("/area")

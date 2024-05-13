@@ -108,7 +108,7 @@
             </div>
             <label class="layui-form-label">尺寸:</label>
             <div class="layui-input-inline"  style="width: 140px">
-                <select name="steelType" id="steelSize">
+                <select name="steelSize" id="steelSize">
                     <option value="" selected>搜索尺寸</option>
                     <option th:each="steel_size : ${steelSizes}"
                             th:value="${steel_size.size}"
@@ -159,6 +159,9 @@
         formData.append("purchaser", document.getElementById('purchaser').value);
         formData.append("arrivalPortDate", document.getElementById('arrivalPortDate').value);
         formData.append("arrivalDate", document.getElementById('arrivalDate').value);
+        formData.append("steelGrade", document.getElementById('steelGrade').value);
+        formData.append("steelType", document.getElementById('steelType').value);
+        formData.append("steelSize", document.getElementById('steelSize').value);
         fetch('/upload', {
             method: 'POST',
             body: formData
@@ -226,6 +229,7 @@
             let qrDiv = document.createElement('div'); // Div for the QR code
             let textDiv = document.createElement('div'); // Div for the text description
             textDiv.style.marginLeft = '5px'; // Space between QR code and text
+            textDiv.style.fontSize = '20px';
             textDiv.innerHTML = `
                              <strong>日期:</strong> ${formatDate(shipment.arrivalDate)}<br>
                              <strong>钢厂:</strong> ${shipment.steelMill}<br>
@@ -248,8 +252,8 @@
                     delivery_point: shipment.delivery_point,
                     supplierBatchNumber: shipment.supplierBatchNumber
                 }).join('|'),
-                width: 128,
-                height: 128,
+                width: 180,
+                height: 180,
                 correctLevel: 3
             });
 

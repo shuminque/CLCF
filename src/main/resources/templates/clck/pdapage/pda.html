@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+  <link rel="stylesheet" href="/static/lib/layui-v2.8.17/css/layui.css" media="all">
+  <script type="text/javascript" src="/static/js/jquery-2.1.0.js" charset="utf-8"></script>
+
+  <style>
+    body, html {
+      height: 100%;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    }
+    .container, .area-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+    }
+    .button {
+      transition: transform 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 80%;  /* Larger width for bigger buttons */
+      margin-bottom: 1rem; /* Space between buttons */
+    }
+    .button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    }
+    .area-title {
+      color: #4A4A4A; /* Dark gray for better visibility */
+      margin: 10px 0; /* Space around titles */
+    }
+    .area-select {
+      margin: 20px 0;
+      width: 50%;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+  </style>
+  <title>PDA仓库管理</title>
+</head>
+<body>
+<section class="section">
+  <div class="area-container">
+    <div class="columns">
+      <div class="column" >
+        <h3 class="area-title" data-area="A">A区: 二车间前面雨棚</h3>
+        <h3 class="area-title" data-area="B">B区: 二车间切断房 棒材领料区</h3>
+        <h3 class="area-title" data-area="C">C区: 二车间后 棒材仓库</h3>
+      </div>
+      <div class="column">
+        <h3 class="area-title" data-area="D">D区: 二车间后 锻体仓库</h3>
+        <h3 class="area-title" data-area="E">E区: 一车间前 管材领料区</h3>
+        <h3 class="area-title" data-area="F">F区: 一车间前 管材仓库</h3>
+      </div>
+    </div>
+    <select class="input area-select" name="area" id="area">
+      <option value="" selected>选择库位</option>
+      <option th:each="placement_area : ${areas}"
+              th:value="${placement_area.area}"
+              th:text="${placement_area.area}"></option>
+    </select>
+  </div>
+  <div class="container">
+    <button class="button is-link" onclick="showModal('stockIn')">入库</button>
+    <button class="button is-link" onclick="showModal('stockOut')">出库</button>
+    <button class="button is-link" onclick="showModal('transfer')">转库</button>
+  </div>
+</section>
+<!-- 模态框的内容，放在页面的某个位置 -->
+<div id="scanModalContent" style="display: none;">
+  <div style="text-align: center; margin-top: 20px;">
+    <!--        <button class="layui-btn layui-btn-normal" onclick="processScannedData()">确认</button>-->
+    <button class="layui-btn layui-btn-normal" onclick="closeModal()">取消</button>
+  </div>
+  <input type="text" id="modalScanInput" placeholder="扫描数据" class="layui-input" autocomplete="off">
+</div>
+</body>
+<script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script>
+
+<script>
+  var isListenerAdded = false;
+  function showModal(operation) {
+    currentOperation = operation;
+    openModal();
+    var modalScanInput = document.getElementById('modalScanInput');
+    modalScanInput.focus(); // 自动聚焦到输入框
+    // 只有在监听器尚未添加的情况下才添加新的监听器
+    if (!isListenerAdded) {
+      modalScanInput.addEventListener('keydown', handleEnterKey);
+      isListenerAdded = true;
+    }
+  }
+  function handleEnterKey(event) {
+    console.log("Enter key pressed");
+    if (event.key === 'Enter') {
+      // 模拟点击确认按钮
+      processScannedData();
+    }
+  }
+  function openModal() {
+    layer.open({
+      type: 1, // 弹出层类型，1 表示页面层
+      title: '扫描二维码', // 标题
+      content: $('#scanModalContent'), // 弹出层内容
+      shadeClose: true, // 设置点击遮罩层关闭弹出层
+      area: ['80%', '40%'], // 设置弹出层大小
+      // 弹出层关闭时的回调
+      cancel: function() {
+        document.getElementById('modalScanInput').value = ''; // 清空输入框
+      },
+      // 弹出层销毁时的回调
+      end: function() {
+        document.getElementById('modalScanInput').value = ''; // 清空输入框
+      }
+    });
+  }
+  function closeModal() {
+    // 清空输入框
+    document.getElementById('modalScanInput').value = '';
+    // 移除事件监听器
+    var modalScanInput = document.getElementById('modalScanInput');
+    if (isListenerAdded) {
+      modalScanInput.removeEventListener('keydown', handleEnterKey);
+      isListenerAdded = false;
+    }
+      currentOperation = null;
+    layer.closeAll();
+  }
+</script>
+</html>

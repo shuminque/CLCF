@@ -36,7 +36,10 @@ public class FileUploadController {
                                                                   @RequestParam("deliveryPoint") String deliveryPoint,
                                                                   @RequestParam("purchaser") String purchaser,
                 @RequestParam("arrivalPortDate") @DateTimeFormat(pattern="yyyy-MM-dd") Date arrivalPortDate,
-                @RequestParam("arrivalDate") @DateTimeFormat(pattern="yyyy-MM-dd") Date arrivalDate){
+                @RequestParam("arrivalDate") @DateTimeFormat(pattern="yyyy-MM-dd") Date arrivalDate,
+                                                                  @RequestParam("steelGrade") String steelGrade,
+                                                                  @RequestParam("steelType") String steelType,
+                                                                  @RequestParam("steelSize") String steelSize){
         List<ShipmentDetails> shipments = new ArrayList<>();
         try (InputStream inputStream = file.getInputStream()) {
             Workbook workbook;
@@ -51,7 +54,7 @@ public class FileUploadController {
             for (Row row : sheet) {
                 if (row.getRowNum() == 0) continue; // Skip header row
                 ShipmentDetails shipment = parseShipmentDetails(row,invoiceNumber, customer,tradeMode,deliveryPoint,purchaser,
-                        arrivalPortDate,arrivalDate);
+                        arrivalPortDate,arrivalDate,steelGrade,steelType,steelSize);
                 if (shipment != null) {
                     shipments.add(shipment);
                 }
@@ -64,7 +67,8 @@ public class FileUploadController {
         }
     }
     private ShipmentDetails parseShipmentDetails(Row row, String invoiceNumber, String customer, String tradeMode,
-                                                 String deliveryPoint, String purchaser,Date arrivalPortDate, Date arrivalDate) {
+                                                 String deliveryPoint, String purchaser,Date arrivalPortDate, Date arrivalDate,
+                                                 String steelGrade, String steelType, String steelSize) {
         if (row == null) {
             return null;
         }
@@ -78,22 +82,19 @@ public class FileUploadController {
             shipment.setArrivalPortDate(arrivalPortDate);
             shipment.setArrivalDate(arrivalDate);
 
-        if (getCellValueAsString(row.getCell(2)) != null) {
-            shipment.setSteelGrade(getCellValueAsString(row.getCell(2)));
+            shipment.setSteelGrade(steelGrade);
             filledFieldsCount++;
-        }
-        if (getCellValueAsString(row.getCell(3)) != null) {
-            shipment.setDimensions(getCellValueAsString(row.getCell(3)));
+
+            shipment.setDimensions(steelSize);
             filledFieldsCount++;
-        }
+
         if (getCellValueAsDouble(row.getCell(6)) != null) {
             shipment.setWeight(getCellValueAsDouble(row.getCell(6)));
             filledFieldsCount++;
         }
-        if (getCellValueAsString(row.getCell(2)) != null) {
-            shipment.setSteelMill(getCellValueAsString(row.getCell(2)));
+            shipment.setSteelMill(steelType);
             filledFieldsCount++;
-        }
+
         if (getCellValueAsString(row.getCell(5)) != null) {
             shipment.setFurnaceNumber(getCellValueAsString(row.getCell(5)));
             filledFieldsCount++;
