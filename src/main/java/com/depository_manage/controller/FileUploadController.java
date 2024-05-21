@@ -1,7 +1,7 @@
 package com.depository_manage.controller;
 
 import com.depository_manage.entity.ShipmentDetails;
-import com.depository_manage.service.ShipmentDetailsService;
+import com.depository_manage.service.clck.ShipmentDetailsService;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -81,20 +81,16 @@ public class FileUploadController {
             shipment.setPurchaser(purchaser);
             shipment.setArrivalPortDate(arrivalPortDate);
             shipment.setArrivalDate(arrivalDate);
-
             shipment.setSteelGrade(steelGrade);
             filledFieldsCount++;
-
             shipment.setDimensions(steelSize);
             filledFieldsCount++;
-
         if (getCellValueAsDouble(row.getCell(6)) != null) {
             shipment.setWeight(getCellValueAsDouble(row.getCell(6)));
             filledFieldsCount++;
         }
             shipment.setSteelMill(steelType);
             filledFieldsCount++;
-
         if (getCellValueAsString(row.getCell(5)) != null) {
             shipment.setFurnaceNumber(getCellValueAsString(row.getCell(5)));
             filledFieldsCount++;

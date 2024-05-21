@@ -15,4 +15,5 @@ public interface PurchaserService {
     void update(Purchaser purchaser);
 
     void deleteById(Integer id);
+
 }

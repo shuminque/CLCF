@@ -33,6 +33,22 @@
         table {
             margin-top: 20px;
         }
+        .layui-form-item {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .layui-form-item > div {
+            flex: 1 1 200px; /* 使每个输入框的最小宽度为200px */
+            margin: 2px;
+        }
+        .layui-form-item label {
+            flex: 0 0 60px; /* 固定标签的宽度 */
+        }
+        .layui-form-item .layui-input-inline {
+            flex: 1;
+        }
     </style>
 </head>
 <body class="layui-layout-body">
@@ -229,31 +245,31 @@
             let qrDiv = document.createElement('div'); // Div for the QR code
             let textDiv = document.createElement('div'); // Div for the text description
             textDiv.style.marginLeft = '5px'; // Space between QR code and text
-            textDiv.style.fontSize = '20px';
+            textDiv.style.fontSize = '18px';
             textDiv.innerHTML = `
                              <strong>日期:</strong> ${formatDate(shipment.arrivalDate)}<br>
                              <strong>钢厂:</strong> ${shipment.steelMill}<br>
                              <strong>钢材等级:</strong> ${shipment.steelGrade}<br>
                              <strong>炉号:</strong> ${shipment.furnaceNumber}<br>
-                             <strong>重量:</strong> ${shipment.weight}<span></span><strong>尺寸:</strong> ${shipment.dimensions}<br>
-                             <strong>购买方:</strong> ${shipment.purchaser}<br>
+                             <strong>尺寸:</strong> ${shipment.dimensions}<br>
+                             <strong>重量:</strong> ${shipment.weight}<span>（kg）</span><strong>购买方:</strong> ${shipment.purchaser}<br>
                              <strong>贸易方式:</strong> ${shipment.tradeMode}`;
             $(qrDiv).qrcode({
                 text: Object.values({
-                    arrival_date:formatDate(shipment.arrivalDate),
+                    arrivalDate:formatDate(shipment.arrivalDate),
                     steelMill: shipment.steelMill,
-                    steel_grade: shipment.steelGrade,
+                    steelGrade: shipment.steelGrade,
                     furnaceNumber: shipment.furnaceNumber,
                     weight: shipment.weight,
                     bundleCount: shipment.bundleCount,
                     purchaser: shipment.purchaser,
-                    trade_mode: shipment.trade_mode,
+                    tradeMode: shipment.tradeMode,
                     customer: shipment.customer,
-                    delivery_point: shipment.delivery_point,
+                    deliveryPoint: shipment.deliveryPoint,
                     supplierBatchNumber: shipment.supplierBatchNumber
                 }).join('|'),
-                width: 180,
-                height: 180,
+                width: 160,
+                height: 160,
                 correctLevel: 3
             });
 

@@ -88,5 +88,32 @@
     <delete id="deleteShipmentDetail" parameterType="int">
         DELETE FROM shipment_details WHERE id = #{id}
     </delete>
+    <update id="updateOperationTypeBySupplierBatchNumber" parameterType="map">
+        UPDATE shipment_details
+        SET operation_type = #{operationType},placement_area=#{placementArea}
+        WHERE supplier_batch_number = #{supplierBatchNumber}
+          AND (operation_type IS NULL OR operation_type = '')
+    </update>
+    <select id="findStockInBySupplierBatchNumber" parameterType="string" resultMap="shipmentDetailsMap">
+        SELECT * FROM shipment_details WHERE supplier_batch_number = #{supplierBatchNumber} AND operation_type = '入库'
+    </select>
+    <select id="findStockInOrTransferBySupplierBatchNumber" parameterType="string" resultMap="shipmentDetailsMap">
+        SELECT * FROM shipment_details
+        WHERE supplier_batch_number = #{supplierBatchNumber}
+          AND (operation_type = '入库' OR operation_type = '转库')
+        ORDER BY  id DESC
+            LIMIT 1
+    </select>
 
+    <select id="getNetStockInCountBySupplierBatchNumber" resultType="int">
+        SELECT (
+                   SELECT COUNT(*) FROM shipment_details
+                   WHERE supplier_batch_number = #{supplierBatchNumber}
+                     AND operation_type = '入库'
+               ) - (
+                   SELECT COUNT(*) FROM shipment_details
+                   WHERE supplier_batch_number = #{supplierBatchNumber}
+                     AND operation_type = '出库'
+               ) AS netStockInCount
+    </select>
 </mapper>

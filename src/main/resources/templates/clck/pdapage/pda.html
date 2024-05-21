@@ -6,7 +6,6 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
   <link rel="stylesheet" href="/static/lib/layui-v2.8.17/css/layui.css" media="all">
   <script type="text/javascript" src="/static/js/jquery-2.1.0.js" charset="utf-8"></script>
-
   <style>
     body, html {
       height: 100%;
@@ -21,22 +20,37 @@
     }
     .button {
       transition: transform 0.3s ease;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      width: 80%;  /* Larger width for bigger buttons */
-      margin-bottom: 1rem; /* Space between buttons */
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      width: 80%;
+      margin-bottom: 1rem;
     }
     .button:hover {
       transform: translateY(-3px);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
     }
     .area-title {
-      color: #4A4A4A; /* Dark gray for better visibility */
-      margin: 10px 0; /* Space around titles */
+      color: #4A4A4A;
+      margin: 10px 0;
+      padding: 10px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      text-align: center;
     }
     .area-select {
-      margin: 20px 0;
+      margin: 5px 0;
       width: 50%;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .notification {
+      display: none; /* 初始状态下隐藏 */
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 50%;
+      text-align: center;
+      z-index: 1000;
     }
   </style>
   <title>PDA仓库管理</title>
@@ -44,16 +58,16 @@
 <body>
 <section class="section">
   <div class="area-container">
-    <div class="columns">
-      <div class="column" >
-        <h3 class="area-title" data-area="A">A区: 二车间前面雨棚</h3>
-        <h3 class="area-title" data-area="B">B区: 二车间切断房 棒材领料区</h3>
-        <h3 class="area-title" data-area="C">C区: 二车间后 棒材仓库</h3>
+    <div style="display: flex; align-items: flex-start;">
+      <div>
+        <h3 data-area="A" class="area-title">A区: 二车间北面雨棚区域</h3>
+        <h3 data-area="B" class="area-title">B区: 二车间棒材领料区</h3>
+        <h3 data-area="C" class="area-title">C区: 二车间南面棒材仓库</h3>
       </div>
-      <div class="column">
-        <h3 class="area-title" data-area="D">D区: 二车间后 锻体仓库</h3>
-        <h3 class="area-title" data-area="E">E区: 一车间前 管材领料区</h3>
-        <h3 class="area-title" data-area="F">F区: 一车间前 管材仓库</h3>
+      <div style="margin-left: 20px;">
+        <h3 data-area="D" class="area-title">D区: 二车间南面锻件仓库</h3>
+        <h3 data-area="E" class="area-title">E区: 一车间管材领料区</h3>
+        <h3 data-area="F" class="area-title">F区: 一车间管材仓库</h3>
       </div>
     </div>
     <select class="input area-select" name="area" id="area">
@@ -64,70 +78,239 @@
     </select>
   </div>
   <div class="container">
-    <button class="button is-link" onclick="showModal('stockIn')">入库</button>
-    <button class="button is-link" onclick="showModal('stockOut')">出库</button>
-    <button class="button is-link" onclick="showModal('transfer')">转库</button>
+    <button class="button " onclick="prepareModal('stockIn')" aria-label="入库">入库</button>
+    <button class="button " onclick="showModal('stockOut')" aria-label="出库">出库</button>
+    <button class="button " onclick="prepareModal('transfer')" aria-label="转库">转库</button>
   </div>
 </section>
-<!-- 模态框的内容，放在页面的某个位置 -->
-<div id="scanModalContent" style="display: none;">
-  <div style="text-align: center; margin-top: 20px;">
-    <!--        <button class="layui-btn layui-btn-normal" onclick="processScannedData()">确认</button>-->
-    <button class="layui-btn layui-btn-normal" onclick="closeModal()">取消</button>
-  </div>
-  <input type="text" id="modalScanInput" placeholder="扫描数据" class="layui-input" autocomplete="off">
+<!-- Bulma 通知 -->
+<div class="notification is-danger" id="notification">
+  <button class="delete" onclick="closeNotification()"></button>
+  请选择库位
 </div>
-</body>
+<!-- Bulma 模态框 -->
+<div class="modal" id="scanModal">
+  <div class="modal-background"></div>
+  <div class="modal-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title" id="modalTitle">扫描二维码</p>
+      <button class="delete" aria-label="close" onclick="closeModal()"></button>
+    </header>
+    <section class="modal-card-body">
+      <input type="text" id="modalScanInput" placeholder="请扫描二维码" class="input" autocomplete="off">
+    </section>
+    <footer class="modal-card-foot">
+      <button class="button is-success" onclick="processScannedData()">确认</button>
+      <button class="button" onclick="closeModal()">取消</button>
+    </footer>
+  </div>
+</div>
 <script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script>
-
 <script>
   var isListenerAdded = false;
+  var currentOperation = null;
+
+  function prepareModal(operation) {
+    var placementArea = document.getElementById('area').value;
+    if (!placementArea && (operation === 'stockIn' || operation === 'transfer')) {
+      showNotification('请选择库位', 'is-danger');
+      return;
+    }
+    showModal(operation);
+  }
+
   function showModal(operation) {
     currentOperation = operation;
+    updateModalTitle();
     openModal();
     var modalScanInput = document.getElementById('modalScanInput');
-    modalScanInput.focus(); // 自动聚焦到输入框
-    // 只有在监听器尚未添加的情况下才添加新的监听器
+    modalScanInput.focus();
     if (!isListenerAdded) {
       modalScanInput.addEventListener('keydown', handleEnterKey);
       isListenerAdded = true;
     }
   }
+
+  function updateModalTitle() {
+    var placementArea = document.getElementById('area').value;
+    var title = '';
+
+    switch (currentOperation) {
+      case 'stockIn':
+        title = '入库';
+        if (placementArea) {
+          title += '到 ' + placementArea;
+        }
+        break;
+      case 'stockOut':
+        title = '出库';
+        break;
+      case 'transfer':
+        title = '转库';
+        if (placementArea) {
+          title += '到 ' + placementArea;
+        }
+        break;
+    }
+    document.getElementById('modalTitle').innerText = title;
+  }
+
+  document.getElementById('area').addEventListener('change', updateModalTitle);
+
   function handleEnterKey(event) {
-    console.log("Enter key pressed");
     if (event.key === 'Enter') {
-      // 模拟点击确认按钮
       processScannedData();
     }
   }
+
   function openModal() {
-    layer.open({
-      type: 1, // 弹出层类型，1 表示页面层
-      title: '扫描二维码', // 标题
-      content: $('#scanModalContent'), // 弹出层内容
-      shadeClose: true, // 设置点击遮罩层关闭弹出层
-      area: ['80%', '40%'], // 设置弹出层大小
-      // 弹出层关闭时的回调
-      cancel: function() {
-        document.getElementById('modalScanInput').value = ''; // 清空输入框
-      },
-      // 弹出层销毁时的回调
-      end: function() {
-        document.getElementById('modalScanInput').value = ''; // 清空输入框
-      }
-    });
+    var modal = document.getElementById('scanModal');
+    modal.classList.add('is-active');
   }
+
   function closeModal() {
-    // 清空输入框
+    var modal = document.getElementById('scanModal');
+    modal.classList.remove('is-active');
     document.getElementById('modalScanInput').value = '';
-    // 移除事件监听器
     var modalScanInput = document.getElementById('modalScanInput');
     if (isListenerAdded) {
       modalScanInput.removeEventListener('keydown', handleEnterKey);
       isListenerAdded = false;
     }
-      currentOperation = null;
-    layer.closeAll();
+    currentOperation = null;
+  }
+
+  function processScannedData() {
+    var scannedData = document.getElementById('modalScanInput').value;
+    console.log(scannedData);
+    try {
+      var correctedJson = scannedData.replace(/(\w+:)|(\w+ :)/g, function (matchedString) {
+        return '"' + matchedString.substring(0, matchedString.length - 1) + '":';
+      });
+      var values = scannedData.split('|');
+      var data = {
+        arrivalDate: values[0],
+        steelMill: values[1],
+        steelGrade: values[2],
+        furnaceNumber: values[3],
+        weight: values[4],
+        bundleCount: values[5],
+        purchaser: values[6],
+        tradeMode: values[7],
+        customer: values[8],
+        deliveryPoint: values[9],
+        supplierBatchNumber: values[10]
+      };
+      switch (currentOperation) {
+        case 'stockIn':
+          stockIn(data);
+          break;
+        case 'stockOut':
+          stockOut(data);
+          break;
+        case 'transfer':
+          transfer(data);
+          break;
+      }
+      document.getElementById('modalScanInput').value = '';
+      document.getElementById('modalScanInput').focus();
+    } catch (error) {
+      console.error('解析扫描数据时出错: ', error);
+    }
+  }
+  function checkPlacementArea() {
+    var placementAreaData = document.getElementById('area').value;
+    if (!placementAreaData) {
+      layer.alert("请选择库位");
+      return false;
+    }
+    return placementAreaData;
+  }
+  function stockIn(data) {
+    var placementAreaData = checkPlacementArea();
+    if (!placementAreaData) return;
+    fetch('/shipment/updateOperationType', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        supplierBatchNumber: data.supplierBatchNumber,
+        operationType: '入库',
+        placementArea: placementAreaData
+      })
+    }).then(response => {
+      if (response.ok) {
+        console.log('operationType updated');
+        showNotification('入库成功', 'is-success');
+      } else {
+        showNotification('该批次号已入库，重复入库无效', 'is-danger');
+      }
+    }).catch(error => {
+      console.error('Error updating operationType: ', error);
+    });
+  }
+
+  function stockOut(data) {
+    fetch('/shipment/stockOut', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ supplierBatchNumber: data.supplierBatchNumber })
+    }).then(response => {
+      if (response.ok) {
+        console.log('operationType updated');
+        showNotification('出库成功', 'is-success');
+      } else {
+        showNotification('该产品无库存，操作无效', 'is-danger');
+      }
+    }).catch(error => {
+      console.error('Error updating operationType: ', error);
+    });
+  }
+
+  function transfer(data) {
+    var placementAreaData = checkPlacementArea();
+    if (!placementAreaData) return;
+    fetch('/shipment/transfer', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        supplierBatchNumber: data.supplierBatchNumber,
+        placementArea: placementAreaData
+      })
+    }).then(response => {
+      if (response.ok) {
+        console.log('operationType updated');
+        showNotification('转库成功', 'is-success');
+      }  else {
+        return response.text().then(text => {
+          showNotification(text, 'is-danger');
+        });
+      }
+    }).catch(error => {
+      console.error('Error updating operationType: ', error);
+      showNotification('转库操作失败', 'is-danger');
+    });
+  }
+
+  function showNotification(message, type) {
+    var notification = document.getElementById('notification');
+    notification.className = 'notification ' + type;
+    notification.innerHTML = '<button class="delete" onclick="closeNotification()"></button>' + message;
+    notification.style.display = 'block';
+    setTimeout(() => {
+      notification.style.display = 'none';
+    }, 1300);
+  }
+
+  function closeNotification() {
+    var notification = document.getElementById('notification');
+    notification.style.display = 'none';
   }
 </script>
+</body>
 </html>
