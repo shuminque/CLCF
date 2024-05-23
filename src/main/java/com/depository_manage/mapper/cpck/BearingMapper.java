@@ -22,5 +22,7 @@ public interface BearingMapper {
 
     void deleteBearingById(Integer id);
     String getMaxPairNumber();
+    List<Map<String, String>> getDistinctCustomerAndModel(
+            Map<String, Object> params);
 
 }

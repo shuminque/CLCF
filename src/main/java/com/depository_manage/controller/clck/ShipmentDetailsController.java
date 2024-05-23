@@ -1,10 +1,13 @@
 package com.depository_manage.controller.clck;
 
+import com.depository_manage.entity.BearingRecord;
+import com.depository_manage.entity.ShipmentDetails;
 import com.depository_manage.service.clck.ShipmentDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -14,7 +17,25 @@ public class ShipmentDetailsController {
     @Autowired
     private ShipmentDetailsService shipmentDetailsService;
 
-    // 其他方法...
+    @RestController
+    @RequestMapping("/records")
+    public class RecordsController {
+
+        @Autowired
+        private ShipmentDetailsService shipmentDetailsService;
+
+        @GetMapping
+        public ResponseEntity<List<ShipmentDetails>> getAllRecords() {
+            List<ShipmentDetails> records = shipmentDetailsService.getAllShipmentDetails();
+            return ResponseEntity.ok(records);
+        }
+        @GetMapping("/{id}")
+        public ResponseEntity<ShipmentDetails> getAllRecords(@PathVariable int id) {
+            ShipmentDetails records = shipmentDetailsService.getShipmentDetailById(id);
+            return ResponseEntity.ok(records);
+        }
+
+    }
 
     @PostMapping("/updateOperationType")
     public ResponseEntity<Void> updateOperationType(@RequestBody Map<String, String> request) {
@@ -49,6 +70,11 @@ public class ShipmentDetailsController {
         } catch (Exception e) {
             return ResponseEntity.status(400).body(e.getMessage());  // Return 400 Bad Request with error message
         }
+    }
+    @GetMapping("/getStockStatusBeforeCutoffDate")
+    public ResponseEntity<?> getStockStatusBeforeCutoffDate(@RequestParam Map<String, Object> params) {
+        List<ShipmentDetails> records = shipmentDetailsService.getStockStatusBeforeCutoffDate(params);
+        return ResponseEntity.ok(records);
     }
 
 }

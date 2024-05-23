@@ -2,6 +2,7 @@ package com.depository_manage.service.clck;
 
 import com.depository_manage.entity.ShipmentDetails;
 import java.util.List;
+import java.util.Map;
 
 public interface ShipmentDetailsService {
 
@@ -14,5 +15,6 @@ public interface ShipmentDetailsService {
     void updateOperationTypeBySupplierBatchNumber(String supplierBatchNumber, String operationType, String placementArea) throws Exception;
     void stockOut(String supplierBatchNumber) throws Exception;
     void transfer(String supplierBatchNumber, String placementArea) throws Exception;  // 新增的方法
+    List<ShipmentDetails> getStockStatusBeforeCutoffDate(Map<String, Object> params);
 
 }

@@ -8,6 +8,7 @@ import java.util.Date;
 @Data
 public class ShipmentDetails {
     private Integer id;
+    private String uniqueIdentifier;  // 新增的字段
     private String invoiceNumber;
     private String customer;
     private String tradeMode;

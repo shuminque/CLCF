@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>材料产品关联</title>
+    <link rel="stylesheet" href="/static/lib/layui-v2.8.17/css/layui.css" media="all">
+    <script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script>
+    <!-- jQuery 库 -->
+    <script src="/static/js/http_ajax.googleapis.com_ajax_libs_jquery_3.5.1_jquery.js"></script>
+    <script src="/static/js/http_code.jquery.com_jquery-3.6.0.min.js"></script>
+    <script src="/static/js/http_cdnjs.cloudflare.com_ajax_libs_bootstrap-3-typeahead_4.0.2_bootstrap3-typeahead.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin: 20px;
+        }
+        .layui-table-view .layui-table { /* 调整表格样式 */
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- 统一的搜索表单 -->
+    <form class="layui-form" id="searchForm">
+        <div class="layui-form-item">
+            <div class="layui-input-inline">
+                <input type="text" name="time" id="date" placeholder="请选择日期" autocomplete="off" class="layui-input">
+            </div>
+            <div class="layui-input-inline">
+                <select name="steelMill">
+                    <option value="" selected>选择钢厂</option>
+                    <option th:each="steel_type : ${steelTypes}"
+                            th:value="${steel_type.name}"
+                            th:text="${steel_type.name}"></option>
+                </select>
+            </div>
+            <div class="layui-input-inline">
+                <select name="steelGrade">
+                    <option value="" selected>选择钢材等级</option>
+                    <option th:each="steel_grade : ${steelGrades}"
+                            th:value="${steel_grade.grade}"
+                            th:text="${steel_grade.grade}"></option>
+                </select>
+            </div>
+            <div class="layui-input-inline">
+                <select name="dimensions" id="dimensions">
+                    <option value="" selected>选择尺寸</option>
+                    <option th:each="steel_size : ${steelSizes}"
+                            th:value="${steel_size.size}"
+                            th:text="${steel_size.size}"></option>
+                </select>
+            </div>
+            <div class="layui-input-inline">
+                <select name="tradeMode" id="tradeMode"  >
+                    <option value="" selected>选择贸易方式</option>
+                    <option th:each="trade_mode : ${tradeModes}"
+                            th:value="${trade_mode.mode}"
+                            th:text="${trade_mode.mode}"></option>
+                </select>
+            </div>
+            <div class="layui-inline">
+                <button type="submit" class="layui-btn layui-btn-primary" lay-submit lay-filter="data-search-btn">
+                    <i class="layui-icon"></i> 搜 索
+                </button>
+            </div>
+        </div>
+    </form>
+    <table id="recordTable" lay-filter="recordTableFilter"></table>
+    <table id="bearingsTable" lay-filter="bearingsTableFilter"></table>
+
+</div>
+
+<script>
+    var userReviewGroupId;
+    var userAuthority;
+    var userDepositoryId;
+    var userDepository;
+    var depositoryId;
+
+    layui.use(['table', 'form', 'laydate'], function(){
+        var table = layui.table;
+        var form = layui.form;
+        var laydate=layui.laydate;
+
+        // 初始化日期范围选择器
+        laydate.render({
+            elem: '#date',
+            value: new Date() // 设置默认值为当前日期
+        });
+
+        // 渲染表格
+        var recordTable = table.render({
+            elem: '#recordTable',
+            url: '/shipment/getStockStatusBeforeCutoffDate',
+            parseData: function(res) { // 将原始数据格式适配成 layui 表格组件所期望的格式
+                var filteredData = res.filter(function(record) {
+                    return record.weight > 0;
+                });
+                return {
+                    "code": 0, // 解析接口状态
+                    "msg": "", // 解析提示文本
+                    "count": filteredData.length, // Parse data length
+                    "data": filteredData // Parse data list
+                };
+            },
+            request: {
+                pageName:'page',
+                limitName:'size'
+            },
+            height: 600, // 设置表格高度
+            toolbar: ['filter', 'exports', 'print'],
+            cols: [ [ // 表头
+                {field: 'steelMill', title: '钢厂'},
+                {field: 'steelGrade', title: '钢材等级'},
+                {field: 'dimensions', title: '尺寸'},
+                {field: 'tradeMode', title: '贸易方式'},
+                {field: 'bundleCount', title: '支数'},
+                {field: 'weight', title: '重量'},
+                {field: 'customer', title: '客户'},
+                {field: 'placementArea', title: '库位'},
+                {field: 'supplierBatchNumber', title: '供应商生产批号'},
+                {field: 'arrivalDate', title: '到达日期', templet: function(d){
+                        return formatDate(d.arrivalDate);
+                    }},
+            ]],
+            limits: [200, 500, 1000, 20000],
+            limit: 200,
+            page: true, // 开启分页
+            done: function(res, curr, count) {
+                // 计算合计
+                var totalBundleCount = 0;
+                var totalWeight = 0;
+                for (var i = 0; i < res.data.length; i++) {
+                    totalBundleCount += res.data[i].bundleCount;
+                    totalWeight += res.data[i].weight;
+                }
+                // 添加合计行
+                var totalRow = `<tr class="layui-table-total">
+                    <td colspan="4">合计</td>
+                    <td>${totalBundleCount}</td>
+                    <td>${totalWeight.toFixed(2)}</td>
+                    <td colspan="6"></td>
+                </tr>`;
+                $('#recordTable+div .layui-table-body tbody').append(totalRow);
+            }
+        });
+
+        // 渲染第二个表格
+        var bearingsTable = table.render({
+            elem: '#bearingsTable',
+            url: '/bearings/getDistinctCustomerAndModel',
+            parseData: function(res) {
+                return {
+                    "code": 0, // 解析接口状态
+                    "msg": "", // 解析提示文本
+                    "count": res.length, // Parse data length
+                    "data": res // Parse data list
+                };
+            },
+            height: 500, // 设置表格高度
+            cols: [ [ // 表头
+                {field: 'customer', title: '客户'},
+                {field: 'outer_inner_ring', title: '内外轮'},
+                {field: 'model', title: '型号'},
+                {field: 'single_eight', title: '单重'},
+                {field: 'pair', title: '配对号'},
+                {field: 'mode', title: '贸易方式'},
+            ]],
+            limits: [500,1000],
+            limit: 500,
+            page: true
+        });
+
+        // 格式化日期
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            let date = new Date(dateStr);
+            let year = date.getFullYear();
+            let month = (date.getMonth() + 1).toString().padStart(2, '0');
+            let day = date.getDate().toString().padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // 统一搜索表单提交事件
+        form.on('submit(data-search-btn)', function(data) {
+            var req = {};
+            var formData = data.field;
+            if (formData.steelMill !== '') {
+                req.steelMill = formData.steelMill;
+            }
+            if (formData.steelGrade !== '') {
+                req.steelGrade = formData.steelGrade;
+            }
+            if (formData.tradeMode !== '') {
+                req.tradeMode = formData.tradeMode;
+            }
+            if (formData.dimensions !== '') {
+                req.dimensions = formData.dimensions;
+            }
+            req.cutoffDate = formData.time;
+            // 执行搜索重载
+            recordTable.reload({
+                url: '/shipment/getStockStatusBeforeCutoffDate',
+                where: req,
+                page: { curr: 1 }
+            });
+            // 执行第二个表格的搜索重载
+            bearingsTable.reload({
+                url: '/bearings/getDistinctCustomerAndModel',
+                where: req,
+                page: { curr: 1 }
+            });
+            return false;
+        });
+
+    });
+</script>
+</body>
+</html>

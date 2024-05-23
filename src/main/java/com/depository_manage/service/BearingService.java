@@ -18,4 +18,6 @@ public interface BearingService {
     List<String> searchBoxText(String query, String depository);
 
     String getNextPairNumber();
+    List<Map<String, String>> getDistinctCustomerAndModel(Map<String, Object> params);
+
 }

@@ -16,10 +16,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @RestController
 @RequestMapping("/upload")
@@ -56,6 +53,7 @@ public class FileUploadController {
                 ShipmentDetails shipment = parseShipmentDetails(row,invoiceNumber, customer,tradeMode,deliveryPoint,purchaser,
                         arrivalPortDate,arrivalDate,steelGrade,steelType,steelSize);
                 if (shipment != null) {
+                    shipment.setUniqueIdentifier(UUID.randomUUID().toString()); // 设置唯一标识符
                     shipments.add(shipment);
                 }
             }

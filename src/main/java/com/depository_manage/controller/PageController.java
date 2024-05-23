@@ -65,6 +65,43 @@ public class PageController {
         mv.addObject("tradeModes", tradeModeService.findAll());
         return mv;
     }
+    @GetMapping("/shipmentRecords")
+    public ModelAndView shipmentRecords() {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("clck/pcpage/shipmentRecords");
+        mv.addObject("productCategorys", productCategoryService.findAll());
+        mv.addObject("steelGrades", steelGradeService.findAll());
+        mv.addObject("steelTypes", steelTypeService.findAll());
+        mv.addObject("customers", customerService.findAll());
+        mv.addObject("purchasers", purchaserService.findAll());
+        mv.addObject("steelSizes", steelSizeService.findAll());
+        mv.addObject("tradeModes", tradeModeService.findAll());
+        return mv;
+    }
+    @GetMapping("/regionInventory")
+    public ModelAndView regionInventory() {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("clck/pcpage/regionInventory");
+        mv.addObject("productCategorys", productCategoryService.findAll());
+        mv.addObject("steelGrades", steelGradeService.findAll());
+        mv.addObject("steelTypes", steelTypeService.findAll());
+        mv.addObject("customers", customerService.findAll());
+        mv.addObject("purchasers", purchaserService.findAll());
+        mv.addObject("steelSizes", steelSizeService.findAll());
+        mv.addObject("tradeModes", tradeModeService.findAll());
+        return mv;
+    }
+    @GetMapping("/material-products")
+    public ModelAndView materialProducts() {
+        ModelAndView mv = new ModelAndView();mv.setViewName("clck/pcpage/material-products");
+        mv.addObject("productCategorys", productCategoryService.findAll());
+        mv.addObject("steelGrades", steelGradeService.findAll());
+        mv.addObject("steelTypes", steelTypeService.findAll());
+        mv.addObject("customers", customerService.findAll());
+        mv.addObject("steelSizes", steelSizeService.findAll());
+        mv.addObject("tradeModes", tradeModeService.findAll());
+        return mv;
+    }
     @GetMapping("/pda1")
     public ModelAndView pda(Map<String, Object> params) {
         ModelAndView mv = new ModelAndView();
@@ -129,7 +166,6 @@ public class PageController {
         mv.addObject("steelGrades", steelGradeService.findAll());
         mv.addObject("steelTypes", steelTypeService.findAll());
         mv.addObject("customers", customerService.findAll());
-
         return mv;
     }
     @GetMapping("/GenerateAndPrintQR")

@@ -62,4 +62,9 @@ public class BearingServiceImpl implements BearingService {
             return "1001"; // 或其他适合你业务的起始值
         }
     }
+    @Override
+    public List<Map<String, String>> getDistinctCustomerAndModel(
+            Map<String, Object> params) {
+        return bearingMapper.getDistinctCustomerAndModel(params);
+    }
 }

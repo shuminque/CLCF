@@ -1,9 +1,6 @@
 package com.depository_manage.controller;
 
-import com.depository_manage.entity.Bearing;
-import com.depository_manage.entity.BearingRecord;
-import com.depository_manage.entity.ProductId;
-import com.depository_manage.entity.SteelGrade;
+import com.depository_manage.entity.*;
 import com.depository_manage.service.BearingService;
 import com.depository_manage.service.ProductIdService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -255,7 +252,11 @@ public class BearingController {
         List<Bearing> bearings = bearingService.getAllBearings(params);
         return ResponseEntity.ok(bearings); // 即使为空，也返回200 OK响应
     }
-
+    @GetMapping("/getDistinctCustomerAndModel")
+    public ResponseEntity<?> getDistinctCustomerAndModel(@RequestParam Map<String, Object> params) {
+        List<Map<String, String>> result = bearingService.getDistinctCustomerAndModel(params);
+        return ResponseEntity.ok(result);
+    }
     public String convertDepositoryIdToText(int depositoryId) {
         switch (depositoryId) {
             case 1: return "SAB";

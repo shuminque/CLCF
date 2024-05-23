@@ -112,7 +112,7 @@
                     ]
                 },
                 {
-                    "title": "产品仓库管理",
+                    "title": "材料仓库管理",
                     "icon": "fa fa-server",
                     "target": "_self",
                     "roles": [
@@ -121,7 +121,7 @@
                     "child": [
                         {
                             "title": "进出查询",
-                            "href": "/Inquire-all",
+                            "href": "/shipmentRecords",
                             "icon": "fa fa-th-list",
                             "target": "_self",
                             "roles": [
@@ -130,7 +130,7 @@
                         },
                         {
                             "title": "在库查询",
-                            "href": "/Inquire-stock",
+                            "href": "/regionInventory",
                             "icon": "fa fa-th-list",
                             "target": "_self",
                             "roles": [
@@ -138,8 +138,8 @@
                             ]
                         },
                         {
-                            "title": "溶解号登记",
-                            "href": "/Inquire-dissolve",
+                            "title": "材料-产品关联",
+                            "href": "/material-products",
                             "icon": "fa fa-th-list",
                             "target": "_self",
                             "roles": [

@@ -3,11 +3,13 @@ package com.depository_manage.service.clck.impl;
 import com.depository_manage.entity.ShipmentDetails;
 import com.depository_manage.mapper.clck.ShipmentDetailsMapper;
 import com.depository_manage.service.clck.ShipmentDetailsService;
+import com.depository_manage.utils.ObjectFormatUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
@@ -164,6 +166,21 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
             transferRecord.setPurchaser(record.getPurchaser());
             shipmentDetailsMapper.insertShipmentDetail(transferRecord);
         }
+    }
+
+
+    @Override
+    public List<ShipmentDetails> getStockStatusBeforeCutoffDate(Map<String, Object> params) {
+        Integer size = 8, page = 1;
+        if (params.containsKey("size")) {
+            size = ObjectFormatUtil.toInteger(params.get("size"));
+            params.put("size", size);
+        }
+        if (params.containsKey("page")) {
+            page = ObjectFormatUtil.toInteger(params.get("page"));
+            params.put("begin", (page - 1) * size);
+        }
+        return shipmentDetailsMapper.getStockStatusBeforeCutoffDate(params);
     }
 
 }

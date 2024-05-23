@@ -7,7 +7,7 @@
     </resultMap>
 
     <select id="findAll" resultMap="SteelSizeMap">
-        SELECT * FROM steel_size order by size
+        SELECT * FROM steel_size
     </select>
 
     <select id="findById" parameterType="int" resultMap="SteelSizeMap">

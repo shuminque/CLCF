@@ -4,6 +4,7 @@ import com.depository_manage.entity.ShipmentDetails;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ShipmentDetailsMapper {
 
@@ -16,10 +17,11 @@ public interface ShipmentDetailsMapper {
 
     // New method for batch insertion
     int insertShipmentDetails(List<ShipmentDetails> shipmentDetailsList);
-    void updateOperationTypeBySupplierBatchNumber(@Param("supplierBatchNumber") String supplierBatchNumber, @Param("operationType") String operationType, @Param("placementArea")String placementArea);
+    void updateOperationTypeBySupplierBatchNumber(@Param("supplierBatchNumber") String supplierBatchNumber, @Param("operationType") String operationType, @Param("placementArea") String placementArea);
     List<ShipmentDetails> findStockInBySupplierBatchNumber(@Param("supplierBatchNumber") String supplierBatchNumber);
     List<ShipmentDetails> findStockInOrTransferBySupplierBatchNumber(@Param("supplierBatchNumber") String supplierBatchNumber);
-
     int getNetStockInCountBySupplierBatchNumber(@Param("supplierBatchNumber") String supplierBatchNumber);
+
+    List<ShipmentDetails> getStockStatusBeforeCutoffDate(Map<String, Object> params);
 
 }

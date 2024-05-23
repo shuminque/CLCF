@@ -158,5 +158,32 @@
         SELECT MAX(pair) FROM bearings
     </select>
     <!-- Add additional SQL statements for update, delete, etc. as needed -->
+    <!-- 查询客户和型号 -->
+    <select id="getDistinctCustomerAndModel" resultType="map" parameterType="map">
+        SELECT DISTINCT
+        customer,
+        outer_inner_ring,
+        model,
+        single_eight,
+        pair,
+        mode
+        FROM
+        bearings
+        <where>
+            <if test="steelMill != null and steelMill != ''">
+                AND steel_type = #{steelMill}
+            </if>
+            <if test="steelGrade != null and steelGrade != ''">
+                AND steel_grade = #{steelGrade}
+            </if>
+            <if test="tradeMode != null and tradeMode != ''">
+                AND mode = #{tradeMode}
+            </if>
+            <if test="dimensions != null and dimensions != ''">
+                AND size = #{dimensions}
+            </if>
+        </where>
+    </select>
+
 </mapper>
 
