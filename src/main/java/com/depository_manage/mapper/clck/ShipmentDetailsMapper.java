@@ -26,5 +26,6 @@ public interface ShipmentDetailsMapper {
     int getNetStockInCountBySupplierBatchNumber(@Param("supplierBatchNumber") String supplierBatchNumber);
 
     List<ShipmentDetails> getStockStatusBeforeCutoffDate(Map<String, Object> params);
+    List<Map<String, Object>> viewTransfer(Map<String, Object> params);
 
 }

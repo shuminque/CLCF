@@ -19,7 +19,7 @@
                     <div class="layui-input-inline">
                         <button type="button" class="layui-btn" id="searchBtn">搜索</button>
                     </div>
-                    <h2 style="">转出后两天内没有转入，将以黄色预警</h2>
+<!--                    <h2 style="">转出后两天内没有转入，将以黄色预警</h2>-->
                 </div>
             </form>
         </div>
@@ -103,88 +103,21 @@
         // 初始化表格
         table.render({
             elem: '#recordsTable',
-            url: '/shipment/comprehensiveTransfers', // 数据接口
+            url: '/shipment/viewTransfer', // 数据接口
             height: 600, // 设置表格高度
             // page: true, // 开启分页
             toolbar: ['filter', 'exports', 'print'],
             cols: [ [ // 表头
-                {field: 'out_id', title: '转出ID', hide:true},
-                {field: 'in_id', title: '转入ID', hide:true},
-                {field: 'out_box_text', title: '转出箱号',sort: true},
-                {field: 'out_box_number', title: '编号'},
-                {field: 'out_quantity', title: '数量'},
-                {field: 'out_depository', title: '转出地',sort: true},
-                {field: 'out_time', title: '转出时间', templet: function(d) {
-                        return formatDate(d.out_time);}},
-                {field: '', title: ''},
-                {field: 'in_box_text', title: '转入箱号'},
-                {field: 'in_box_number', title: '编号'},
-                {field: 'in_quantity', title: '数量'},
-                {field: 'in_depository', title: '转入地'},
-                {field: 'in_time', title: '转入时间', templet: function(d) {
-                        return formatDate(d.in_time);}},
+                {field: 'id', title: 'ID'},
+                {field: 'supplier_batch_number', title: '批号', hide:true},
+                {field: 'from_area', title: '转出区',sort: true},
+                {field: 'to_area', title: '转入区'},
+                {field: 'arrival_date', title: '转入时间', templet: function(d) {
+                        return formatDate(d.arrival_date);}},
             ]],
             done: function(res, curr, count) {
                 // 表格渲染完成后的回调
-                $('#recordsTable + div .layui-table-body tbody > tr').each(function() {
-                    var dataIndex = $(this).attr('data-index');
-                    var row = res.data[dataIndex];
-                    // 获取当前时间
-                    var now = new Date();
-                    // 获取转出时间
-                    var out_time = new Date(row.out_time);
-                    var in_time = new Date(row.in_time);
-                    // 计算时间差
-                    var diff = now - out_time;
-                    var diff2 = now - in_time;
-                    // 如果超过两天并且没有转入时间，则将这一行变黄
-                    if (diff > 2 * 24 * 60 * 60 * 1000 && !row.in_time) {
-                        $(this).find('td[data-field="in_box_text"]').css('background-color', 'yellow');
-                        $(this).find('td[data-field="in_box_number"]').css('background-color', 'yellow');
-                        $(this).find('td[data-field="in_quantity"]').css('background-color', 'yellow');
-                        $(this).find('td[data-field="in_depository"]').css('background-color', 'yellow');
-                        $(this).find('td[data-field="in_time"]').css('background-color', 'yellow');
-                    }
-                    if (diff2 > 2 * 24 * 60 * 60 * 1000 && !row.out_time) {
-                        $(this).find('td[data-field="out_box_text"]').css('background-color', 'yellow');
-                        $(this).find('td[data-field="out_box_number"]').css('background-color', 'yellow');
-                        $(this).find('td[data-field="out_quantity"]').css('background-color', 'yellow');
-                        $(this).find('td[data-field="out_depository"]').css('background-color', 'yellow');
-                        $(this).find('td[data-field="out_time"]').css('background-color', 'yellow');
-                    }
-
-                });
             }
-        });
-        table.on('sort(recordsTableFilter)', function(obj){
-            // 等待表格渲染完成后再执行颜色设置的代码
-            setTimeout(function(){
-                $('#recordsTable + div .layui-table-body tbody > tr').each(function() {
-                    var dataIndex = $(this).attr('data-index');
-                    var row = table.cache.recordsTable[dataIndex];
-                    // 获取当前时间
-                    var now = new Date();
-                    // 获取转出时间
-                    var out_time = new Date(row.out_time);
-                    var in_time = new Date(row.in_time);
-                    // 计算时间差
-                    var diff = now - out_time;
-                    var diff2 = now - in_time;
-                    // 如果超过两天并且没有转入时间，则将这一行变黄
-                    if (diff > 2 * 24 * 60 * 60 * 1000 && !row.in_time) {
-                        $(this).find('td[data-field="in_box_text"]').css('background-color', 'yellow');
-                        $(this).find('td[data-field="in_box_number"]').css('background-color', 'yellow');
-                        $(this).find('td[data-field="in_quantity"]').css('background-color', 'yellow');
-                        $(this).find('td[data-field="in_depository"]').css('background-color', 'yellow');
-                        $(this).find('td[data-field="in_time"]').css('background-color', 'yellow');                    }
-                    if (diff2 > 2 * 24 * 60 * 60 * 1000 && !row.out_time) {
-                        $(this).find('td[data-field="out_box_text"]').css('background-color', 'yellow');
-                        $(this).find('td[data-field="out_box_number"]').css('background-color', 'yellow');
-                        $(this).find('td[data-field="out_quantity"]').css('background-color', 'yellow');
-                        $(this).find('td[data-field="out_depository"]').css('background-color', 'yellow');
-                        $(this).find('td[data-field="out_time"]').css('background-color', 'yellow');                   }
-                });
-            }, 0);
         });
 
         function formatDate(dateStr) {

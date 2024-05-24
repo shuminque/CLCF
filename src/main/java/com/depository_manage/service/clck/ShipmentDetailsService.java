@@ -17,5 +17,6 @@ public interface ShipmentDetailsService {
     void stockOut(String supplierBatchNumber) throws Exception;
     void transfer(String supplierBatchNumber, String placementArea) throws Exception;  // 新增的方法
     List<ShipmentDetails> getStockStatusBeforeCutoffDate(Map<String, Object> params);
+    List<Map<String, Object>> viewTransfer(Map<String, Object> params);
 
 }

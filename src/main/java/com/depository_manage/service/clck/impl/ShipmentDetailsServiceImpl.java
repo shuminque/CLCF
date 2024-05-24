@@ -193,5 +193,8 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
         }
         return shipmentDetailsMapper.getStockStatusBeforeCutoffDate(params);
     }
-
+    @Override
+    public List<Map<String, Object>> viewTransfer(Map<String, Object> params) {
+        return shipmentDetailsMapper.viewTransfer(params);
+    }
 }

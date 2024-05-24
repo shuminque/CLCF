@@ -341,4 +341,38 @@
         </if>
     </select>
 
+
+    <select id="viewTransfer" parameterType="map" resultType="map">
+        SELECT
+            id,
+            supplier_batch_number,
+            placement_area AS from_area,
+            to_area,
+            arrival_date
+        FROM (
+                 SELECT
+                     sd.*,
+                     LEAD(sd.placement_area) OVER (PARTITION BY sd.supplier_batch_number ORDER BY sd.arrival_date) AS to_area
+                 FROM
+                     shipment_details sd
+                 WHERE
+                     sd.operation_type IN ('入库', '转库')
+                   AND arrival_date BETWEEN #{startDate} AND #{endDate}
+             ) AS subquery
+        WHERE
+            to_area IS NOT NULL
+          AND supplier_batch_number IN (
+            SELECT
+                supplier_batch_number
+            FROM
+                shipment_details
+            GROUP BY
+                supplier_batch_number
+            HAVING
+                COUNT(DISTINCT placement_area) > 1
+        )
+        ORDER BY
+            supplier_batch_number, arrival_date;
+    </select>
+
 </mapper>

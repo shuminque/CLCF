@@ -94,5 +94,30 @@ public class ShipmentDetailsController {
         List<ShipmentDetails> records = shipmentDetailsService.getStockStatusBeforeCutoffDate(params);
         return ResponseEntity.ok(records);
     }
+    @GetMapping("/viewTransfer")
+    public ResponseEntity<?> viewTransfer(
+            @RequestParam(required = false) String date) {
+        Map<String, Object> params = new HashMap<>();
 
+        // 检查日期参数是否存在且格式正确
+        if (date != null && date.contains(" - ")) {
+            // 分割字符串获取起始和结束日期
+            String[] dates = date.split(" - ");
+            if (dates.length == 2) {
+                String startDate = dates[0] + " 00:00:00";
+                String endDate   = dates[1] + " 23:59:59";
+                params.put("startDate", startDate);
+                params.put("endDate", endDate);
+            }
+        }
+        // 调用服务层获取数据
+        List<Map<String, Object>> transferRecords = shipmentDetailsService.viewTransfer(params);
+        Map<String, Object> response = new HashMap<>();
+        response.put("code", 0);
+        response.put("msg", "");
+        response.put("count", transferRecords.size());
+        response.put("data", transferRecords);
+        return ResponseEntity.ok(response);
+
+    }
 }
