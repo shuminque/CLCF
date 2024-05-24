@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,9 +26,26 @@ public class ShipmentDetailsController {
         private ShipmentDetailsService shipmentDetailsService;
 
         @GetMapping
-        public ResponseEntity<List<ShipmentDetails>> getAllRecords() {
-            List<ShipmentDetails> records = shipmentDetailsService.getAllShipmentDetails();
-            return ResponseEntity.ok(records);
+        public ResponseEntity<?> getAllRecords(  @RequestParam Map<String, Object> params,
+                                                 @RequestParam(defaultValue = "1") int page, // 页码通常是从1开始
+                                                 @RequestParam(defaultValue = "20") int size) {
+            String dateRange = (String) params.get("time");
+            if (dateRange != null && dateRange.contains(" - ")) {
+                String[] dates = dateRange.split(" - ");
+                params.put("startDate", dates[0] + " 00:00:00");
+                params.put("endDate", dates[1] + " 23:59:59");
+            }
+            int begin = (page - 1) * size;
+            params.put("begin", begin);
+            params.put("size", size);
+            List<ShipmentDetails> records = shipmentDetailsService.getAllShipmentDetails(params);
+            int count = shipmentDetailsService.countShipmentDetails(params);
+            Map<String, Object> response = new HashMap<>();
+            response.put("code", 0);
+            response.put("msg", "");
+            response.put("count", count);
+            response.put("data", records);
+            return ResponseEntity.ok(response);
         }
         @GetMapping("/{id}")
         public ResponseEntity<ShipmentDetails> getAllRecords(@PathVariable int id) {

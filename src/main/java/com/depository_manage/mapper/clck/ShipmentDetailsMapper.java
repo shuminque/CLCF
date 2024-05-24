@@ -1,5 +1,6 @@
 package com.depository_manage.mapper.clck;
 
+import com.depository_manage.entity.BearingRecord;
 import com.depository_manage.entity.ShipmentDetails;
 import org.apache.ibatis.annotations.Param;
 
@@ -11,7 +12,9 @@ public interface ShipmentDetailsMapper {
     // Existing methods
     int insertShipmentDetail(ShipmentDetails shipmentDetails);
     ShipmentDetails selectShipmentDetailById(@Param("id") int id);
-    List<ShipmentDetails> selectAllShipmentDetails();
+    // 获取所有记录
+    int countShipmentDetails(Map<String, Object> params);
+    List<ShipmentDetails> selectAllShipmentDetails(Map<String,Object> params);
     int updateShipmentDetail(ShipmentDetails shipmentDetails);
     int deleteShipmentDetail(@Param("id") int id);
 

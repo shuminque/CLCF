@@ -7,7 +7,8 @@ import java.util.Map;
 public interface ShipmentDetailsService {
 
     ShipmentDetails getShipmentDetailById(int id);
-    List<ShipmentDetails> getAllShipmentDetails();
+    int countShipmentDetails(Map<String, Object> params);
+    List<ShipmentDetails> getAllShipmentDetails(Map<String, Object> params);
     boolean saveShipmentDetail(ShipmentDetails shipmentDetails);
     List<ShipmentDetails> saveAll(List<ShipmentDetails> shipmentDetailsList); // Change return type to List
     boolean updateShipmentDetail(ShipmentDetails shipmentDetails);

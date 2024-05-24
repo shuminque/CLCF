@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>记录表</title>
+    <title>材料产品关联</title>
     <link rel="stylesheet" href="/static/lib/layui-v2.8.17/css/layui.css" media="all">
     <script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script>
     <!-- jQuery 库 -->
@@ -29,7 +29,7 @@
     <form class="layui-form" id="searchForm">
         <div class="layui-form-item">
             <div class="layui-input-inline">
-                <input type="text" name="time" id="date" placeholder="请选择起止日期" autocomplete="off" class="layui-input">
+                <input type="text" name="time" id="date" placeholder="请选择日期" autocomplete="off" class="layui-input">
             </div>
             <div class="layui-input-inline">
                 <select name="steelMill">
@@ -127,16 +127,27 @@
         var form = layui.form;
         var laydate=layui.laydate;
 
+        // 初始化日期范围选择器
         laydate.render({
-            elem: '#date'
-            , range: true,
-            rangeLinked: true
+            elem: '#date',
+            value: new Date() // 设置默认值为当前日期
         });
 
         // 渲染表格
         var recordTable = table.render({
             elem: '#recordTable',
-            url: '/records',
+            url: '/shipment/getStockStatusBeforeCutoffDate',
+            parseData: function(res) { // 将原始数据格式适配成 layui 表格组件所期望的格式
+                var filteredData = res.filter(function(record) {
+                    return record.weight > 0;
+                });
+                return {
+                    "code": 0, // 解析接口状态
+                    "msg": "", // 解析提示文本
+                    "count": filteredData.length, // Parse data length
+                    "data": filteredData // Parse data list
+                };
+            },
             request: {
                 pageName:'page',
                 limitName:'size'
@@ -225,13 +236,10 @@
             if (formData.placementArea !== '') {
                 req.placementArea = formData.placementArea;
             }
-            if (formData.time !== '') {
-                var dates = formData.time.split(' - ');
-                req.startDate = dates[0];
-                req.endDate = dates[1];
-            }            // 执行搜索重载
+            req.cutoffDate = formData.time;
+            // 执行搜索重载
             recordTable.reload({
-                url: '/records',
+                url: '/shipment/getStockStatusBeforeCutoffDate',
                 where: req,
                 page: { curr: 1 }
             });

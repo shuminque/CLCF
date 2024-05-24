@@ -25,11 +25,22 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
     public ShipmentDetails getShipmentDetailById(int id) {
         return shipmentDetailsMapper.selectShipmentDetailById(id);
     }
-
     @Override
-    public List<ShipmentDetails> getAllShipmentDetails() {
-        return shipmentDetailsMapper.selectAllShipmentDetails();
+    public int countShipmentDetails(Map<String, Object> params) {
+        return shipmentDetailsMapper.countShipmentDetails(params);
     }
+    @Override
+    public List<ShipmentDetails> getAllShipmentDetails(Map<String, Object> params) {
+        Integer size = 8, page = 1;
+        if (params.containsKey("size")) {
+            size = ObjectFormatUtil.toInteger(params.get("size"));
+            params.put("size", size);
+        }
+        if (params.containsKey("page")) {
+            page = ObjectFormatUtil.toInteger(params.get("page"));
+            params.put("begin", (page - 1) * size);
+        }
+        return shipmentDetailsMapper.selectAllShipmentDetails(params);    }
 
     @Override
     public boolean saveShipmentDetail(ShipmentDetails shipmentDetails) {

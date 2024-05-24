@@ -50,20 +50,12 @@
     <div class="container">
         <h1 class="title">各大区在库情况</h1>
         <div class="field">
-            <label class="label">选择区域</label>
-            <div class="control">
-                <div class="select">
-                    <select id="areaSelect">
-                        <option value="" selected>选择区域</option>
-                        <option value="A">A区</option>
-                        <option value="B">B区</option>
-                        <option value="C">C区</option>
-                        <option value="D">D区</option>
-                        <option value="E">E区</option>
-                        <option value="F">F区</option>
-                    </select>
-                </div>
-            </div>
+            <select class="input area-select" name="area" id="areaSelect">
+                <option value="" selected>选择库位</option>
+                <option th:each="placement_area : ${areas}"
+                        th:value="${placement_area.area}"
+                        th:text="${placement_area.area}"></option>
+            </select>
         </div>
         <div class="field">
             <div class="control">

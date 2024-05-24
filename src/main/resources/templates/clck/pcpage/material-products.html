@@ -48,12 +48,14 @@
                 </select>
             </div>
             <div class="layui-input-inline">
-                <select name="dimensions" id="dimensions">
-                    <option value="" selected>选择尺寸</option>
-                    <option th:each="steel_size : ${steelSizes}"
-                            th:value="${steel_size.size}"
-                            th:text="${steel_size.size}"></option>
-                </select>
+                <div class="layui-input">
+                    <select name="dimensions" id="dimensions" lay-search>
+                        <option value="" selected>选择尺寸</option>
+                        <option th:each="steel_size : ${steelSizes}"
+                                th:value="${steel_size.size}"
+                                th:text="${steel_size.size}"></option>
+                    </select>
+                </div>
             </div>
             <div class="layui-input-inline">
                 <select name="tradeMode" id="tradeMode"  >

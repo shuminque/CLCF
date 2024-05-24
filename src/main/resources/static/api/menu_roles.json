@@ -120,7 +120,7 @@
                     ],
                     "child": [
                         {
-                            "title": "进出查询",
+                            "title": "记录查询",
                             "href": "/shipmentRecords",
                             "icon": "fa fa-th-list",
                             "target": "_self",
@@ -130,6 +130,15 @@
                         },
                         {
                             "title": "在库查询",
+                            "href": "/queryIn",
+                            "icon": "fa fa-th-list",
+                            "target": "_self",
+                            "roles": [
+                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "onlyRead"
+                            ]
+                        },
+                        {
+                            "title": "领料区管理",
                             "href": "/regionInventory",
                             "icon": "fa fa-th-list",
                             "target": "_self",
@@ -147,8 +156,8 @@
                             ]
                         },
                         {
-                            "title": "产品转移确认",
-                            "href": "/compre_transfer",
+                            "title": "转库管理",
+                            "href": "/transit-management",
                             "icon": "fa fa-th-list",
                             "target": "_self",
                             "roles": [

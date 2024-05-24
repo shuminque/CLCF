@@ -52,55 +52,58 @@ public class PageController {
     public String login() {
         return "pages/user/login";
     }
+    private void addCommonObjects(ModelAndView mv, Map<String, Object> params) {
+        mv.addObject("productCategorys", productCategoryService.findAll());
+        mv.addObject("steelGrades", steelGradeService.findAll());
+        mv.addObject("steelTypes", steelTypeService.findAll());
+        mv.addObject("customers", customerService.findAll());
+        mv.addObject("purchasers", purchaserService.findAll());
+        mv.addObject("steelSizes", steelSizeService.findAll());
+        mv.addObject("tradeModes", tradeModeService.findAll());
+        mv.addObject("areas", areaService.findAll(params));
+    }
     @GetMapping("/uploadExcel")
     public ModelAndView uploadExcel() {
         ModelAndView mv = new ModelAndView();
         mv.setViewName("clck/FileUpload");
-        mv.addObject("productCategorys", productCategoryService.findAll());
-        mv.addObject("steelGrades", steelGradeService.findAll());
-        mv.addObject("steelTypes", steelTypeService.findAll());
-        mv.addObject("customers", customerService.findAll());
-        mv.addObject("purchasers", purchaserService.findAll());
-        mv.addObject("steelSizes", steelSizeService.findAll());
-        mv.addObject("tradeModes", tradeModeService.findAll());
+        addCommonObjects(mv, null);
         return mv;
     }
+
     @GetMapping("/shipmentRecords")
-    public ModelAndView shipmentRecords() {
+    public ModelAndView shipmentRecords(Map<String, Object> params) {
         ModelAndView mv = new ModelAndView();
         mv.setViewName("clck/pcpage/shipmentRecords");
-        mv.addObject("productCategorys", productCategoryService.findAll());
-        mv.addObject("steelGrades", steelGradeService.findAll());
-        mv.addObject("steelTypes", steelTypeService.findAll());
-        mv.addObject("customers", customerService.findAll());
-        mv.addObject("purchasers", purchaserService.findAll());
-        mv.addObject("steelSizes", steelSizeService.findAll());
-        mv.addObject("tradeModes", tradeModeService.findAll());
+        addCommonObjects(mv, params);
         return mv;
     }
+
     @GetMapping("/regionInventory")
-    public ModelAndView regionInventory() {
+    public ModelAndView regionInventory(Map<String, Object> params) {
         ModelAndView mv = new ModelAndView();
         mv.setViewName("clck/pcpage/regionInventory");
-        mv.addObject("productCategorys", productCategoryService.findAll());
-        mv.addObject("steelGrades", steelGradeService.findAll());
-        mv.addObject("steelTypes", steelTypeService.findAll());
-        mv.addObject("customers", customerService.findAll());
-        mv.addObject("purchasers", purchaserService.findAll());
-        mv.addObject("steelSizes", steelSizeService.findAll());
-        mv.addObject("tradeModes", tradeModeService.findAll());
+        addCommonObjects(mv, params);
         return mv;
     }
+
+    @GetMapping("/queryIn")
+    public ModelAndView queryIn(Map<String, Object> params) {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("clck/pcpage/queryIn");
+        addCommonObjects(mv, params);
+        return mv;
+    }
+
     @GetMapping("/material-products")
     public ModelAndView materialProducts() {
-        ModelAndView mv = new ModelAndView();mv.setViewName("clck/pcpage/material-products");
-        mv.addObject("productCategorys", productCategoryService.findAll());
-        mv.addObject("steelGrades", steelGradeService.findAll());
-        mv.addObject("steelTypes", steelTypeService.findAll());
-        mv.addObject("customers", customerService.findAll());
-        mv.addObject("steelSizes", steelSizeService.findAll());
-        mv.addObject("tradeModes", tradeModeService.findAll());
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("clck/pcpage/material-products");
+        addCommonObjects(mv, null);
         return mv;
+    }
+    @GetMapping("/transit-management")
+    public String transitManagement() {
+        return "clck/pcpage/transit-management";
     }
     @GetMapping("/pda1")
     public ModelAndView pda(Map<String, Object> params) {
@@ -366,14 +369,14 @@ public class PageController {
 //        return mv;
 //    }
 //
-    @GetMapping("/application_in")
-    public ModelAndView application_in() {
-        ModelAndView mv = new ModelAndView();
-        mv.setViewName("pages/application/application-in");
-//        mv.addObject("depositories", depositoryService.findDepositoryAll());
-//        mv.addObject("reviewers", userService.findReviewers());
-        return mv;
-    }
+//    @GetMapping("/application_in")
+//    public ModelAndView application_in() {
+//        ModelAndView mv = new ModelAndView();
+//        mv.setViewName("pages/application/application-in");
+////        mv.addObject("depositories", depositoryService.findDepositoryAll());
+////        mv.addObject("reviewers", userService.findReviewers());
+//        return mv;
+//    }
 //
 //    @GetMapping("/application_out")
 //    public ModelAndView application_out() {

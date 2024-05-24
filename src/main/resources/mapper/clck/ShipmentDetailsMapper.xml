@@ -61,8 +61,84 @@
     </select>
 
     <!-- 查询所有记录操作 -->
-    <select id="selectAllShipmentDetails" resultMap="shipmentDetailsMap">
-        SELECT * FROM shipment_details
+    <select id="selectAllShipmentDetails" resultMap="shipmentDetailsMap" parameterType="map">
+        SELECT * FROM shipment_details WHERE 1=1
+        <if test="uniqueIdentifier != null and uniqueIdentifier != ''">
+            AND unique_identifier = #{uniqueIdentifier}
+        </if>
+        <if test="invoiceNumber != null and invoiceNumber != ''">
+            AND invoice_number = #{invoiceNumber}
+        </if>
+        <if test="customer != null and customer != ''">
+            AND customer = #{customer}
+        </if>
+        <if test="tradeMode != null and tradeMode != ''">
+            AND trade_mode = #{tradeMode}
+        </if>
+        <if test="steelGrade != null and steelGrade != ''">
+            AND steel_grade = #{steelGrade}
+        </if>
+        <if test="dimensions != null and dimensions != ''">
+            AND dimensions = #{dimensions}
+        </if>
+        <if test="steelMill != null and steelMill != ''">
+            AND steel_mill = #{steelMill}
+        </if>
+        <if test="supplierBatchNumber != null and steelMill != ''">
+            AND supplier_batch_number LIKE CONCAT('%',#{supplierBatchNumber},'%')
+        </if>
+        <if test="furnaceNumber != null and furnaceNumber != ''">
+            AND furnace_number LIKE CONCAT('%',#{furnaceNumber},'%')
+        </if>
+        <if test="placementArea != null and placementArea != ''">
+            AND placement_area = #{placementArea}
+        </if>
+        <if test="purchaser != null and purchaser != ''">
+            AND purchaser = #{purchaser}
+        </if>
+        <if test="startDate != null and endDate != null">
+            AND DATE(arrival_date) BETWEEN #{startDate} AND #{endDate}
+        </if>
+        ORDER BY id DESC
+        <if test="begin != null and size != null">
+            LIMIT #{begin},#{size}
+        </if>
+    </select>
+    <select id="countShipmentDetails" resultType="int" parameterType="map">
+        SELECT COUNT(*) FROM shipment_details WHERE 1=1
+        <if test="uniqueIdentifier != null and uniqueIdentifier != ''">
+            AND unique_identifier = #{uniqueIdentifier}
+        </if>
+        <if test="invoiceNumber != null and invoiceNumber != ''">
+            AND invoice_number = #{invoiceNumber}
+        </if>
+        <if test="customer != null and customer != ''">
+            AND customer = #{customer}
+        </if>
+        <if test="tradeMode != null and tradeMode != ''">
+            AND trade_mode = #{tradeMode}
+        </if>
+        <if test="steelGrade != null and steelGrade != ''">
+            AND steel_grade = #{steelGrade}
+        </if>
+        <if test="dimensions != null and dimensions != ''">
+            AND dimensions = #{dimensions}
+        </if>
+        <if test="steelMill != null and steelMill != ''">
+            AND steel_mill = #{steelMill}
+        </if>
+        <if test="supplierBatchNumber != null and steelMill != ''">
+            AND supplier_batch_number LIKE CONCAT('%',#{supplierBatchNumber},'%')
+        </if>
+        <if test="furnaceNumber != null and furnaceNumber != ''">
+            AND furnace_number LIKE CONCAT('%',#{furnaceNumber},'%')
+        </if>
+        <if test="placementArea != null and placementArea != ''">
+            AND placement_area = #{placementArea}
+        </if>
+        <if test="purchaser != null and purchaser != ''">
+            AND purchaser = #{purchaser}
+        </if>
     </select>
 
     <!-- 更新操作 -->
@@ -166,8 +242,11 @@
         <if test="steelMill != null and steelMill != ''">
             AND steel_mill = #{steelMill}
         </if>
+        <if test="supplierBatchNumber != null and steelMill != ''">
+            AND supplier_batch_number LIKE CONCAT('%',#{supplierBatchNumber},'%')
+        </if>
         <if test="furnaceNumber != null and furnaceNumber != ''">
-            AND furnace_number = #{furnaceNumber}
+            AND furnace_number LIKE CONCAT('%',#{furnaceNumber},'%')
         </if>
         <if test="placementArea != null and placementArea != ''">
             AND placement_area = #{placementArea}
@@ -215,8 +294,11 @@
         <if test="steelMill != null and steelMill != ''">
             AND steel_mill = #{steelMill}
         </if>
+        <if test="supplierBatchNumber != null and steelMill != ''">
+            AND supplier_batch_number LIKE CONCAT('%',#{supplierBatchNumber},'%')
+        </if>
         <if test="furnaceNumber != null and furnaceNumber != ''">
-            AND furnace_number = #{furnaceNumber}
+            AND furnace_number LIKE CONCAT('%',#{furnaceNumber},'%')
         </if>
         <if test="placementArea != null and placementArea != ''">
             AND placement_area = #{placementArea}
@@ -231,6 +313,11 @@
         SELECT
         latest_in_info.supplier_batch_number,
         latest_in_info.unique_identifier,
+        latest_in_info.invoice_number,
+        latest_in_info.delivery_point,
+        latest_in_info.arrival_port_date,
+        latest_in_info.arrival_port_date,
+        latest_in_info.purchaser,
         latest_in_info.customer,
         latest_in_info.trade_mode,
         latest_in_info.steel_grade,
