@@ -173,4 +173,16 @@ public class BearingRecordServiceImpl implements BearingRecordService {
         String formattedDate = sdf.format(date);
         return bearingRecordMapper.selectCountsByDateAndDepository(formattedDate, depository);
     }
+    // 实现查询客户、型号和在库数量的方法
+    @Override
+    public Integer getDistinctCustomerModelAndInStockQuantity(String customer,
+                                                              String outerInnerRing,
+                                                              String model,
+                                                              String time) {
+        Integer inStockQuantity = bearingRecordMapper.getDistinctCustomerModelAndInStockQuantity(customer, outerInnerRing, model, time);
+        return inStockQuantity != null ? inStockQuantity : 0; // 如果返回值为 null，则返回默认值 0
+    }
+
+
+
 }

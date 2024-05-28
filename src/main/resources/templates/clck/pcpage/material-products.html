@@ -165,14 +165,18 @@
                 };
             },
             height: 500, // 设置表格高度
-            cols: [ [ // 表头
-                {field: 'customer', title: '客户'},
-                {field: 'outer_inner_ring', title: '内外轮'},
-                {field: 'model', title: '型号'},
-                {field: 'single_eight', title: '单重'},
-                {field: 'pair', title: '配对号'},
-                {field: 'mode', title: '贸易方式'},
-            ]],
+            toolbar: ['filter', 'exports', 'print'],
+            cols: [
+                [ // 表头
+                    {field: 'customer', title: '客户'},
+                    {field: 'outer_inner_ring', title: '内外轮'},
+                    {field: 'model', title: '型号'},
+                    {field: 'single_eight', title: '单重'},
+                    {field: 'pair', title: '配对号'},
+                    {field: 'mode', title: '贸易方式'},
+                    {field: 'in_stock_quantity', title: '在库数量'}
+                ]
+            ],
             limits: [500,1000],
             limit: 500,
             page: true

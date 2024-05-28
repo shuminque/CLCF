@@ -97,7 +97,7 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
             stockOutRecord.setOperationType("入库");
             stockOutRecord.setSupplierBatchNumber(stockInRecord.getSupplierBatchNumber());
             stockOutRecord.setBundleCount(stockInRecord.getBundleCount());
-            stockOutRecord.setPlacementArea(stockInRecord.getPlacementArea());
+            stockOutRecord.setPlacementArea(placementArea);
             stockOutRecord.setPurchaser(stockInRecord.getPurchaser());
             shipmentDetailsMapper.insertShipmentDetail(stockOutRecord);
         }else {

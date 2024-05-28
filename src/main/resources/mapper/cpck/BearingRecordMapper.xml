@@ -211,7 +211,6 @@
         SELECT
         br.box_text,
         br.box_number,
-        br.depository,
         br.current_depository,
         br.customer,
         br.product_category,
@@ -271,9 +270,6 @@
         <if test="steelGrade != null and steelGrade != ''">
             AND br.steel_grade = #{steelGrade}
         </if>
-        <if test="depository != null and depository != ''">
-            AND br.depository = #{depository}
-        </if>
         <if test="currentDepository != null and currentDepository != ''">
             AND br.current_depository = #{currentDepository}
         </if>
@@ -283,7 +279,6 @@
         GROUP BY
         br.box_text,
         br.box_number,
-        br.depository,
         br.current_depository,
         br.customer,
         br.product_category,
@@ -582,5 +577,51 @@
         FROM bearing_records
         WHERE date(time) = #{date}
     </select>
+
+    <!-- 查询客户、型号和在库数量 -->
+    <select id="getDistinctCustomerModelAndInStockQuantity" resultType="java.lang.Integer" parameterType="map">
+        SELECT
+        SUM(CASE
+        WHEN br.transaction_type IN ('入库', '转入') THEN br.quantity
+        WHEN br.transaction_type IN ('出库', '转出', '返库') THEN -br.quantity
+        END) as in_stock_quantity
+        FROM
+        bearing_records br
+        JOIN (
+        SELECT
+        box_text,
+        box_number,
+        MAX(time) as last_recorded_time
+        FROM
+        bearing_records
+        WHERE
+        transaction_type IN ('入库', '转入')
+        <if test="time != null and time != ''">
+            AND time &lt;= DATE_ADD(#{time}, INTERVAL 1 DAY)
+        </if>
+        GROUP BY
+        box_text,
+        box_number
+        ) lr ON br.box_text = lr.box_text AND br.box_number = lr.box_number
+        WHERE
+        br.quantity > 0
+        <if test="time != null and time != ''">
+            AND br.time &lt;= DATE_ADD(#{time}, INTERVAL 1 DAY)
+        </if>
+        <if test="customer != null and customer != ''">
+            AND br.customer = #{customer}
+        </if>
+        <if test="outerInnerRing != null and outerInnerRing != ''">
+            AND br.outer_inner_ring = #{outerInnerRing}
+        </if>
+        <if test="model != null and model != ''">
+            AND br.model = #{model}
+        </if>
+        GROUP BY
+        br.customer,
+        br.outer_inner_ring,
+        br.model;
+    </select>
+
 
 </mapper>

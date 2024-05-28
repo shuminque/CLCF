@@ -1,6 +1,7 @@
 package com.depository_manage.controller;
 
 import com.depository_manage.entity.ShipmentDetails;
+import com.depository_manage.service.clck.DailyCounterService;
 import com.depository_manage.service.clck.ShipmentDetailsService;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,9 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import java.io.InputStream;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @RestController
@@ -24,7 +28,8 @@ public class FileUploadController {
 
     @Autowired
     private ShipmentDetailsService shipmentDetailsService;
-
+    @Autowired
+    private DailyCounterService dailyCounterService;
     @PostMapping
     public ResponseEntity<List<ShipmentDetails>> handleFileUpload(@RequestParam("file") MultipartFile file,
                                                                   @RequestParam("invoiceNumber") String invoiceNumber,
@@ -53,7 +58,11 @@ public class FileUploadController {
                 ShipmentDetails shipment = parseShipmentDetails(row,invoiceNumber, customer,tradeMode,deliveryPoint,purchaser,
                         arrivalPortDate,arrivalDate,steelGrade,steelType,steelSize);
                 if (shipment != null) {
-                    shipment.setUniqueIdentifier(UUID.randomUUID().toString()); // 设置唯一标识符
+                    LocalDate today = LocalDate.now();
+                    int counter = dailyCounterService.findAndUpdateCounterByDate(today); // 查询并更新序号
+                    String index = String.valueOf(counter);
+                    String uniqueIdentifier = today.format(DateTimeFormatter.ofPattern("yyMMdd")) + "-" + index; // 生成唯一标识符
+                    shipment.setUniqueIdentifier(uniqueIdentifier);
                     shipments.add(shipment);
                 }
             }

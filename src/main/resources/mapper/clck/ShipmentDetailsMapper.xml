@@ -345,6 +345,10 @@
     <select id="viewTransfer" parameterType="map" resultType="map">
         SELECT
             id,
+            steel_mill,
+            steel_grade,
+            dimensions,
+            weight,
             supplier_batch_number,
             placement_area AS from_area,
             to_area,

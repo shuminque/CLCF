@@ -27,5 +27,7 @@ public interface BearingRecordService {
     List<Map<String, Object>> getComprehensiveTransferRecords(Map<String, Object> params);
     int getComprehensiveTransferRecordsCount();
     Map<String, Object> getCountsByDateAndDepository(Date date, String depository);
+    // 查询客户、型号和在库数量
+    Integer getDistinctCustomerModelAndInStockQuantity(String customer, String outerInnerRing, String model, String time);
 
 }

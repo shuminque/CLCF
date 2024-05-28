@@ -1,6 +1,7 @@
 package com.depository_manage.controller;
 
 import com.depository_manage.entity.*;
+import com.depository_manage.service.BearingRecordService;
 import com.depository_manage.service.BearingService;
 import com.depository_manage.service.ProductIdService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +23,8 @@ public class BearingController {
     private BearingService bearingService;
     @Autowired
     private ProductIdService productIdService;
+    @Autowired
+    private BearingRecordService bearingRecordService;
 
     @GetMapping("/search")
     public ResponseEntity<?> searchBoxText(@RequestParam String query, @RequestParam(required = false) String depository) {
@@ -255,8 +259,21 @@ public class BearingController {
     @GetMapping("/getDistinctCustomerAndModel")
     public ResponseEntity<?> getDistinctCustomerAndModel(@RequestParam Map<String, Object> params) {
         List<Map<String, String>> result = bearingService.getDistinctCustomerAndModel(params);
+        // 遍历结果列表，为每行数据添加在库数量字段
+        for (Map<String, String> row : result) {
+            String customer = row.get("customer");
+            String outerInnerRing = row.get("outer_inner_ring");
+            String model = row.get("model");
+            String time = params.get("cutoffDate") != null ? params.get("cutoffDate").toString() : null;
+            System.out.println("Customer: " + customer + ", Outer Inner Ring: " + outerInnerRing + ", Model: " + model);
+            // 执行查询获取在库数量
+            int inStockQuantity = bearingRecordService.getDistinctCustomerModelAndInStockQuantity(customer, outerInnerRing, model, time);
+            // 将在库数量添加到结果行中
+            row.put("in_stock_quantity", String.valueOf(inStockQuantity));
+        }
         return ResponseEntity.ok(result);
     }
+
     public String convertDepositoryIdToText(int depositoryId) {
         switch (depositoryId) {
             case 1: return "SAB";

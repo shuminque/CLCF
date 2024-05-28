@@ -64,4 +64,10 @@ public interface BearingRecordMapper {
 
     boolean findTransferOutRecord(@Param("boxText") String boxText, @Param("boxNumber") String boxNumber, @Param("iter") int iter);
 
+    // 查询客户、型号和在库数量
+    Integer getDistinctCustomerModelAndInStockQuantity(@Param("customer") String customer,
+                                                   @Param("outerInnerRing") String outerInnerRing,
+                                                   @Param("model") String model,
+                                                   @Param("time") String time);
+
 }

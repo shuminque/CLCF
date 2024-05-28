@@ -32,6 +32,14 @@
                 <input type="text" name="time" id="date" placeholder="请选择日期" autocomplete="off" class="layui-input">
             </div>
             <div class="layui-input-inline">
+                <select class="input area-select" name="placementArea" id="areaSelect">
+                    <option value="" selected>选择库位</option>
+                    <option th:each="placement_area : ${areas}"
+                            th:value="${placement_area.area}"
+                            th:text="${placement_area.area}"></option>
+                </select>
+            </div>
+            <div class="layui-input-inline">
                 <select name="steelMill">
                     <option value="" selected>选择钢厂</option>
                     <option th:each="steel_type : ${steelTypes}"
@@ -94,14 +102,7 @@
                 <div class="layui-input-inline">
                     <input type="text" name="supplierBatchNumber" placeholder="搜索批号" class="layui-input">
                 </div>
-                <div class="layui-input-inline">
-                    <select class="input area-select" name="placementArea" id="areaSelect">
-                        <option value="" selected>选择库位</option>
-                        <option th:each="placement_area : ${areas}"
-                                th:value="${placement_area.area}"
-                                th:text="${placement_area.area}"></option>
-                    </select>
-                </div>
+
             </div>
             <div class="layui-inline">
                 <button type="submit" class="layui-btn layui-btn-primary" lay-submit lay-filter="data-search-btn">
@@ -155,7 +156,7 @@
             height: 600, // 设置表格高度
             toolbar: ['filter', 'exports', 'print'],
             cols: [ [ // 表头
-                {field: 'invoiceNumber', title: '发票编号'},
+                {field: 'invoiceNumber', title: '发票编号',totalRowText: '合计'},
                 {field: 'furnaceNumber', title: '炉号'},
                 {field: 'purchaser', title: '购买方'},
                 {field: 'steelMill', title: '钢厂'},
@@ -176,22 +177,27 @@
             limits: [200, 500, 1000, 20000],
             limit: 200,
             page: true, // 开启分页
+            totalRow: true, // 开启合计行
             done: function(res, curr, count) {
-                // 计算合计
+                // 计算支数与重量的合计
                 var totalBundleCount = 0;
                 var totalWeight = 0;
-                for (var i = 0; i < res.data.length; i++) {
-                    totalBundleCount += res.data[i].bundleCount;
-                    totalWeight += res.data[i].weight;
+                res.data.forEach(function(item) {
+                    totalBundleCount += parseInt(item.bundleCount);
+                    totalWeight += parseFloat(item.weight);
+                });
+                // 更新合计行的值
+                var totalRow = document.getElementsByClassName('layui-table-total')[0];
+                if (totalRow) {
+                    var bundleCountCell = totalRow.querySelector('td[data-field="bundleCount"]');
+                    var weightCell = totalRow.querySelector('td[data-field="weight"]');
+                    if (bundleCountCell) {
+                        bundleCountCell.getElementsByClassName('layui-table-cell')[0].innerText = totalBundleCount.toString();
+                    }
+                    if (weightCell) {
+                        weightCell.getElementsByClassName('layui-table-cell')[0].innerText = totalWeight.toFixed(2).toString();
+                    }
                 }
-                // 添加合计行
-                var totalRow = `<tr class="layui-table-total">
-                    <td colspan="4">合计</td>
-                    <td>${totalBundleCount}</td>
-                    <td>${totalWeight.toFixed(2)}</td>
-                    <td colspan="6"></td>
-                </tr>`;
-                $('#recordTable+div .layui-table-body tbody').append(totalRow);
             }
         });
 

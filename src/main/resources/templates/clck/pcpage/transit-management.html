@@ -109,10 +109,14 @@
             toolbar: ['filter', 'exports', 'print'],
             cols: [ [ // 表头
                 {field: 'id', title: 'ID'},
+                {field: 'steel_mill', title: '钢厂'},
+                {field: 'steel_grade', title: '钢等'},
+                {field: 'dimensions', title: '尺寸'},
+                {field: 'weight', title: '重量'},
                 {field: 'supplier_batch_number', title: '批号', hide:true},
                 {field: 'from_area', title: '转出区',sort: true},
                 {field: 'to_area', title: '转入区'},
-                {field: 'arrival_date', title: '转入时间', templet: function(d) {
+                {field: 'arrival_date', title: '转移时间', templet: function(d) {
                         return formatDate(d.arrival_date);}},
             ]],
             done: function(res, curr, count) {
