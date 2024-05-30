@@ -1,6 +1,7 @@
 package com.depository_manage.service;
 
 import com.depository_manage.entity.BearingRecord;
+import com.depository_manage.entity.ShipmentDetails;
 
 import java.util.Date;
 import java.util.List;
@@ -29,5 +30,6 @@ public interface BearingRecordService {
     Map<String, Object> getCountsByDateAndDepository(Date date, String depository);
     // 查询客户、型号和在库数量
     Integer getDistinctCustomerModelAndInStockQuantity(String customer, String outerInnerRing, String model, String time);
+    List<BearingRecord> getOutPDs(Map<String, Object> params);
 
 }

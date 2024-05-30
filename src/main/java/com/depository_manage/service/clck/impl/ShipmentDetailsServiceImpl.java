@@ -200,4 +200,9 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
     public List<Map<String, Object>> viewTransfer(Map<String, Object> params) {
         return shipmentDetailsMapper.viewTransfer(params);
     }
+
+    @Override
+    public List<ShipmentDetails> getIntoSDs(Map<String, Object> params) {
+        return shipmentDetailsMapper.getIntoSDs(params);
+    }
 }

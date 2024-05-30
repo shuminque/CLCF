@@ -118,6 +118,21 @@ public class ShipmentDetailsController {
         response.put("count", transferRecords.size());
         response.put("data", transferRecords);
         return ResponseEntity.ok(response);
-
+    }
+    @GetMapping("/viewStockTake")
+    public ResponseEntity<?> viewStockTake(  @RequestParam Map<String, Object> params) {
+        String dateRange = (String) params.get("time");
+        if (dateRange != null && dateRange.contains(" - ")) {
+            String[] dates = dateRange.split(" - ");
+            params.put("startDate", dates[0] + " 00:00:00");
+            params.put("endDate", dates[1] + " 23:59:59");
+        }
+        List<ShipmentDetails> records = shipmentDetailsService.getIntoSDs(params);
+        Map<String, Object> response = new HashMap<>();
+        response.put("code", 0);
+        response.put("msg", "");
+        response.put("count", records.size());
+        response.put("data", records);
+        return ResponseEntity.ok(response);
     }
 }

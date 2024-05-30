@@ -105,6 +105,13 @@ public class PageController {
     public String transitManagement() {
         return "clck/pcpage/transit-management";
     }
+    @GetMapping("/stockTake")
+    public ModelAndView stockTake() {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("clck/pcpage/stockTake");
+        addCommonObjects(mv, null);
+        return mv;
+    }
     @GetMapping("/pda1")
     public ModelAndView pda(Map<String, Object> params) {
         ModelAndView mv = new ModelAndView();

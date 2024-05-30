@@ -3,6 +3,7 @@ package com.depository_manage.controller;
 import com.depository_manage.entity.Bearing;
 import com.depository_manage.entity.BearingRecord;
 import com.depository_manage.entity.ProductId;
+import com.depository_manage.entity.ShipmentDetails;
 import com.depository_manage.service.BearingRecordService;
 import com.depository_manage.service.BearingService;
 import com.depository_manage.service.ProductIdService;
@@ -262,5 +263,20 @@ public class BearingRecordController {
         Map<String, Object> counts = bearingRecordService.getCountsByDateAndDepository(date, depository);
         return ResponseEntity.ok(counts);
     }
-
+    @GetMapping("/viewStockTake")
+    public ResponseEntity<?> viewStockTake(  @RequestParam Map<String, Object> params) {
+        String dateRange = (String) params.get("time");
+        if (dateRange != null && dateRange.contains(" - ")) {
+            String[] dates = dateRange.split(" - ");
+            params.put("startDate", dates[0] + " 00:00:00");
+            params.put("endDate", dates[1] + " 23:59:59");
+        }
+        List<BearingRecord> records = bearingRecordService.getOutPDs(params);
+        Map<String, Object> response = new HashMap<>();
+        response.put("code", 0);
+        response.put("msg", "");
+        response.put("count", records.size());
+        response.put("data", records);
+        return ResponseEntity.ok(response);
+    }
 }

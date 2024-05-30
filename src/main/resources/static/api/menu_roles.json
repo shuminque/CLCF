@@ -185,8 +185,8 @@
                     ],
                     "child": [
                         {
-                            "title": "制品在库报表",
-                            "href": "/every_pair",
+                            "title": "盘点管理",
+                            "href": "/stockTake",
                             "icon": "layui-icon layui-icon-list",
                             "target": "_self",
                             "roles": [

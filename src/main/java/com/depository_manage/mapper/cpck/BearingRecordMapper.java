@@ -1,6 +1,7 @@
 package com.depository_manage.mapper.cpck;
 
 import com.depository_manage.entity.BearingRecord;
+import com.depository_manage.entity.ShipmentDetails;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -69,5 +70,6 @@ public interface BearingRecordMapper {
                                                    @Param("outerInnerRing") String outerInnerRing,
                                                    @Param("model") String model,
                                                    @Param("time") String time);
+    List<BearingRecord> getOutPDs(Map<String, Object> params);
 
 }

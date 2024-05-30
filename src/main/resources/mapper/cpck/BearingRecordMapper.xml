@@ -25,13 +25,20 @@
         <result property="pair" column="pair"/>
         <result property="state" column="state"/>
         <result property="currentDepository" column="current_depository"/>
+        <result property="singleEight" column="single_eight"/>
+        <result property="mode" column="mode"/>
     </resultMap>
 
     <insert id="insertBearingRecord">
         INSERT INTO bearing_records
-        (transaction_type, box_text, box_number, quantity, time, operator, depository, storage_location, customer, outer_inner_ring, model, product_category, steel_type, steel_grade, remarks, iter, size, dissolve, pair, state, current_depository)
+        (transaction_type, box_text, box_number, quantity, time, operator, depository, storage_location, customer,
+         outer_inner_ring, model, product_category, steel_type, steel_grade, remarks, iter, size, dissolve, pair,
+         state, current_depository, single_eight, mode)
         VALUES
-            (#{transactionType}, #{boxText}, #{boxNumber}, #{quantity}, #{time}, #{operator}, #{depository}, #{storageLocation}, #{customer}, #{outerInnerRing}, #{model}, #{productCategory}, #{steelType}, #{steelGrade}, #{remarks}, #{iter}, #{size}, #{dissolve}, #{pair}, #{state}, #{currentDepository})
+            (#{transactionType}, #{boxText}, #{boxNumber}, #{quantity}, #{time}, #{operator}, #{depository},
+             #{storageLocation}, #{customer}, #{outerInnerRing}, #{model}, #{productCategory}, #{steelType},
+             #{steelGrade}, #{remarks}, #{iter}, #{size}, #{dissolve}, #{pair}, #{state}, #{currentDepository},
+             #{singleEight}, #{mode})
     </insert>
     <update id="updateBearingRecord">
         UPDATE bearing_records
@@ -578,6 +585,7 @@
         WHERE date(time) = #{date}
     </select>
 
+
     <!-- 查询客户、型号和在库数量 -->
     <select id="getDistinctCustomerModelAndInStockQuantity" resultType="java.lang.Integer" parameterType="map">
         SELECT
@@ -623,5 +631,16 @@
         br.model;
     </select>
 
-
+    <select id="getOutPDs" resultMap="bearingRecordMap" parameterType="map">
+        SELECT outer_inner_ring,steel_type,steel_grade,size,mode,customer,single_eight,
+        sum(quantity) as quantity,
+        (IF(single_eight > 1, sum(quantity * single_eight / 1000), 0))  as weigh,
+        (IF(single_eight &lt; 1, sum(quantity / single_eight), 0)) as count
+        FROM bearing_records
+        where transaction_type='出库' and state='正常'
+        <if test="startDate != null and endDate != null">
+            AND DATE(time) BETWEEN #{startDate} AND #{endDate}
+        </if>
+        group by  outer_inner_ring,steel_type,steel_grade,size,mode,customer,single_eight;
+    </select>
 </mapper>

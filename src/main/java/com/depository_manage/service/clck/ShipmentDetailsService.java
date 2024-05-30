@@ -18,5 +18,6 @@ public interface ShipmentDetailsService {
     void transfer(String uniqueIdentifier, String placementArea) throws Exception;  // 新增的方法
     List<ShipmentDetails> getStockStatusBeforeCutoffDate(Map<String, Object> params);
     List<Map<String, Object>> viewTransfer(Map<String, Object> params);
+    List<ShipmentDetails> getIntoSDs(Map<String, Object> params);
 
 }

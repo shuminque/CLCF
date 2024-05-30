@@ -347,7 +347,6 @@
         </if>
     </select>
 
-
     <select id="viewTransfer" parameterType="map" resultType="map">
         SELECT
             id,
@@ -377,5 +376,13 @@
             unique_identifier, arrival_date;
     </select>
 
-
+    <select id="getIntoSDs" resultMap="shipmentDetailsMap" parameterType="map">
+        SELECT steel_mill,steel_grade,dimensions,trade_mode,customer, sum(weight) as weight,sum(bundle_count) as bundle_count
+        FROM shipment_details
+        where operation_type='入库'
+        <if test="startDate != null and endDate != null">
+            AND DATE(arrival_date) BETWEEN #{startDate} AND #{endDate}
+        </if>
+        group by  steel_mill,steel_grade,dimensions,trade_mode,customer;
+    </select>
 </mapper>

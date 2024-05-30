@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>材料产品关联</title>
+    <link rel="stylesheet" href="/static/lib/layui-v2.8.17/css/layui.css" media="all">
+    <script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script>
+    <!-- jQuery 库 -->
+    <script src="/static/js/http_ajax.googleapis.com_ajax_libs_jquery_3.5.1_jquery.js"></script>
+    <script src="/static/js/http_code.jquery.com_jquery-3.6.0.min.js"></script>
+    <script src="/static/js/http_cdnjs.cloudflare.com_ajax_libs_bootstrap-3-typeahead_4.0.2_bootstrap3-typeahead.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin: 20px;
+        }
+        .layui-table-view .layui-table { /* 调整表格样式 */
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <form class="layui-form" id="searchForm">
+        <div class="layui-form-item">
+            <div class="layui-input-inline">
+                <input type="text" name="time" id="date" placeholder="请选择日期" autocomplete="off" class="layui-input">
+            </div>
+            <div class="layui-inline">
+                <button type="submit" class="layui-btn layui-btn-primary" lay-submit lay-filter="data-search-btn">
+                    <i class="layui-icon"></i> 搜 索
+                </button>
+            </div>
+        </div>
+    </form>
+    <table id="recordTable" lay-filter="recordTableFilter"></table>
+    <table id="bearingsTable" lay-filter="bearingsTableFilter"></table>
+</div>
+<script>
+    layui.use(['table', 'form', 'laydate'], function(){
+        var table = layui.table;
+        var form = layui.form;
+        var laydate=layui.laydate;
+
+        // 初始化日期范围选择器
+        laydate.render({
+            elem: '#date',
+            range: true,
+            rangeLinked: true
+        });
+
+        // 渲染表格
+        var recordTable = table.render({
+            elem: '#recordTable',
+            url: '/shipment/viewStockTake',
+            title:'材料入库情况',
+            request: {
+                pageName:'page',
+                limitName:'size'
+            },
+            height: 600, // 设置表格高度
+            toolbar: ['filter', 'exports', 'print'],
+            cols: [ [ // 表头
+                {field: 'steelMill', title: '钢厂',totalRowText: '合计'},
+                {field: 'steelGrade', title: '钢材等级'},
+                {field: 'dimensions', title: '尺寸'},
+                {field: 'tradeMode', title: '贸易方式'},
+                {field: 'customer', title: '客户'},
+                {field: 'bundleCount', title: '支数'},
+                {field: 'weight', title: '重量'}
+            ]],
+            limits: [200, 500, 1000, 20000],
+            limit: 200,
+            page: true, // 开启分页
+            totalRow: true, // 开启合计行
+            done: function(res, curr, count) {
+                // 计算支数与重量的合计
+                var totalBundleCount = 0;
+                var totalWeight = 0;
+                res.data.forEach(function(item) {
+                    totalBundleCount += parseInt(item.bundleCount);
+                    totalWeight += parseFloat(item.weight);
+                });
+                // 更新合计行的值
+                var totalRow = document.querySelector('[lay-id="recordTable"] .layui-table-total');
+                if (totalRow) {
+                    var bundleCountCell = totalRow.querySelector('td[data-field="bundleCount"]');
+                    var weightCell = totalRow.querySelector('td[data-field="weight"]');
+                    if (bundleCountCell) {
+                        bundleCountCell.getElementsByClassName('layui-table-cell')[0].innerText = totalBundleCount.toString();
+                    }
+                    if (weightCell) {
+                        weightCell.getElementsByClassName('layui-table-cell')[0].innerText = totalWeight.toFixed(2).toString();
+                    }
+                }
+            }
+        });
+        // 格式化日期
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            let date = new Date(dateStr);
+            let year = date.getFullYear();
+            let month = (date.getMonth() + 1).toString().padStart(2, '0');
+            let day = date.getDate().toString().padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        // 统一搜索表单提交事件
+        form.on('submit(data-search-btn)', function(data) {
+            var req = {};
+            var formData = data.field;
+            if (formData.steelMill !== '') {
+                req.steelMill = formData.steelMill;
+            }
+            if (formData.steelGrade !== '') {
+                req.steelGrade = formData.steelGrade;
+            }
+            if (formData.tradeMode !== '') {
+                req.tradeMode = formData.tradeMode;
+            }
+            if (formData.dimensions !== '') {
+                req.dimensions = formData.dimensions;
+            }
+            if (formData.time !== '') {
+                var dates = formData.time.split(' - ');
+                req.startDate = dates[0];
+                req.endDate = dates[1];
+            }
+            // 执行搜索重载
+            recordTable.reload({
+                url: '/shipment/viewStockTake',
+                where: req,
+                page: { curr: 1 }
+            });
+            // 渲染第二个表格
+            var bearingsTable = table.render({
+                elem: '#bearingsTable',
+                url: '/bearingRecords/viewStockTake',
+                title:'产品出库情况',
+                height: 500, // 设置表格高度
+                toolbar: ['filter', 'exports', 'print'],
+                cols: [
+                    [ // 表头
+                        {field: 'outerInnerRing', title: '内外轮',sort:true, totalRowText: '合计'},
+                        {field: 'steelType', title: '钢厂' ,sort:true,totalRowText: 'LA合计重量:'},
+                        {field: 'steelGrade', title: '钢材等级'},
+                        {field: 'size', title: '尺寸',sort:true, totalRowText: 'LA合计个数:'},
+                        {field: 'mode', title: '贸易方式',sort:true},
+                        {field: 'customer', title: '客户',sort:true},
+                        {field: 'singleEight', title: '单重',sort:true},
+                        {field: 'quantity', title: '数量',sort:true},
+                        {field: 'weigh', title: '重量(kg)', sort: true, },
+                        {field: 'count', title: '个数', sort: true,}
+                    ]
+                ],
+                limits: [500,1000],
+                limit: 500,
+                where: req,
+                page: { curr: 1 },
+                totalRow: true,
+                done: function(res, curr, count) {
+                    var totalLAStockQuantity = 0;
+                    var totalLAConsumableWeight = 0;
+                    var totalLBStockQuantity = 0;
+                    var totalLBConsumableWeight = 0;
+                    res.data.forEach(function(item) {
+                        if (item.outerInnerRing === 'LA') {
+                            totalLAStockQuantity += (item.weigh);
+                            totalLAConsumableWeight += parseInt(item.count);
+                        }else if (item.outerInnerRing === 'LB') {
+                            totalLBStockQuantity += (item.weigh);
+                            totalLBConsumableWeight += parseInt(item.count);
+                        }
+
+                    });
+                    // 更新合计行的值
+                    var totalRow = document.querySelector('[lay-id="bearingsTable"] .layui-table-total'); // 通过 lay-id 来找到第二个表格的合计行
+                    var laStockQuantityCell = totalRow.querySelector('td[data-field="steelGrade"]');
+                    var laConsumableWeightCell = totalRow.querySelector('td[data-field="mode"]');
+                    var lbStockQuantityCell = totalRow.querySelector('td[data-field="singleEight"]');
+                    var lbConsumableWeightCell = totalRow.querySelector('td[data-field="weigh"]');
+                    if (laStockQuantityCell) {
+                        laStockQuantityCell.getElementsByClassName('layui-table-cell')[0].innerText = totalLAStockQuantity.toFixed(0).toString();
+                    }
+                    if (laConsumableWeightCell) {
+                        laConsumableWeightCell.getElementsByClassName('layui-table-cell')[0].innerText = totalLAConsumableWeight.toFixed(0).toString();
+                    }
+                    if (lbStockQuantityCell) {
+                        lbStockQuantityCell.getElementsByClassName('layui-table-cell')[0].innerText = totalLBStockQuantity.toFixed(0).toString();
+                    }
+                    if (lbConsumableWeightCell) {
+                        lbConsumableWeightCell.getElementsByClassName('layui-table-cell')[0].innerText = totalLBConsumableWeight.toFixed(0).toString();
+                    }
+                }
+            });
+
+            // bearingsTable.reload({
+            //     url: '/bearings/viewStockTake',
+            //     where: req,
+            //     page: { curr: 1 }
+            // });
+            return false;
+        });
+
+    });
+</script>
+</body>
+</html>

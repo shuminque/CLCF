@@ -124,12 +124,6 @@
 </div>
 
 <script>
-    var userReviewGroupId;
-    var userAuthority;
-    var userDepositoryId;
-    var userDepository;
-    var depositoryId;
-
     layui.use(['table', 'form', 'laydate'], function(){
         var table = layui.table;
         var form = layui.form;
@@ -248,7 +242,8 @@
                 var dates = formData.time.split(' - ');
                 req.startDate = dates[0];
                 req.endDate = dates[1];
-            }            // 执行搜索重载
+            }
+            // 执行搜索重载
             recordTable.reload({
                 url: '/records',
                 where: req,
