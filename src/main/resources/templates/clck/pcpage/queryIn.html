@@ -117,12 +117,6 @@
 </div>
 
 <script>
-    var userReviewGroupId;
-    var userAuthority;
-    var userDepositoryId;
-    var userDepository;
-    var depositoryId;
-
     layui.use(['table', 'form', 'laydate'], function(){
         var table = layui.table;
         var form = layui.form;
@@ -156,9 +150,9 @@
             height: 600, // 设置表格高度
             toolbar: ['filter', 'exports', 'print'],
             cols: [ [ // 表头
-                {field: 'invoiceNumber', title: '发票编号',totalRowText: '合计'},
+                {field: 'uniqueIdentifier', title: '标识',totalRowText: '合计'},
+                {field: 'invoiceNumber', title: '发票编号',hide:true},
                 {field: 'furnaceNumber', title: '炉号'},
-                {field: 'purchaser', title: '购买方'},
                 {field: 'steelMill', title: '钢厂'},
                 {field: 'steelGrade', title: '钢材等级'},
                 {field: 'dimensions', title: '尺寸'},
@@ -168,8 +162,11 @@
                 {field: 'customer', title: '客户'},
                 {field: 'placementArea', title: '库位'},
                 {field: 'supplierBatchNumber', title: '供应商生产批号'},
-                {field: 'deliveryPoint', title: '到货地址'},
-                {field: 'arrivalPortDate', title: '到港日期'},
+                {field: 'deliveryPoint', title: '到货地址',hide:true},
+                {field: 'purchaser', title: '购买方',hide:true},
+                {field: 'arrivalPortDate', title: '到港日期',hide:true,templet: function(d){
+                        return formatDate(d.arrivalDate);
+                    }},
                 {field: 'arrivalDate', title: '到达日期', templet: function(d){
                         return formatDate(d.arrivalDate);
                     }},

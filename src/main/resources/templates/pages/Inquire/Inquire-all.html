@@ -351,7 +351,6 @@
         form.on('submit(data-search-btn)', function(data) {
             var req = {};
             var formData = data.field;
-
             formData.transactionType = $('#transactionType').val(); // 读取交易类型的值
             if(formData.transactionType !== '') {
                 req.transactionType = formData.transactionType;

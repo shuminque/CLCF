@@ -63,6 +63,9 @@
     <!-- 查询所有记录操作 -->
     <select id="selectAllShipmentDetails" resultMap="shipmentDetailsMap" parameterType="map">
         SELECT * FROM shipment_details WHERE 1=1
+        <if test="operationType != null and operationType != ''">
+            AND operation_type = #{operationType}
+        </if>
         <if test="uniqueIdentifier != null and uniqueIdentifier != ''">
             AND unique_identifier = #{uniqueIdentifier}
         </if>
@@ -106,6 +109,9 @@
     </select>
     <select id="countShipmentDetails" resultType="int" parameterType="map">
         SELECT COUNT(*) FROM shipment_details WHERE 1=1
+        <if test="operationType != null and operationType != ''">
+            AND operation_type = #{operationType}
+        </if>
         <if test="uniqueIdentifier != null and uniqueIdentifier != ''">
             AND unique_identifier = #{uniqueIdentifier}
         </if>
@@ -172,40 +178,40 @@
     </delete>
 
     <!-- 更新 operation_type 和 placement_area -->
-    <update id="updateOperationTypeBySupplierBatchNumber" parameterType="map">
+    <update id="updateOperationTypeByUniqueIdentifier" parameterType="map">
         UPDATE shipment_details
         SET operation_type = #{operationType}, placement_area = #{placementArea}
-        WHERE supplier_batch_number = #{supplierBatchNumber}
+        WHERE unique_identifier = #{uniqueIdentifier}
           AND (operation_type IS NULL OR operation_type = '')
     </update>
 
-    <!-- 根据 supplier_batch_number 查询在库记录 -->
-    <select id="findStockInBySupplierBatchNumber" parameterType="string" resultMap="shipmentDetailsMap">
+    <!-- 根据 unique_identifier 查询在库记录 -->
+    <select id="findStockInByUniqueIdentifier" parameterType="string" resultMap="shipmentDetailsMap">
         SELECT * FROM shipment_details
-        WHERE supplier_batch_number = #{supplierBatchNumber}
+        WHERE unique_identifier = #{uniqueIdentifier}
           AND (operation_type = '入库' OR operation_type = '转库')
         ORDER BY id DESC
             LIMIT 1
     </select>
 
-    <!-- 根据 supplier_batch_number 查询在库或转库记录 -->
-    <select id="findStockInOrTransferBySupplierBatchNumber" parameterType="string" resultMap="shipmentDetailsMap">
+    <!-- 根据 unique_identifier 查询在库或转库记录 -->
+    <select id="findStockInOrTransferByUniqueIdentifier" parameterType="string" resultMap="shipmentDetailsMap">
         SELECT * FROM shipment_details
-        WHERE supplier_batch_number = #{supplierBatchNumber}
+        WHERE unique_identifier = #{uniqueIdentifier}
           AND (operation_type = '入库' OR operation_type = '转库')
         ORDER BY id DESC
             LIMIT 1
     </select>
 
     <!-- 计算净入库数量 -->
-    <select id="getNetStockInCountBySupplierBatchNumber" resultType="int">
+    <select id="getNetStockInCountByUniqueIdentifier" resultType="int">
         SELECT (
                    SELECT COUNT(*) FROM shipment_details
-                   WHERE supplier_batch_number = #{supplierBatchNumber}
+                   WHERE unique_identifier = #{uniqueIdentifier}
                      AND operation_type = '入库'
                ) - (
                    SELECT COUNT(*) FROM shipment_details
-                   WHERE supplier_batch_number = #{supplierBatchNumber}
+                   WHERE unique_identifier = #{uniqueIdentifier}
                      AND operation_type = '出库'
                ) AS netStockInCount
     </select>
@@ -214,7 +220,7 @@
     <select id="getStockStatusBeforeCutoffDate" resultMap="shipmentDetailsMap" parameterType="map">
         WITH in_out_count AS (
         SELECT
-        supplier_batch_number,
+        unique_identifier,
         SUM(CASE WHEN operation_type = '入库' THEN 1 ELSE 0 END) AS in_count,
         SUM(CASE WHEN operation_type = '出库' THEN 1 ELSE 0 END) AS out_count
         FROM
@@ -255,7 +261,7 @@
             AND purchaser = #{purchaser}
         </if>
         GROUP BY
-        supplier_batch_number
+        unique_identifier
         HAVING
         in_count > out_count
         ),
@@ -266,12 +272,12 @@
         shipment_details sd
         JOIN (
         SELECT
-        supplier_batch_number,
+        unique_identifier,
         MAX(id) AS latest_id
         FROM
         shipment_details
         WHERE
-        operation_type = '入库'
+        (operation_type = '入库' OR operation_type = '转库')
         AND arrival_date &lt;= #{cutoffDate}
         <if test="uniqueIdentifier != null and uniqueIdentifier != ''">
             AND unique_identifier = #{uniqueIdentifier}
@@ -307,7 +313,7 @@
             AND purchaser = #{purchaser}
         </if>
         GROUP BY
-        supplier_batch_number
+        unique_identifier
         ) sub ON sd.id = sub.latest_id
         )
         SELECT
@@ -333,7 +339,7 @@
         FROM
         latest_in_info
         JOIN
-        in_out_count ON latest_in_info.supplier_batch_number = in_out_count.supplier_batch_number
+        in_out_count ON latest_in_info.unique_identifier = in_out_count.unique_identifier
         ORDER BY
         latest_in_info.arrival_date DESC
         <if test="begin != null and size != null">
@@ -349,14 +355,15 @@
             steel_grade,
             dimensions,
             weight,
-            supplier_batch_number,
+            unique_identifier,
             placement_area AS from_area,
             to_area,
             arrival_date
         FROM (
                  SELECT
                      sd.*,
-                     LEAD(sd.placement_area) OVER (PARTITION BY sd.supplier_batch_number ORDER BY sd.arrival_date) AS to_area
+                     LEAD(sd.placement_area) OVER (PARTITION BY sd.unique_identifier ORDER BY sd.arrival_date) AS to_area,
+                         LEAD(sd.operation_type) OVER (PARTITION BY sd.unique_identifier ORDER BY sd.arrival_date) AS next_operation
                  FROM
                      shipment_details sd
                  WHERE
@@ -365,18 +372,10 @@
              ) AS subquery
         WHERE
             to_area IS NOT NULL
-          AND supplier_batch_number IN (
-            SELECT
-                supplier_batch_number
-            FROM
-                shipment_details
-            GROUP BY
-                supplier_batch_number
-            HAVING
-                COUNT(DISTINCT placement_area) > 1
-        )
+          AND (operation_type = '入库' AND next_operation = '转库') OR (operation_type = '转库' AND next_operation = '转库')
         ORDER BY
-            supplier_batch_number, arrival_date;
+            unique_identifier, arrival_date;
     </select>
+
 
 </mapper>

@@ -9,6 +9,8 @@
     <script src="/static/js/http_ajax.googleapis.com_ajax_libs_jquery_3.5.1_jquery.js"></script>
     <script src="/static/js/http_code.jquery.com_jquery-3.6.0.min.js"></script>
     <script src="/static/js/http_cdnjs.cloudflare.com_ajax_libs_bootstrap-3-typeahead_4.0.2_bootstrap3-typeahead.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/vfs_fonts.js"></script>
     <style>
         body {
             background-color: #f8f9fa;
@@ -113,6 +115,10 @@
     <table id="recordTable" lay-filter="recordTableFilter"></table>
     <table id="bearingsTable" lay-filter="bearingsTableFilter"></table>
 </div>
+<script type="text/html" id="exportButtonTpl">
+    <button class="layui-btn layui-btn-sm layui-btn-normal" lay-event="exportPDF">导出PDF</button>
+</script>
+
 <script>
     var userReviewGroupId;
     var userAuthority;
@@ -151,9 +157,9 @@
             height: 600, // 设置表格高度
             toolbar: ['filter', 'exports', 'print'],
             cols: [ [ // 表头
+                {field: 'uniqueIdentifier', title: '标识',totalRowText: '合计'},
                 {field: 'invoiceNumber', title: '发票编号',hide:true},
-                {field: 'furnaceNumber', title: '炉号',totalRowText: '合计'},
-                {field: 'purchaser', title: '购买方'},
+                {field: 'furnaceNumber', title: '炉号'},
                 {field: 'steelMill', title: '钢厂'},
                 {field: 'steelGrade', title: '钢材等级'},
                 {field: 'dimensions', title: '尺寸'},
@@ -163,12 +169,16 @@
                 {field: 'customer', title: '客户'},
                 {field: 'placementArea', title: '库位'},
                 {field: 'supplierBatchNumber', title: '供应商生产批号'},
+                {field: 'purchaser', title: '购买方',hide:true},
                 {field: 'deliveryPoint', title: '到货地址',hide:true},
-                {field: 'arrivalPortDate', title: '到港日期',hide:true},
+                {field: 'arrivalPortDate', title: '到港日期',hide:true, templet: function(d){
+                        return formatDate(d.arrivalDate);
+                    }},
                 {field: 'arrivalDate', title: '到达日期', templet: function(d){
                         return formatDate(d.arrivalDate);
                     }},
-                {field: ' ', title: '打印'},
+                {field: 'export', title: '导出PDF'}
+                    // templet: '#exportButtonTpl'}
             ]],
             limits: [200, 500, 1000, 20000],
             limit: 200,
@@ -196,6 +206,31 @@
                 }
             }
         });
+        table.on('tool(recordTableFilter)', function(obj){
+            var data = obj.data;
+            if(obj.event === 'exportPDF'){
+                // 获取当前行数据，调用导出 PDF 的函数
+                exportToPDF(data);
+            }
+        });
+
+        function exportToPDF(data) {
+            // 定义文档内容
+            var docDefinition = {
+                content: [
+                    { text: '发票编号: ' + data.invoiceNumber },
+                    { text: '炉号: ' + data.furnaceNumber },
+                    { text: '购买方: ' + data.purchaser },
+                    { text: '钢厂: ' + data.steelMill },
+                    { text: '钢材等级: ' + data.steelGrade }
+                    // 可以根据需要添加更多的数据
+                ]
+            };
+
+            // 使用 PDFMake 生成 PDF 文件
+            pdfMake.createPdf(docDefinition).download('export.pdf');
+        }
+
         // 格式化日期
         function formatDate(dateStr) {
             if (!dateStr) return '';
@@ -250,6 +285,7 @@
         //     $('#advancedSearchForm').slideToggle();
         // });
     });
+
 </script>
 </body>
 </html>

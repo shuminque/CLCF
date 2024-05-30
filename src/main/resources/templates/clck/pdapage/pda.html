@@ -199,7 +199,8 @@
         tradeMode: values[7],
         customer: values[8],
         deliveryPoint: values[9],
-        supplierBatchNumber: values[10]
+        supplierBatchNumber: values[10],
+        uniqueIdentifier:values[11]
       };
       switch (currentOperation) {
         case 'stockIn':
@@ -235,7 +236,7 @@
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        supplierBatchNumber: data.supplierBatchNumber,
+        uniqueIdentifier: data.uniqueIdentifier,
         operationType: '入库',
         placementArea: placementAreaData
       })
@@ -257,7 +258,7 @@
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ supplierBatchNumber: data.supplierBatchNumber })
+      body: JSON.stringify({ uniqueIdentifier: data.uniqueIdentifier })
     }).then(response => {
       if (response.ok) {
         console.log('operationType updated');
@@ -279,7 +280,7 @@
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        supplierBatchNumber: data.supplierBatchNumber,
+        uniqueIdentifier: data.uniqueIdentifier,
         placementArea: placementAreaData
       })
     }).then(response => {

@@ -58,10 +58,10 @@ public class ShipmentDetailsController {
     @PostMapping("/updateOperationType")
     public ResponseEntity<Void> updateOperationType(@RequestBody Map<String, String> request) {
         try {
-            String supplierBatchNumber = request.get("supplierBatchNumber");
+            String uniqueIdentifier = request.get("uniqueIdentifier");
             String operationType = request.get("operationType");
             String placementArea = request.get("placementArea");
-            shipmentDetailsService.updateOperationTypeBySupplierBatchNumber(supplierBatchNumber, operationType, placementArea);
+            shipmentDetailsService.updateOperationTypeByUniqueIdentifier(uniqueIdentifier, operationType, placementArea);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.status(400).body(null);  // Return 400 Bad Request if duplicate entry is attempted
@@ -70,8 +70,8 @@ public class ShipmentDetailsController {
     @PostMapping("/stockOut")
     public ResponseEntity<Void> stockOut(@RequestBody Map<String, String> request) {
         try {
-            String supplierBatchNumber = request.get("supplierBatchNumber");
-            shipmentDetailsService.stockOut(supplierBatchNumber);
+            String uniqueIdentifier = request.get("uniqueIdentifier");
+            shipmentDetailsService.stockOut(uniqueIdentifier);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.status(400).body(null);  // Return 400 Bad Request if stock out is not allowed
@@ -80,10 +80,10 @@ public class ShipmentDetailsController {
 
     @PostMapping("/transfer")
     public ResponseEntity<String> transfer(@RequestBody Map<String, String> request) {
-        String supplierBatchNumber = request.get("supplierBatchNumber");
+        String uniqueIdentifier = request.get("uniqueIdentifier");
         String placementArea = request.get("placementArea");
         try {
-            shipmentDetailsService.transfer(supplierBatchNumber, placementArea);
+            shipmentDetailsService.transfer(uniqueIdentifier, placementArea);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.status(400).body(e.getMessage());  // Return 400 Bad Request with error message

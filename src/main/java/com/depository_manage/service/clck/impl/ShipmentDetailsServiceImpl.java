@@ -71,17 +71,18 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
     }
 
     @Override
-    public void updateOperationTypeBySupplierBatchNumber(String supplierBatchNumber, String operationType, String placementArea) throws Exception {
+    public void updateOperationTypeByUniqueIdentifier(String uniqueIdentifier, String operationType, String placementArea) throws Exception {
         if ("入库".equals(operationType)) {
-            if (!canStockIn(supplierBatchNumber)) {
+            if (!canStockIn(uniqueIdentifier)) {
                 throw new Exception("该批次号已入库，不能重复入库");
             }
         }
-        List<ShipmentDetails> stockInRecords = shipmentDetailsMapper.findStockInBySupplierBatchNumber(supplierBatchNumber);
+        List<ShipmentDetails> stockInRecords = shipmentDetailsMapper.findStockInByUniqueIdentifier(uniqueIdentifier);
         if (!stockInRecords.isEmpty()) {
             ShipmentDetails stockInRecord = stockInRecords.get(0);
             // 创建出库记录
             ShipmentDetails stockOutRecord = new ShipmentDetails();
+            stockOutRecord.setUniqueIdentifier(stockInRecord.getUniqueIdentifier());
             stockOutRecord.setInvoiceNumber(stockInRecord.getInvoiceNumber());
             stockOutRecord.setCustomer(stockInRecord.getCustomer());
             stockOutRecord.setTradeMode(stockInRecord.getTradeMode());
@@ -101,27 +102,28 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
             stockOutRecord.setPurchaser(stockInRecord.getPurchaser());
             shipmentDetailsMapper.insertShipmentDetail(stockOutRecord);
         }else {
-            shipmentDetailsMapper.updateOperationTypeBySupplierBatchNumber(supplierBatchNumber, operationType, placementArea);
+            shipmentDetailsMapper.updateOperationTypeByUniqueIdentifier(uniqueIdentifier, operationType, placementArea);
         }
     }
 
-    private boolean canStockIn(String supplierBatchNumber) {
-        int netStockInCount = shipmentDetailsMapper.getNetStockInCountBySupplierBatchNumber(supplierBatchNumber);
+    private boolean canStockIn(String uniqueIdentifier) {
+        int netStockInCount = shipmentDetailsMapper.getNetStockInCountByUniqueIdentifier(uniqueIdentifier);
         return netStockInCount <= 0;
     }
 
     @Override
-    public void stockOut(String supplierBatchNumber) throws Exception {
-        int netStockInCount = shipmentDetailsMapper.getNetStockInCountBySupplierBatchNumber(supplierBatchNumber);
+    public void stockOut(String uniqueIdentifier) throws Exception {
+        int netStockInCount = shipmentDetailsMapper.getNetStockInCountByUniqueIdentifier(uniqueIdentifier);
         if (netStockInCount <= 0) {
             throw new Exception("当前批次号没有可出库的库存");
         }
-        // 根据 supplierBatchNumber 和 operationType 为 '入库' 查找记录
-        List<ShipmentDetails> stockInRecords = shipmentDetailsMapper.findStockInBySupplierBatchNumber(supplierBatchNumber);
+        // 根据 uniqueIdentifier 和 operationType 为 '入库' 查找记录
+        List<ShipmentDetails> stockInRecords = shipmentDetailsMapper.findStockInByUniqueIdentifier(uniqueIdentifier);
         if (stockInRecords != null) {
             ShipmentDetails stockInRecord = stockInRecords.get(0);
             // 创建出库记录
             ShipmentDetails stockOutRecord = new ShipmentDetails();
+            stockOutRecord.setUniqueIdentifier(stockInRecord.getUniqueIdentifier());
             stockOutRecord.setInvoiceNumber(stockInRecord.getInvoiceNumber());
             stockOutRecord.setCustomer(stockInRecord.getCustomer());
             stockOutRecord.setTradeMode(stockInRecord.getTradeMode());
@@ -144,13 +146,13 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
         }
     }
     @Override
-    public void transfer(String supplierBatchNumber, String placementArea) throws Exception {
+    public void transfer(String uniqueIdentifier, String placementArea) throws Exception {
         // 检查净入库记录数是否大于0
-        int netStockInCount = shipmentDetailsMapper.getNetStockInCountBySupplierBatchNumber(supplierBatchNumber);
+        int netStockInCount = shipmentDetailsMapper.getNetStockInCountByUniqueIdentifier(uniqueIdentifier);
         if (netStockInCount <= 0) {
             throw new Exception("该产品无库存，操作无效");
         }
-        List<ShipmentDetails> records = shipmentDetailsMapper.findStockInOrTransferBySupplierBatchNumber(supplierBatchNumber);
+        List<ShipmentDetails> records = shipmentDetailsMapper.findStockInOrTransferByUniqueIdentifier(uniqueIdentifier);
         if (!records.isEmpty()) {
             ShipmentDetails record = records.get(0);
             // 检查选择的库位是否与原库位相同
@@ -158,6 +160,7 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
                 throw new Exception("选择的库位与原库位相同，请选择不同的库位");
             }
             ShipmentDetails transferRecord = new ShipmentDetails();
+            transferRecord.setUniqueIdentifier(record.getUniqueIdentifier());
             transferRecord.setInvoiceNumber(record.getInvoiceNumber());
             transferRecord.setCustomer(record.getCustomer());
             transferRecord.setTradeMode(record.getTradeMode());

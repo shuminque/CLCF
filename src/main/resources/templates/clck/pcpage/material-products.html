@@ -72,18 +72,14 @@
             </div>
         </div>
     </form>
-    <table id="recordTable" lay-filter="recordTableFilter"></table>
-    <table id="bearingsTable" lay-filter="bearingsTableFilter"></table>
-
+    <table id="recordTable" lay-filter="recordTableFilter">
+    </table>
+    <table id="bearingsTable"   lay-filter="bearingsTableFilter">
+    </table>
+    <table id="bearingsTableLB"   lay-filter="bearingsTableFilterLB">
+    </table>
 </div>
-
 <script>
-    var userReviewGroupId;
-    var userAuthority;
-    var userDepositoryId;
-    var userDepository;
-    var depositoryId;
-
     layui.use(['table', 'form', 'laydate'], function(){
         var table = layui.table;
         var form = layui.form;
@@ -99,6 +95,7 @@
         var recordTable = table.render({
             elem: '#recordTable',
             url: '/shipment/getStockStatusBeforeCutoffDate',
+            title:'关联棒材库存明细',
             parseData: function(res) { // 将原始数据格式适配成 layui 表格组件所期望的格式
                 var filteredData = res.filter(function(record) {
                     return record.weight > 0;
@@ -117,6 +114,7 @@
             height: 600, // 设置表格高度
             toolbar: ['filter', 'exports', 'print'],
             cols: [ [ // 表头
+                {field: 'uniqueIdentifier', title: '标识',totalRowText: '合计'},
                 {field: 'steelMill', title: '钢厂'},
                 {field: 'steelGrade', title: '钢材等级'},
                 {field: 'dimensions', title: '尺寸'},
@@ -133,53 +131,28 @@
             limits: [200, 500, 1000, 20000],
             limit: 200,
             page: true, // 开启分页
+            totalRow: true, // 开启合计行
             done: function(res, curr, count) {
-                // 计算合计
+                // 计算支数与重量的合计
                 var totalBundleCount = 0;
                 var totalWeight = 0;
-                for (var i = 0; i < res.data.length; i++) {
-                    totalBundleCount += res.data[i].bundleCount;
-                    totalWeight += res.data[i].weight;
+                res.data.forEach(function(item) {
+                    totalBundleCount += parseInt(item.bundleCount);
+                    totalWeight += parseFloat(item.weight);
+                });
+                // 更新合计行的值
+                var totalRow = document.querySelectorAll('.layui-table-view-1 .layui-table-total')[0]; // 通过父级元素的类名进行区分
+                if (totalRow) {
+                    var bundleCountCell = totalRow.querySelector('td[data-field="bundleCount"]');
+                    var weightCell = totalRow.querySelector('td[data-field="weight"]');
+                    if (bundleCountCell) {
+                        bundleCountCell.getElementsByClassName('layui-table-cell')[0].innerText = totalBundleCount.toString();
+                    }
+                    if (weightCell) {
+                        weightCell.getElementsByClassName('layui-table-cell')[0].innerText = totalWeight.toFixed(2).toString();
+                    }
                 }
-                // 添加合计行
-                var totalRow = `<tr class="layui-table-total">
-                    <td colspan="4">合计</td>
-                    <td>${totalBundleCount}</td>
-                    <td>${totalWeight.toFixed(2)}</td>
-                    <td colspan="6"></td>
-                </tr>`;
-                $('#recordTable+div .layui-table-body tbody').append(totalRow);
             }
-        });
-
-        // 渲染第二个表格
-        var bearingsTable = table.render({
-            elem: '#bearingsTable',
-            url: '/bearings/getDistinctCustomerAndModel',
-            parseData: function(res) {
-                return {
-                    "code": 0, // 解析接口状态
-                    "msg": "", // 解析提示文本
-                    "count": res.length, // Parse data length
-                    "data": res // Parse data list
-                };
-            },
-            height: 500, // 设置表格高度
-            toolbar: ['filter', 'exports', 'print'],
-            cols: [
-                [ // 表头
-                    {field: 'customer', title: '客户'},
-                    {field: 'outer_inner_ring', title: '内外轮'},
-                    {field: 'model', title: '型号'},
-                    {field: 'single_eight', title: '单重'},
-                    {field: 'pair', title: '配对号'},
-                    {field: 'mode', title: '贸易方式'},
-                    {field: 'in_stock_quantity', title: '在库数量'}
-                ]
-            ],
-            limits: [500,1000],
-            limit: 500,
-            page: true
         });
 
         // 格式化日期
@@ -195,32 +168,167 @@
         // 统一搜索表单提交事件
         form.on('submit(data-search-btn)', function(data) {
             var req = {};
+            var LAreq = {}; // LA表格请求参数
+            var LBreq = {}; // LB表格请求参数
             var formData = data.field;
             if (formData.steelMill !== '') {
                 req.steelMill = formData.steelMill;
+                LAreq.steelMill = formData.steelMill;
+                LBreq.steelMill = formData.steelMill;
             }
             if (formData.steelGrade !== '') {
                 req.steelGrade = formData.steelGrade;
+                LAreq.steelGrade = formData.steelGrade;
+                LBreq.steelGrade = formData.steelGrade;
             }
             if (formData.tradeMode !== '') {
                 req.tradeMode = formData.tradeMode;
+                LAreq.tradeMode = formData.tradeMode;
+                LBreq.tradeMode = formData.tradeMode;
             }
             if (formData.dimensions !== '') {
                 req.dimensions = formData.dimensions;
+                LAreq.dimensions = formData.dimensions;
+                LBreq.dimensions = formData.dimensions;
             }
             req.cutoffDate = formData.time;
+            LAreq.cutoffDate = formData.time;
+            LAreq.outerInnerRing ='LA'; // 设置LA表格的外内轮类型
+            LBreq.cutoffDate = formData.time;
+            LBreq.outerInnerRing ='LB'; // 设置LB表格的外内轮类型
             // 执行搜索重载
             recordTable.reload({
                 url: '/shipment/getStockStatusBeforeCutoffDate',
                 where: req,
                 page: { curr: 1 }
             });
-            // 执行第二个表格的搜索重载
-            bearingsTable.reload({
+            // 渲染第二个表格
+            var bearingsTable = table.render({
+                elem: '#bearingsTable',
                 url: '/bearings/getDistinctCustomerAndModel',
-                where: req,
-                page: { curr: 1 }
+                title:'关联产品LA型号明细',
+                parseData: function(res) {
+                    return {
+                        "code": 0, // 解析接口状态
+                        "msg": "", // 解析提示文本
+                        "count": res.length, // Parse data length
+                        "data": res // Parse data list
+                    };
+                },
+                height: 500, // 设置表格高度
+                toolbar: ['filter', 'exports', 'print'],
+                cols: [
+                    [ // 表头
+                        {field: 'customer', title: '客户',sort:true, totalRowText: '合计'},
+                        {field: 'outer_inner_ring', title: '内外轮',sort:true},
+                        {field: 'model', title: '型号' ,sort:true},
+                        {field: 'single_eight', title: '单重',sort:true},
+                        {field: 'pair', title: '配对号',sort:true},
+                        {field: 'mode', title: '贸易方式',sort:true},
+                        {field: 'in_stock_quantity', title: '在库数量', sort: true, },
+                        {field: 'consumable_weight', title: '耗材重量(kg)/个数', templet: function(d){
+                                if(d.single_eight < 1) {
+                                    return (d.in_stock_quantity / d.single_eight).toFixed(0);
+                                } else {
+                                    return (d.in_stock_quantity * d.single_eight / 1000).toFixed(0);
+                                }
+                            }}
+                    ]
+                ],
+                limits: [500,1000],
+                limit: 500,
+                where: LAreq,
+                page: { curr: 1 },
+                totalRow: true,
+                done: function(res, curr, count) {
+                    var totalLAStockQuantity = 0;
+                    var totalLAConsumableWeight = 0;
+                    res.data.forEach(function(item) {
+                        if (item.outer_inner_ring === 'LA') {
+                            totalLAStockQuantity += parseInt(item.in_stock_quantity);
+                            if(item.single_eight > 1) {
+                                totalLAConsumableWeight += parseFloat(item.in_stock_quantity * item.single_eight / 1000);
+                            }
+                        }
+                    });
+                    // 更新合计行的值
+                    var totalRow = document.querySelector('[lay-id="bearingsTable"] .layui-table-total'); // 通过 lay-id 来找到第二个表格的合计行
+                        var laStockQuantityCell = totalRow.querySelector('td[data-field="in_stock_quantity"]');
+                        var laConsumableWeightCell = totalRow.querySelector('td[data-field="consumable_weight"]');
+                        if (laStockQuantityCell) {
+                            laStockQuantityCell.getElementsByClassName('layui-table-cell')[0].innerText = totalLAStockQuantity.toString();
+                        }
+                        if (laConsumableWeightCell) {
+                            laConsumableWeightCell.getElementsByClassName('layui-table-cell')[0].innerText = totalLAConsumableWeight.toFixed(0).toString();
+                        }
+                }
             });
+            // 渲染第二个表格
+            var bearingsTableLB = table.render({
+                elem: '#bearingsTableLB',
+                url: '/bearings/getDistinctCustomerAndModel',
+                title:'关联产品LB型号明细',
+                parseData: function(res) {
+                    return {
+                        "code": 0, // 解析接口状态
+                        "msg": "", // 解析提示文本
+                        "count": res.length, // Parse data length
+                        "data": res // Parse data list
+                    };
+                },
+                height: 500, // 设置表格高度
+                toolbar: ['filter', 'exports', 'print'],
+                cols: [
+                    [ // 表头
+                        {field: 'customer', title: '客户',sort:true, totalRowText: '合计'},
+                        {field: 'outer_inner_ring', title: '内外轮',sort:true},
+                        {field: 'model', title: '型号' ,sort:true},
+                        {field: 'single_eight', title: '单重',sort:true},
+                        {field: 'pair', title: '配对号',sort:true},
+                        {field: 'mode', title: '贸易方式',sort:true},
+                        {field: 'in_stock_quantity', title: '在库数量', sort: true, },
+                        {field: 'consumable_weight', title: '耗材重量(kg)/个数', templet: function(d){
+                                if(d.single_eight < 1) {
+                                    return (d.in_stock_quantity / d.single_eight).toFixed(0);
+                                } else {
+                                    return (d.in_stock_quantity * d.single_eight / 1000).toFixed(0);
+                                }
+                            }}
+                    ]
+                ],
+                limits: [500,1000],
+                limit: 500,
+                where: LBreq,
+                page: { curr: 1 },
+                totalRow: true,
+                done: function(res, curr, count) {
+                    var totalLBStockQuantity = 0; // 新增LB的合计量
+                    var totalLBConsumableWeight = 0; // 新增LB的耗材重量
+                    res.data.forEach(function(item) {
+                        if (item.outer_inner_ring === 'LB') {
+                            totalLBStockQuantity += parseInt(item.in_stock_quantity);
+                            if (item.single_eight > 1) {
+                                totalLBConsumableWeight += parseFloat(item.in_stock_quantity * item.single_eight / 1000);
+                            }
+                        }
+                    });
+                    // 更新合计行的值
+                    var totalRow = document.querySelector('[lay-id="bearingsTableLB"] .layui-table-total'); // 通过 lay-id 来找到第二个表格的合计行
+                    var laStockQuantityCell = totalRow.querySelector('td[data-field="in_stock_quantity"]');
+                    var laConsumableWeightCell = totalRow.querySelector('td[data-field="consumable_weight"]');
+                    if (laStockQuantityCell) {
+                        laStockQuantityCell.getElementsByClassName('layui-table-cell')[0].innerText = totalLBStockQuantity.toString();
+                    }
+                    if (laConsumableWeightCell) {
+                        laConsumableWeightCell.getElementsByClassName('layui-table-cell')[0].innerText = totalLBConsumableWeight.toFixed(0).toString();
+                    }
+                }
+            });
+            // bearingsTable.reload({
+            //     url: '/bearings/getDistinctCustomerAndModel',
+            //     where: req,
+            //     page: { curr: 1 }
+            // });
             return false;
         });
 

@@ -170,6 +170,9 @@
         FROM
         bearings
         <where>
+            <if test="outerInnerRing != null and outerInnerRing != ''">
+                AND outer_inner_ring = #{outerInnerRing}
+            </if>
             <if test="steelMill != null and steelMill != ''">
                 AND steel_type = #{steelMill}
             </if>

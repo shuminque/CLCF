@@ -13,9 +13,9 @@ public interface ShipmentDetailsService {
     List<ShipmentDetails> saveAll(List<ShipmentDetails> shipmentDetailsList); // Change return type to List
     boolean updateShipmentDetail(ShipmentDetails shipmentDetails);
     boolean deleteShipmentDetailById(int id);
-    void updateOperationTypeBySupplierBatchNumber(String supplierBatchNumber, String operationType, String placementArea) throws Exception;
-    void stockOut(String supplierBatchNumber) throws Exception;
-    void transfer(String supplierBatchNumber, String placementArea) throws Exception;  // 新增的方法
+    void updateOperationTypeByUniqueIdentifier(String uniqueIdentifier, String operationType, String placementArea) throws Exception;
+    void stockOut(String uniqueIdentifier) throws Exception;
+    void transfer(String uniqueIdentifier, String placementArea) throws Exception;  // 新增的方法
     List<ShipmentDetails> getStockStatusBeforeCutoffDate(Map<String, Object> params);
     List<Map<String, Object>> viewTransfer(Map<String, Object> params);
 
