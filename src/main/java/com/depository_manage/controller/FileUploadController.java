@@ -88,30 +88,34 @@ public class FileUploadController {
             shipment.setPurchaser(purchaser);
             shipment.setArrivalPortDate(arrivalPortDate);
             shipment.setArrivalDate(arrivalDate);
+
             shipment.setSteelGrade(steelGrade);
             filledFieldsCount++;
+
             shipment.setDimensions(steelSize);
             filledFieldsCount++;
-        if (getCellValueAsDouble(row.getCell(6)) != null) {
-            shipment.setWeight(getCellValueAsDouble(row.getCell(6)));
-            filledFieldsCount++;
-        }
+
             shipment.setSteelMill(steelType);
             filledFieldsCount++;
-        if (getCellValueAsString(row.getCell(5)) != null) {
-            shipment.setFurnaceNumber(getCellValueAsString(row.getCell(5)));
-            filledFieldsCount++;
-        }
-        if (getCellValueAsString(row.getCell(10)) != null) {
-            shipment.setInvoiceApplication(getCellValueAsString(row.getCell(10)));
+        if (getCellValueAsDouble(row.getCell(3)) != null) {
+            shipment.setWeight(getCellValueAsDouble(row.getCell(3)));
             filledFieldsCount++;
         }
         if (getCellValueAsString(row.getCell(4)) != null) {
-            shipment.setSupplierBatchNumber(getCellValueAsString(row.getCell(4)));
+            shipment.setFurnaceNumber(getCellValueAsString(row.getCell(4)));
             filledFieldsCount++;
         }
-        if (getCellValueAsInteger(row.getCell(7)) != null) {
-            shipment.setBundleCount(getCellValueAsInteger(row.getCell(7)));
+        if (getCellValueAsString(row.getCell(5)) != null) {
+            shipment.setSupplierBatchNumber(getCellValueAsString(row.getCell(5)));
+            filledFieldsCount++;
+        }
+
+        if (getCellValueAsInteger(row.getCell(6)) != null) {
+            shipment.setBundleCount(getCellValueAsInteger(row.getCell(6)));
+            filledFieldsCount++;
+        }
+        if (getCellValueAsString(row.getCell(13)) != null) {
+            shipment.setInvoiceApplication(getCellValueAsString(row.getCell(13)));
             filledFieldsCount++;
         }
         if (filledFieldsCount < 7) {
