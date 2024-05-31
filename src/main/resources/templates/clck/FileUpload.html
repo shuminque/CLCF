@@ -168,6 +168,10 @@
         const file = fileInput.files[0];
         const formData = new FormData();
         formData.append("file", file);
+        if (!file) {
+            layer.alert("请选择导入文件！");
+            return; // 停止函数执行
+        }
         // 添加表单字段
         formData.append("invoiceNumber", document.getElementById('invoiceNumber').value);
         formData.append("customer", document.getElementById('customer').value);
@@ -188,6 +192,7 @@
                 console.log('Success:', data);
                 displayData(data);
                 generateQRCode(data);
+                document.getElementById('excelFile').value = '';
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -279,7 +284,6 @@
             containerDiv.appendChild(qrDiv); // Append the QR code to the container
             containerDiv.appendChild(textDiv); // Append the text to the container
             qrcodeDisplayArea.appendChild(containerDiv); // Append the container to the QR code display area
-
         });
     }
 
