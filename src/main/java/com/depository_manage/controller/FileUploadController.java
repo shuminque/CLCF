@@ -110,8 +110,10 @@ public class FileUploadController {
             filledFieldsCount++;
         }
 
-        if (getCellValueAsInteger(row.getCell(6)) != null) {
-            shipment.setBundleCount(getCellValueAsInteger(row.getCell(6)));
+        if (getCellValueAsString(row.getCell(6)) != null) {
+            String count= String.valueOf(row.getCell(6));
+            Integer c1= Integer.valueOf(count);
+            shipment.setBundleCount(c1);
             filledFieldsCount++;
         }
         if (getCellValueAsString(row.getCell(13)) != null) {
