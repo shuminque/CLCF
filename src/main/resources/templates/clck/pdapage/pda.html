@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+  <link rel="stylesheet" href="/static/css/http_cdn.jsdelivr.net_npm_bulma@0.9.3_css_bulma.css">
   <link rel="stylesheet" href="/static/lib/layui-v2.8.17/css/layui.css" media="all">
   <script type="text/javascript" src="/static/js/jquery-2.1.0.js" charset="utf-8"></script>
   <style>
@@ -188,6 +188,10 @@
         return '"' + matchedString.substring(0, matchedString.length - 1) + '":';
       });
       var values = scannedData.split('|');
+      if (values.length < 11) {
+        layer.alert("扫描数据格式不正确，缺少必要的信息");
+        throw new Error('扫描数据格式不正确，缺少必要的信息');
+      }
       var data = {
         arrivalDate: values[0],
         steelMill: values[1],
@@ -241,7 +245,7 @@
         placementArea: placementAreaData
       })
     }).then(response => {
-      if (response.ok) {
+      if (response) {
         console.log('operationType updated');
         showNotification('入库成功', 'is-success');
       } else {
