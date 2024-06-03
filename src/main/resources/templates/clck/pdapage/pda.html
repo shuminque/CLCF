@@ -81,6 +81,7 @@
     <button class="button " onclick="prepareModal('stockIn')" aria-label="入库">入库</button>
     <button class="button " onclick="showModal('stockOut')" aria-label="出库">出库</button>
     <button class="button " onclick="prepareModal('transfer')" aria-label="转库">转库</button>
+    <button class="button " onclick="showModal('return')" aria-label="返库">返库</button>
   </div>
 </section>
 <!-- Bulma 通知 -->
@@ -102,6 +103,24 @@
     <footer class="modal-card-foot">
       <button class="button is-success" onclick="processScannedData()">确认</button>
       <button class="button" onclick="closeModal()">取消</button>
+    </footer>
+  </div>
+</div>
+<!-- 确认框 -->
+<div class="modal" id="confirmModal">
+  <div class="modal-background"></div>
+  <div class="modal-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title">确认信息</p>
+      <button class="delete" aria-label="close" onclick="closeConfirmModal()"></button>
+    </header>
+    <section class="modal-card-body">
+      <label for="weightInput" class="form-label">重量</label>
+      <input type="number" id="weightInput" class="input" step="0.01">
+    </section>
+    <footer class="modal-card-foot">
+      <button class="button is-success" id="confirmButton" onclick="confirmReturnToStock()">确认</button>
+      <button class="button" onclick="closeConfirmModal()">取消</button>
     </footer>
   </div>
 </div>
@@ -131,6 +150,7 @@
     }
   }
 
+
   function updateModalTitle() {
     var placementArea = document.getElementById('area').value;
     var title = '';
@@ -150,6 +170,9 @@
         if (placementArea) {
           title += '到 ' + placementArea;
         }
+        break;
+      case 'return':
+        title = '返库';
         break;
     }
     document.getElementById('modalTitle').innerText = title;
@@ -216,6 +239,9 @@
         case 'transfer':
           transfer(data);
           break;
+        case 'return':
+          fetchWeight(data);
+          break;
       }
       document.getElementById('modalScanInput').value = '';
       document.getElementById('modalScanInput').focus();
@@ -231,6 +257,7 @@
     }
     return placementAreaData;
   }
+
   function stockIn(data) {
     var placementAreaData = checkPlacementArea();
     if (!placementAreaData) return;
@@ -245,7 +272,7 @@
         placementArea: placementAreaData
       })
     }).then(response => {
-      if (response) {
+      if (response.ok) {
         console.log('operationType updated');
         showNotification('入库成功', 'is-success');
       } else {
@@ -300,6 +327,61 @@
       console.error('Error updating operationType: ', error);
       showNotification('转库操作失败', 'is-danger');
     });
+  }
+  function returnToStock(data) {
+    fetch('/shipment/return', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    }).then(response => {
+      if (response.ok) {
+        console.log('operationType updated');
+        showNotification('返库成功', 'is-success');
+      } else {
+        showNotification('该批次号已入库，重复入库无效', 'is-danger');
+      }
+    }).catch(error => {
+      console.error('Error updating operationType: ', error);
+    });
+  }
+  function fetchWeight(data) {
+    fetch('/shipment/getWeight', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ uniqueIdentifier: data.uniqueIdentifier })    })
+            .then(response => response.json())
+            .then(data => {
+              console.log(data);
+              document.getElementById('weightInput').value = data.weight;
+              closeModal();
+              openConfirmModal(data.uniqueIdentifier, data.weight);
+            })
+            .catch(error => {
+              console.error('Error fetching weight:', error);
+            });
+  }
+
+  function openConfirmModal(uniqueIdentifier, weight) {
+    var confirmModal = document.getElementById('confirmModal');
+    confirmModal.classList.add('is-active');
+    document.getElementById('confirmButton').onclick = function() {
+      var newWeight = document.getElementById('weightInput').value;
+      confirmReturnToStock(uniqueIdentifier, newWeight);
+    };
+  }
+
+  function closeConfirmModal() {
+    var confirmModal = document.getElementById('confirmModal');
+    confirmModal.classList.remove('is-active');
+  }
+
+  function confirmReturnToStock(uniqueIdentifier, weight) {
+    returnToStock({ uniqueIdentifier: uniqueIdentifier, weight: weight });
+    closeConfirmModal();
   }
 
   function showNotification(message, type) {

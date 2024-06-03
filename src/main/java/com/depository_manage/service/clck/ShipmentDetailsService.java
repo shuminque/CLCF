@@ -11,13 +11,16 @@ public interface ShipmentDetailsService {
     List<ShipmentDetails> getAllShipmentDetails(Map<String, Object> params);
     boolean saveShipmentDetail(ShipmentDetails shipmentDetails);
     List<ShipmentDetails> saveAll(List<ShipmentDetails> shipmentDetailsList); // Change return type to List
-    boolean updateShipmentDetail(ShipmentDetails shipmentDetails);
+    void updateShipmentDetail(ShipmentDetails shipmentDetails);
     boolean deleteShipmentDetailById(int id);
     void updateOperationTypeByUniqueIdentifier(String uniqueIdentifier, String operationType, String placementArea) throws Exception;
     void stockOut(String uniqueIdentifier) throws Exception;
     void transfer(String uniqueIdentifier, String placementArea) throws Exception;  // 新增的方法
+    void returnToStock(String uniqueIdentifier, double weight)throws Exception;
     List<ShipmentDetails> getStockStatusBeforeCutoffDate(Map<String, Object> params);
     List<Map<String, Object>> viewTransfer(Map<String, Object> params);
     List<ShipmentDetails> getIntoSDs(Map<String, Object> params);
+
+    double getWeightByUniqueIdentifier(String uniqueIdentifier);
 
 }

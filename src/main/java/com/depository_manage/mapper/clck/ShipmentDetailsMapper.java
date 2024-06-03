@@ -17,13 +17,13 @@ public interface ShipmentDetailsMapper {
 
     List<ShipmentDetails> selectAllShipmentDetails(Map<String,Object> params);
 
-    int updateShipmentDetail(ShipmentDetails shipmentDetails);
+    void updateShipmentDetail(ShipmentDetails shipmentDetails);
 
     int deleteShipmentDetail(@Param("id") int id);
 
     int insertShipmentDetails(List<ShipmentDetails> shipmentDetailsList);
 
-    void updateOperationTypeByUniqueIdentifier(@Param("uniqueIdentifier") String uniqueIdentifier, @Param("operationType") String operationType, @Param("placementArea") String placementArea);
+    void updateOperationTypeByUniqueIdentifier(ShipmentDetails shipmentDetails);
 
     List<ShipmentDetails> findStockInByUniqueIdentifier(@Param("uniqueIdentifier") String uniqueIdentifier);
 
@@ -36,4 +36,7 @@ public interface ShipmentDetailsMapper {
     List<Map<String, Object>> viewTransfer(Map<String, Object> params);
 
     List<ShipmentDetails> getIntoSDs(Map<String, Object> params);
+
+    double getWeightByUniqueIdentifier(@Param("uniqueIdentifier") String uniqueIdentifier);
+
 }

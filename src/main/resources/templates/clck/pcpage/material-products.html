@@ -114,7 +114,7 @@
             height: 600, // 设置表格高度
             toolbar: ['filter', 'exports', 'print'],
             cols: [ [ // 表头
-                {field: 'uniqueIdentifier', title: '标识',totalRowText: '合计'},
+                {field: 'uniqueIdentifier', title: '材料ID',totalRowText: '合计'},
                 {field: 'steelMill', title: '钢厂'},
                 {field: 'steelGrade', title: '钢材等级'},
                 {field: 'dimensions', title: '尺寸'},
@@ -226,7 +226,7 @@
                         {field: 'pair', title: '配对号',sort:true},
                         {field: 'mode', title: '贸易方式',sort:true},
                         {field: 'in_stock_quantity', title: '在库数量', sort: true, },
-                        {field: 'consumable_weight', title: '耗材重量(kg)/个数', templet: function(d){
+                        {field: 'consumable_weight', title: '耗材重量(kg)或个数', templet: function(d){
                                 if(d.single_eight < 1) {
                                     return (d.in_stock_quantity / d.single_eight).toFixed(0);
                                 } else {

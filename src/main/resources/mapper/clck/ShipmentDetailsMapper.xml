@@ -23,6 +23,7 @@
         <result column="bundle_count" property="bundleCount" jdbcType="INTEGER"/>
         <result column="placement_area" property="placementArea"/>
         <result column="purchaser" property="purchaser"/>
+        <result column="time" property="time"/>
     </resultMap>
 
     <!-- 插入操作 -->
@@ -30,11 +31,11 @@
         INSERT INTO shipment_details (
             unique_identifier, invoice_number, customer, trade_mode, delivery_point, arrival_port_date,
             arrival_date, steel_grade, dimensions, weight, steel_mill, furnace_number, invoice_application,
-            operation_type, supplier_batch_number, bundle_count, placement_area, purchaser
+            operation_type, supplier_batch_number, bundle_count, placement_area, purchaser, time
         ) VALUES (
                      #{uniqueIdentifier}, #{invoiceNumber}, #{customer}, #{tradeMode}, #{deliveryPoint}, #{arrivalPortDate},
                      #{arrivalDate}, #{steelGrade}, #{dimensions}, #{weight}, #{steelMill}, #{furnaceNumber}, #{invoiceApplication},
-                     #{operationType}, #{supplierBatchNumber}, #{bundleCount}, #{placementArea}, #{purchaser}
+                     #{operationType}, #{supplierBatchNumber}, #{bundleCount}, #{placementArea}, #{purchaser}, #{time}
                  )
     </insert>
 
@@ -43,14 +44,15 @@
         INSERT INTO shipment_details (
         unique_identifier, invoice_number, customer, trade_mode, delivery_point, arrival_port_date,
         arrival_date, steel_grade, dimensions, weight, steel_mill, furnace_number, invoice_application,
-        operation_type, supplier_batch_number, bundle_count, placement_area, purchaser
+        operation_type, supplier_batch_number, bundle_count, placement_area, purchaser, time
         ) VALUES
         <foreach collection="list" item="detail" separator=",">
             (
             #{detail.uniqueIdentifier}, #{detail.invoiceNumber}, #{detail.customer}, #{detail.tradeMode}, #{detail.deliveryPoint},
             #{detail.arrivalPortDate}, #{detail.arrivalDate}, #{detail.steelGrade}, #{detail.dimensions}, #{detail.weight},
             #{detail.steelMill}, #{detail.furnaceNumber}, #{detail.invoiceApplication},
-            #{detail.operationType}, #{detail.supplierBatchNumber}, #{detail.bundleCount}, #{detail.placementArea}, #{detail.purchaser}
+            #{detail.operationType}, #{detail.supplierBatchNumber}, #{detail.bundleCount}, #{detail.placementArea},
+             #{detail.purchaser}, #{detail.time}
             )
         </foreach>
     </insert>
@@ -63,8 +65,15 @@
     <!-- 查询所有记录操作 -->
     <select id="selectAllShipmentDetails" resultMap="shipmentDetailsMap" parameterType="map">
         SELECT * FROM shipment_details WHERE 1=1
-        <if test="operationType != null and operationType != ''">
-            AND operation_type = #{operationType}
+        <if test="operationType != null">
+            <choose>
+                <when test="operationType == 'none'">
+                    AND operation_type IS NULL
+                </when>
+                <otherwise>
+                    AND operation_type = #{operationType}
+                </otherwise>
+            </choose>
         </if>
         <if test="uniqueIdentifier != null and uniqueIdentifier != ''">
             AND unique_identifier = #{uniqueIdentifier}
@@ -93,8 +102,15 @@
         <if test="furnaceNumber != null and furnaceNumber != ''">
             AND furnace_number LIKE CONCAT('%',#{furnaceNumber},'%')
         </if>
-        <if test="placementArea != null and placementArea != ''">
-            AND placement_area = #{placementArea}
+        <if test="placementArea != null">
+            <choose>
+                <when test="placementArea == 'empty'">
+                    AND placement_area IS NULL
+                </when>
+                <otherwise>
+                    AND placement_area = #{placementArea}
+                </otherwise>
+            </choose>
         </if>
         <if test="purchaser != null and purchaser != ''">
             AND purchaser = #{purchaser}
@@ -109,8 +125,15 @@
     </select>
     <select id="countShipmentDetails" resultType="int" parameterType="map">
         SELECT COUNT(*) FROM shipment_details WHERE 1=1
-        <if test="operationType != null and operationType != ''">
-            AND operation_type = #{operationType}
+        <if test="operationType != null">
+            <choose>
+                <when test="operationType == 'none'">
+                    AND operation_type IS NULL
+                </when>
+                <otherwise>
+                    AND operation_type = #{operationType}
+                </otherwise>
+            </choose>
         </if>
         <if test="uniqueIdentifier != null and uniqueIdentifier != ''">
             AND unique_identifier = #{uniqueIdentifier}
@@ -139,8 +162,15 @@
         <if test="furnaceNumber != null and furnaceNumber != ''">
             AND furnace_number LIKE CONCAT('%',#{furnaceNumber},'%')
         </if>
-        <if test="placementArea != null and placementArea != ''">
-            AND placement_area = #{placementArea}
+        <if test="placementArea != null">
+            <choose>
+                <when test="placementArea == 'empty'">
+                    AND placement_area IS NULL
+                </when>
+                <otherwise>
+                    AND placement_area = #{placementArea}
+                </otherwise>
+            </choose>
         </if>
         <if test="purchaser != null and purchaser != ''">
             AND purchaser = #{purchaser}
@@ -148,42 +178,48 @@
     </select>
 
     <!-- 更新操作 -->
-    <update id="updateShipmentDetail" parameterType="com.depository_manage.entity.ShipmentDetails">
+    <update id="updateShipmentDetail">
         UPDATE shipment_details
-        SET
-            unique_identifier = #{uniqueIdentifier},
-            invoice_number = #{invoiceNumber},
-            customer = #{customer},
-            trade_mode = #{tradeMode},
-            delivery_point = #{deliveryPoint},
-            arrival_port_date = #{arrivalPortDate},
-            arrival_date = #{arrivalDate},
-            steel_grade = #{steelGrade},
-            dimensions = #{dimensions},
-            weight = #{weight},
-            steel_mill = #{steelMill},
-            furnace_number = #{furnaceNumber},
-            invoice_application = #{invoiceApplication},
-            operation_type = #{operationType},
-            supplier_batch_number = #{supplierBatchNumber},
-            bundle_count = #{bundleCount},
-            placement_area = #{placementArea},
-            purchaser = #{purchaser}
+        <set>
+            <if test="uniqueIdentifier != null">unique_identifier = #{uniqueIdentifier},</if>
+            <if test="invoiceNumber != null">invoice_number = #{invoiceNumber},</if>
+            <if test="customer != null">customer = #{customer},</if>
+            <if test="tradeMode != null">trade_mode = #{tradeMode},</if>
+            <if test="deliveryPoint != null">delivery_point = #{deliveryPoint},</if>
+            <if test="arrivalPortDate != null">arrival_port_date = #{arrivalPortDate},</if>
+            <if test="arrivalDate != null">arrival_date = #{arrivalDate},</if>
+            <if test="steelGrade != null">steel_grade = #{steelGrade},</if>
+            <if test="dimensions != null">dimensions = #{dimensions},</if>
+            <if test="weight != null">weight = #{weight},</if>
+            <if test="steelMill != null">steel_mill = #{steelMill},</if>
+            <if test="furnaceNumber != null">furnace_number = #{furnaceNumber},</if>
+            <if test="invoiceApplication != null">invoice_application = #{invoiceApplication},</if>
+            <if test="operationType != null">operation_type = #{operationType},</if>
+            <if test="supplierBatchNumber != null">supplier_batch_number = #{supplierBatchNumber},</if>
+            <if test="bundleCount != null">bundle_count = #{bundleCount},</if>
+            <if test="placementArea != null">placement_area = #{placementArea},</if>
+            <if test="purchaser != null">purchaser = #{purchaser},</if>
+            <if test="time != null">time = #{time},</if>
+        </set>
         WHERE id = #{id}
     </update>
+
 
     <!-- 删除操作 -->
     <delete id="deleteShipmentDetail" parameterType="int">
         DELETE FROM shipment_details WHERE id = #{id}
     </delete>
 
-    <!-- 更新 operation_type 和 placement_area -->
-    <update id="updateOperationTypeByUniqueIdentifier" parameterType="map">
+    <!-- 更新 operation_type, placement_area 和 time -->
+    <update id="updateOperationTypeByUniqueIdentifier" parameterType="com.depository_manage.entity.ShipmentDetails">
         UPDATE shipment_details
-        SET operation_type = #{operationType}, placement_area = #{placementArea}
+        SET operation_type = #{operationType},
+            placement_area = #{placementArea},
+            time = #{time}
         WHERE unique_identifier = #{uniqueIdentifier}
           AND (operation_type IS NULL OR operation_type = '')
     </update>
+
 
     <!-- 根据 unique_identifier 查询在库记录 -->
     <select id="findStockInByUniqueIdentifier" parameterType="string" resultMap="shipmentDetailsMap">
@@ -205,15 +241,18 @@
 
     <!-- 计算净入库数量 -->
     <select id="getNetStockInCountByUniqueIdentifier" resultType="int">
-        SELECT (
-                   SELECT COUNT(*) FROM shipment_details
-                   WHERE unique_identifier = #{uniqueIdentifier}
-                     AND operation_type = '入库'
-               ) - (
-                   SELECT COUNT(*) FROM shipment_details
-                   WHERE unique_identifier = #{uniqueIdentifier}
-                     AND operation_type = '出库'
-               ) AS netStockInCount
+        SELECT (SELECT COUNT(*) FROM shipment_details
+                WHERE unique_identifier = #{uniqueIdentifier}
+                AND operation_type = '入库'
+               ) +
+               (SELECT COUNT(*) FROM shipment_details
+                WHERE unique_identifier = #{uniqueIdentifier}
+                AND operation_type = '返库'
+                ) -
+               (SELECT COUNT(*) FROM shipment_details
+                WHERE unique_identifier = #{uniqueIdentifier}
+                AND operation_type = '出库'
+               )   AS netStockInCount
     </select>
 
     <!-- 查询在截止日期前的在库情况 -->
@@ -385,4 +424,15 @@
         </if>
         group by  steel_mill,steel_grade,dimensions,trade_mode,customer;
     </select>
+
+    <!-- 获取重量 -->
+    <select id="getWeightByUniqueIdentifier" parameterType="String" resultType="double">
+        SELECT weight
+        FROM shipment_details
+        WHERE unique_identifier = #{uniqueIdentifier}
+        ORDER BY id DESC
+            LIMIT 1
+    </select>
+
+
 </mapper>

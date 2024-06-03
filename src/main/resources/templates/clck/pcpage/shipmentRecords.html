@@ -9,7 +9,31 @@
     <script src="/static/js/http_ajax.googleapis.com_ajax_libs_jquery_3.5.1_jquery.js"></script>
     <script src="/static/js/http_code.jquery.com_jquery-3.6.0.min.js"></script>
     <script src="/static/js/http_cdnjs.cloudflare.com_ajax_libs_bootstrap-3-typeahead_4.0.2_bootstrap3-typeahead.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.qrcode.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/js/http_unpkg.com_html5-qrcode.js" charset="utf-8"></script>
+
+
     <style>
+        #printArea div {
+            display: inline-block;
+            margin: 0; /* Add space around each QR code */
+            padding: 10px; /* Optional: Adds padding around the QR code for better visibility */
+            border: 1px solid #ccc; /* Optional: Adds a border around each QR code */
+            background-color: #f9f9f9; /* Optional: Sets a background color for each QR code area */
+        }
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printArea, #printArea * {
+                visibility: visible;
+            }
+            #printArea {
+                position: absolute;
+                left: 0;
+                top: 0;
+            }
+        }
         body {
             background-color: #f8f9fa;
         }
@@ -37,6 +61,7 @@
                     <option value="入库">入库</option>
                     <option value="出库">出库 </option>
                     <option value="转库">转库 </option>
+                    <option value="none">无操作</option>
                 </select>
             </div>
             <div class="layui-input-inline">
@@ -105,6 +130,7 @@
                 <div class="layui-input-inline">
                     <select class="input area-select" name="placementArea" id="areaSelect">
                         <option value="" selected>选择库位</option>
+                        <option value="empty">空库位</option>
                         <option th:each="placement_area : ${areas}"
                                 th:value="${placement_area.area}"
                                 th:text="${placement_area.area}"></option>
@@ -120,9 +146,88 @@
     </form>
     <table id="recordTable" lay-filter="recordTableFilter"></table>
     <table id="bearingsTable" lay-filter="bearingsTableFilter"></table>
-
+    <div id="printArea"></div>
 </div>
+<script type="text/html" id="actionBar">
+    <button class="layui-btn layui-btn-xs" lay-event="print">打印</button>
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="delete">删除</a>
+</script>
+<!-- 编辑记录表单模板 -->
+<script type="text/template" id="editGradeModelTemplate">
+    <form class="layui-form" lay-filter="editGradeFormFilter">
+        <div class="layui-form-item" hidden="hidden">
+            <label class="layui-form-label">编号：</label>
+            <div class="layui-input-block">
+                <input type="text" name="id" required class="layui-input" readonly>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">操作类型:</label>
+            <div class="layui-input-block">
+                <select name="operationType">
+                    <option value="" selected>选择操作类型</option>
+                    <option value="入库">入库</option>
+                    <option value="出库">出库 </option>
+                    <option value="转库">转库 </option>
+                    <option value="">无操作</option>
+                </select>
+            </div>
+        </div>
+        <label class="layui-form-label">钢厂:</label>
+        <div class="layui-input-block">
+            <select name="steelMill">
+                <option value="" selected>选择钢厂</option>
+                <option th:each="steel_type : ${steelTypes}"
+                        th:value="${steel_type.name}"
+                        th:text="${steel_type.name}"></option>
+            </select>
+        </div>
+        <label class="layui-form-label">钢等:</label>
+        <div class="layui-input-block">
+            <select name="steelGrade">
+                <option value="" selected>选择钢材等级</option>
+                <option th:each="steel_grade : ${steelGrades}"
+                        th:value="${steel_grade.grade}"
+                        th:text="${steel_grade.grade}"></option>
+            </select>
+        </div>
+        <label class="layui-form-label">客户:</label>
+        <div class="layui-input-block">
+            <select name="customer">
+                <option value="" selected>搜索客户</option>
+                <option th:each="customer : ${customers}"
+                        th:value="${customer.name}"
+                        th:text="${customer.name}"></option>
+            </select>
+        </div>
 
+        <label class="layui-form-label">时间:</label>
+        <div class="layui-input-block">
+            <input type="text" name="time" id="date2" class="layui-input">
+        </div>
+        <label class="layui-form-label">尺寸:</label>
+        <div class="layui-input-block">
+            <div class="layui-input">
+                <select name="dimensions"  lay-search>
+                    <option value="" selected>选择尺寸</option>
+                    <option th:each="steel_size : ${steelSizes}"
+                            th:value="${steel_size.size}"
+                            th:text="${steel_size.size}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">库位:</label>
+            <div class="layui-input-block">
+                <input type="text" name="placementArea" required class="layui-input" readonly>
+            </div>
+        </div>
+        <div class="layui-form-item" style="text-align: center;">
+            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="editGradeSubmitBtnFilter">更新</button>
+        </div>
+    </form>
+</script>
 <script>
     layui.use(['table', 'form', 'laydate'], function(){
         var table = layui.table;
@@ -138,7 +243,7 @@
         // 渲染表格
         var recordTable = table.render({
             elem: '#recordTable',
-            url: '/records',
+            url: '/shipment',
             request: {
                 pageName:'page',
                 limitName:'size'
@@ -146,9 +251,11 @@
             height: 600, // 设置表格高度
             toolbar: ['filter', 'exports', 'print'],
             cols: [ [ // 表头
-                {field: 'operationType', title: '操作类型',totalRowText: '合计'},
+                {title: '操作', toolbar: '#actionBar'},
+                {field: 'id', title: 'id',hide:true},
                 {field: 'invoiceNumber', title: '发票编号',hide:true},
-                {field: 'uniqueIdentifier', title: '标识'},
+                {field: 'operationType', title: '操作类型',totalRowText: '合计'},
+                {field: 'uniqueIdentifier', title: '材料ID'},
                 {field: 'furnaceNumber', title: '炉号'},
                 {field: 'steelMill', title: '钢厂'},
                 {field: 'steelGrade', title: '钢材等级'},
@@ -160,11 +267,14 @@
                 {field: 'placementArea', title: '库位'},
                 {field: 'supplierBatchNumber', title: '供应商生产批号'},
                 {field: 'deliveryPoint', title: '到货地址'},
-                {field: 'arrivalPortDate', title: '到港日期'},
+                {field: 'arrivalPortDate', title: '到港日期', templet: function(d){
+                        return formatDate(d.arrivalDate);
+                    }},
                 {field: 'arrivalDate', title: '到达日期', templet: function(d){
                         return formatDate(d.arrivalDate);
                     }},
                 {field: 'purchaser', title: '购买方'},
+
             ]],
             limits: [200, 500, 1000, 20000],
             limit: 200,
@@ -193,16 +303,6 @@
             }
         });
 
-
-        // 格式化日期
-        function formatDate(dateStr) {
-            if (!dateStr) return '';
-            let date = new Date(dateStr);
-            let year = date.getFullYear();
-            let month = (date.getMonth() + 1).toString().padStart(2, '0');
-            let day = date.getDate().toString().padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        }
 
         // 统一搜索表单提交事件
         form.on('submit(data-search-btn)', function(data) {
@@ -245,17 +345,138 @@
             }
             // 执行搜索重载
             recordTable.reload({
-                url: '/records',
+                url: '/shipment',
                 where: req,
                 page: {curr: 1}
             });
             return false;
         });
+        table.on('tool(recordTableFilter)', function(obj) {
+            var data = obj.data;
+            var layEvent = obj.event;
+
+            if (layEvent === 'print') {
+                printQRCode(data.id);
+            } else if (layEvent === 'edit') {
+                editSteelGrade(data);
+            }
+        });
+        function editSteelGrade(data) {
+            // 打开弹出层
+            layer.open({
+                type: 1,
+                title: '编辑',
+                content: $('#editGradeModelTemplate').html(), // 使用模板的内容
+                area: ['500px', '90%'],
+                success: function(layero, index) {
+                    layui.use('laydate', function() {
+                        var laydate = layui.laydate;
+                        laydate.render({
+                            elem: layero.find('#date2')[0], // 此处使用jQuery找到模态框中的输入框
+                            type: 'date',
+                            format: 'yyyy-MM-dd'
+                        });
+                    });
+                    // 使用 layui.form 来填充表单数据
+                    layui.form.val('editGradeFormFilter', {
+                        'id': data.id,
+                        'operationType': data.operationType,
+                        'time': formatDate(data.time),
+                        'steelMill': data.steelMill,
+                        'customer': data.customer,
+                        'steelGrade': data.steelGrade,
+                        'model': data.model,
+                        'steelType': data.steelType,
+                        'dimensions': data.dimensions,
+                        'placementArea': data.placementArea
+                    });
+                    layui.form.render();
+                }
+            });
+        }
+        // 监听编辑表单的提交事件
+        layui.form.on('submit(editGradeSubmitBtnFilter)', function(data) {
+            var formData = data.field; // 获取表单数据
+            // 发送 AJAX 请求来更新数据
+            $.ajax({
+                url: '/shipment/update/' + formData.id, // 更新API URL
+                type: 'PUT', // 使用 PUT 方法更新
+                contentType: 'application/json', // 发送数据的格式
+                data: JSON.stringify(formData), // 将合并后的数据转换为 JSON 字符串
+                success: function(response) {
+                    layer.msg('更新成功！', {icon: 1, time: 3000});
+                    table.reload('recordTable'); // 重新加载表格数据
+                    layer.closeAll(); // 关闭所有弹出层
+                },
+                error: function(xhr, status, error) {
+                    // 处理请求失败的情况
+                    layer.msg('更新失败！', {icon: 2, time: 3000});
+                }
+            });
+            return false; // 阻止表单跳转
+        });
         // 高级搜索开关逻辑
         $('#advancedSearchToggle').click(function () {
             $('#advancedSearchForm').slideToggle();
         });
+
     });
+
+    // 打印二维码的函数
+    function printQRCode(id) {
+        console.log(id);
+        fetch(`/shipment/record/${id}`)
+            .then(response => response.json())  // 解析 JSON 数据
+            .then(record => {
+                console.log(record);
+                const printArea = document.getElementById('printArea');
+                printArea.innerHTML = '';
+                const qrDiv = document.createElement('div');
+                $(qrDiv).qrcode({
+                    text: Object.values({
+                        arrivalDate: record.arrivalDate,
+                        steelMill: record.steelMill,
+                        steelGrade: record.steelGrade,
+                        furnaceNumber: record.furnaceNumber,
+                        weight: record.weight,
+                        bundleCount: record.bundleCount,
+                        purchaser: record.purchaser,
+                        tradeMode: record.tradeMode,
+                        customer: record.customer,
+                        deliveryPoint: record.deliveryPoint,
+                        supplierBatchNumber: record.supplierBatchNumber,
+                        uniqueIdentifier: record.uniqueIdentifier
+                    }).join('|'),
+                    width: 185,
+                    height: 185,
+                    correctLevel: 3
+                });
+                const textDiv = document.createElement('div');
+                textDiv.innerHTML = `
+                <strong>日期:</strong> ${formatDate(record.arrivalDate)}<br>
+                <strong>钢厂:</strong> ${record.steelMill}<strong>材料ID:</strong> ${record.uniqueIdentifier}<br>
+                <strong>钢材等级:</strong> ${record.steelGrade}<br>
+                <strong>炉号:</strong> ${record.furnaceNumber}<br>
+                <strong>尺寸:</strong> ${record.dimensions}<br>
+                <strong>重量:</strong> ${record.weight}<span>（kg）</span><strong>购买方:</strong> ${record.purchaser}<br>
+                <strong>贸易方式:</strong> ${record.tradeMode}
+            `;
+                printArea.appendChild(qrDiv);
+                printArea.appendChild(textDiv);
+                window.print();
+            })
+            .catch(error => {
+                console.error('Error fetching record:', error);
+            });
+    }
+    function formatDate(dateStr) {
+        if (!dateStr) return '';
+        let date = new Date(dateStr);
+        let year = date.getFullYear();
+        let month = (date.getMonth() + 1).toString().padStart(2, '0');
+        let day = date.getDate().toString().padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
 </script>
 </body>
 </html>

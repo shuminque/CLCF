@@ -47,7 +47,25 @@
                 "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "onlyRead"
             ],
             "child": [
-
+                {
+                    "title": "操作提交",
+                    "icon": "fa fa-book",
+                    "target": "_self",
+                    "roles": [
+                        "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
+                    ],
+                    "child": [
+                        {
+                            "title": "出库操作",
+                            "href": "/shipment-out",
+                            "icon": "fa fa-arrow-up",
+                            "target": "_self",
+                            "roles": [
+                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
+                            ]
+                        }
+                    ]
+                },
                 {
                     "title": "材料仓库管理",
                     "icon": "fa fa-server",

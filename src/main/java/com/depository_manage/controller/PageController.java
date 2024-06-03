@@ -119,6 +119,11 @@ public class PageController {
         mv.addObject("areas",areaService.findAll(params));
         return mv;
     }
+    @GetMapping("/shipment-out")
+    public ModelAndView shipmentOut() {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("clck/pcstorage/shipment-out");return mv;
+    }
     @GetMapping("/area")
     public ModelAndView Area() {
         ModelAndView mv = new ModelAndView();

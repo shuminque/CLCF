@@ -1,9 +1,11 @@
 package com.depository_manage.controller.clck;
 
 import com.depository_manage.entity.BearingRecord;
+import com.depository_manage.entity.ProductId;
 import com.depository_manage.entity.ShipmentDetails;
 import com.depository_manage.service.clck.ShipmentDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,43 +20,40 @@ public class ShipmentDetailsController {
     @Autowired
     private ShipmentDetailsService shipmentDetailsService;
 
-    @RestController
-    @RequestMapping("/records")
-    public class RecordsController {
-
-        @Autowired
-        private ShipmentDetailsService shipmentDetailsService;
-
-        @GetMapping
-        public ResponseEntity<?> getAllRecords(  @RequestParam Map<String, Object> params,
-                                                 @RequestParam(defaultValue = "1") int page, // 页码通常是从1开始
-                                                 @RequestParam(defaultValue = "20") int size) {
-            String dateRange = (String) params.get("time");
-            if (dateRange != null && dateRange.contains(" - ")) {
-                String[] dates = dateRange.split(" - ");
-                params.put("startDate", dates[0] + " 00:00:00");
-                params.put("endDate", dates[1] + " 23:59:59");
-            }
-            int begin = (page - 1) * size;
-            params.put("begin", begin);
-            params.put("size", size);
-            List<ShipmentDetails> records = shipmentDetailsService.getAllShipmentDetails(params);
-            int count = shipmentDetailsService.countShipmentDetails(params);
-            Map<String, Object> response = new HashMap<>();
-            response.put("code", 0);
-            response.put("msg", "");
-            response.put("count", count);
-            response.put("data", records);
-            return ResponseEntity.ok(response);
+    @GetMapping
+    public ResponseEntity<?> getAllRecords(  @RequestParam Map<String, Object> params,
+                                             @RequestParam(defaultValue = "1") int page, // 页码通常是从1开始
+                                             @RequestParam(defaultValue = "20") int size) {
+        String dateRange = (String) params.get("time");
+        if (dateRange != null && dateRange.contains(" - ")) {
+            String[] dates = dateRange.split(" - ");
+            params.put("startDate", dates[0] + " 00:00:00");
+            params.put("endDate", dates[1] + " 23:59:59");
         }
-        @GetMapping("/{id}")
-        public ResponseEntity<ShipmentDetails> getAllRecords(@PathVariable int id) {
-            ShipmentDetails records = shipmentDetailsService.getShipmentDetailById(id);
-            return ResponseEntity.ok(records);
-        }
-
+        int begin = (page - 1) * size;
+        params.put("begin", begin);
+        params.put("size", size);
+        List<ShipmentDetails> records = shipmentDetailsService.getAllShipmentDetails(params);
+        int count = shipmentDetailsService.countShipmentDetails(params);
+        Map<String, Object> response = new HashMap<>();
+        response.put("code", 0);
+        response.put("msg", "");
+        response.put("count", count);
+        response.put("data", records);
+        return ResponseEntity.ok(response);
+    }
+    @GetMapping("/record/{id}")
+    public ResponseEntity<ShipmentDetails> getAllRecordsById(@PathVariable int id) {
+        ShipmentDetails records = shipmentDetailsService.getShipmentDetailById(id);
+        return ResponseEntity.ok(records);
     }
 
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updateBearingRecord(@PathVariable int id, @RequestBody ShipmentDetails record) {
+        record.setId(id);
+        shipmentDetailsService.updateShipmentDetail(record);
+        return ResponseEntity.ok(record);
+    }
     @PostMapping("/updateOperationType")
     public ResponseEntity<Void> updateOperationType(@RequestBody Map<String, String> request) {
         try {
@@ -87,6 +86,17 @@ public class ShipmentDetailsController {
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.status(400).body(e.getMessage());  // Return 400 Bad Request with error message
+        }
+    }
+    @PostMapping("/return")
+    public ResponseEntity<Void> returnToStock(@RequestBody Map<String, String> request) {
+        try {
+            String uniqueIdentifier = request.get("uniqueIdentifier");
+            double weight = Double.parseDouble(request.get("weight"));
+            shipmentDetailsService.returnToStock(uniqueIdentifier, weight);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(null);  // Return 400 Bad Request if return operation is not allowed
         }
     }
     @GetMapping("/getStockStatusBeforeCutoffDate")
@@ -135,4 +145,20 @@ public class ShipmentDetailsController {
         response.put("data", records);
         return ResponseEntity.ok(response);
     }
+    @PostMapping("/getWeight")
+    public ResponseEntity<Map<String, Object>> getWeight(@RequestBody Map<String, String> request) {
+        try {
+            String uniqueIdentifier = request.get("uniqueIdentifier");
+            double weight = shipmentDetailsService.getWeightByUniqueIdentifier(uniqueIdentifier);
+            Map<String, Object> response = new HashMap<>();
+            response.put("uniqueIdentifier", uniqueIdentifier);
+            response.put("weight", weight);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(null);  // Return 400 Bad Request if the uniqueIdentifier is not found
+        }
+    }
+
+
+
 }

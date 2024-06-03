@@ -26,5 +26,6 @@ public class ShipmentDetails {
     private Integer bundleCount;
     private String placementArea;
     private String purchaser;
+    private Date time;
     // Getters and Setters
 }

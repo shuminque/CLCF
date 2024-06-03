@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>出库管理</title>
+    <link rel="stylesheet" href="/static/css/http_cdn.jsdelivr.net_npm_bootstrap@5.1.0_dist_css_bootstrap.css">
+    <!--    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">-->
+    <script src="/static/js/http_code.jquery.com_jquery-3.6.0.min.js"></script>
+    <!--    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>-->
+    <script src="/static/js/http_cdnjs.cloudflare.com_ajax_libs_bootstrap-3-typeahead_4.0.2_bootstrap3-typeahead.js"></script>
+    <link rel="stylesheet" href="/static/css/__cdnjs.cloudflare.com_ajax_libs_toastr.js_latest_toastr.css">
+    <script src="/static/js/__cdnjs.cloudflare.com_ajax_libs_toastr.js_latest_toastr.min.js"></script>
+    <style>
+        body {
+            padding-top: 50px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 600px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-title {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .btn-custom {
+            background-color: #0056b3;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="form-title">
+        <h2>材料出库操作</h2>
+    </div>
+    <form id="stockOutForm">
+        <div class="mb-3">
+            <label for="uniqueIdentifier" class="form-label">材料ID</label>
+            <input type="text" class="form-control" id="uniqueIdentifier" placeholder="请输入材料ID" required autocomplete="off">
+        </div>
+        <div class="mb-3">
+            <label for="date" class="form-label">日期</label>
+            <input type="date" class="form-control" id="date" value="">
+        </div>
+        <button type="submit" class="btn btn-custom w-100">提交出库</button>
+    </form>
+</div>
+<script src="/static/js/bootstrap@5.1.0_dist_js_bootstrap.bundle.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('date').value = today;
+    });
+    document.getElementById('stockOutForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const uniqueIdentifier = document.getElementById('uniqueIdentifier').value;
+        const date = document.getElementById('date').value || new Date().toISOString().split('T')[0];
+        stockOut({ uniqueIdentifier, date });
+    });
+    function stockOut(data) {
+        fetch('/shipment/stockOut', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ uniqueIdentifier: data.uniqueIdentifier })
+        }).then(response => {
+            if (response.ok) {
+                console.log("出库成功", data);
+                toastr.success('出库操作成功');
+                clearForm();
+            }else {
+                toastr.error('该产品无库存，操作无效');
+            }
+            })
+            .catch(error => {
+                console.error('出库操作失败:', error);
+                toastr.error(`出库操作失败: ${error.message}`);
+            });
+    }
+
+    function clearForm() {
+        document.getElementById('uniqueIdentifier').value = '';
+        document.getElementById('date').value = new Date().toISOString().split('T')[0];
+        $('#uniqueIdentifier').focus();
+    }
+</script>
+</body>
+</html>

@@ -1,5 +1,6 @@
 package com.depository_manage.service.clck.impl;
 
+import com.depository_manage.entity.BearingRecord;
 import com.depository_manage.entity.ShipmentDetails;
 import com.depository_manage.mapper.clck.ShipmentDetailsMapper;
 import com.depository_manage.service.clck.ShipmentDetailsService;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -59,11 +61,10 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
         }
     }
     @Override
-    @Transactional
-    public boolean updateShipmentDetail(ShipmentDetails shipmentDetails) {
-        return shipmentDetailsMapper.updateShipmentDetail(shipmentDetails) > 0;
-    }
+    public void updateShipmentDetail(ShipmentDetails shipmentDetails) {
+        shipmentDetailsMapper.updateShipmentDetail(shipmentDetails);
 
+    }
     @Override
     @Transactional
     public boolean deleteShipmentDetailById(int id) {
@@ -100,9 +101,15 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
             stockOutRecord.setBundleCount(stockInRecord.getBundleCount());
             stockOutRecord.setPlacementArea(placementArea);
             stockOutRecord.setPurchaser(stockInRecord.getPurchaser());
+            stockOutRecord.setTime(new Date()); // 设置当前时间
             shipmentDetailsMapper.insertShipmentDetail(stockOutRecord);
         }else {
-            shipmentDetailsMapper.updateOperationTypeByUniqueIdentifier(uniqueIdentifier, operationType, placementArea);
+            ShipmentDetails updateRecord = new ShipmentDetails();
+            updateRecord.setUniqueIdentifier(uniqueIdentifier);
+            updateRecord.setOperationType(operationType);
+            updateRecord.setPlacementArea(placementArea);
+            updateRecord.setTime(new Date()); // 设置当前时间
+            shipmentDetailsMapper.updateOperationTypeByUniqueIdentifier(updateRecord);
         }
     }
 
@@ -141,6 +148,7 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
             stockOutRecord.setBundleCount(stockInRecord.getBundleCount());
             stockOutRecord.setPlacementArea(stockInRecord.getPlacementArea());
             stockOutRecord.setPurchaser(stockInRecord.getPurchaser());
+            stockOutRecord.setTime(new Date()); // 设置当前时间
             // 插入出库记录
             shipmentDetailsMapper.insertShipmentDetail(stockOutRecord);
         }
@@ -178,10 +186,41 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
             transferRecord.setBundleCount(record.getBundleCount());
             transferRecord.setPlacementArea(placementArea);
             transferRecord.setPurchaser(record.getPurchaser());
+            transferRecord.setTime(new Date()); // 设置当前时间
             shipmentDetailsMapper.insertShipmentDetail(transferRecord);
         }
     }
-
+    public void returnToStock(String uniqueIdentifier, double weight)throws Exception {
+        if (!canStockIn(uniqueIdentifier)) {
+            throw new Exception("该批次号已在库，不能重复入库");
+        }
+        List<ShipmentDetails> stockInRecords = shipmentDetailsMapper.findStockInByUniqueIdentifier(uniqueIdentifier);
+        if (!stockInRecords.isEmpty()) {
+            ShipmentDetails stockInRecord = stockInRecords.get(0);
+            // 创建出库记录
+            ShipmentDetails stockOutRecord = new ShipmentDetails();
+            stockOutRecord.setUniqueIdentifier(stockInRecord.getUniqueIdentifier());
+            stockOutRecord.setInvoiceNumber(stockInRecord.getInvoiceNumber());
+            stockOutRecord.setCustomer(stockInRecord.getCustomer());
+            stockOutRecord.setTradeMode(stockInRecord.getTradeMode());
+            stockOutRecord.setDeliveryPoint(stockInRecord.getDeliveryPoint());
+            stockOutRecord.setArrivalPortDate(stockInRecord.getArrivalPortDate());
+            stockOutRecord.setArrivalDate(stockInRecord.getArrivalDate());
+            stockOutRecord.setSteelGrade(stockInRecord.getSteelGrade());
+            stockOutRecord.setDimensions(stockInRecord.getDimensions());
+            stockOutRecord.setWeight(weight);
+            stockOutRecord.setSteelMill(stockInRecord.getSteelMill());
+            stockOutRecord.setFurnaceNumber(stockInRecord.getFurnaceNumber());
+            stockOutRecord.setInvoiceApplication(stockInRecord.getInvoiceApplication());
+            stockOutRecord.setOperationType("返库");
+            stockOutRecord.setSupplierBatchNumber(stockInRecord.getSupplierBatchNumber());
+            stockOutRecord.setBundleCount(stockInRecord.getBundleCount());
+            stockOutRecord.setPlacementArea(stockInRecord.getPlacementArea());
+            stockOutRecord.setPurchaser(stockInRecord.getPurchaser());
+            stockOutRecord.setTime(new Date()); // 设置当前时间
+            shipmentDetailsMapper.insertShipmentDetail(stockOutRecord);
+        }
+    }
 
     @Override
     public List<ShipmentDetails> getStockStatusBeforeCutoffDate(Map<String, Object> params) {
@@ -205,4 +244,9 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
     public List<ShipmentDetails> getIntoSDs(Map<String, Object> params) {
         return shipmentDetailsMapper.getIntoSDs(params);
     }
+    public double getWeightByUniqueIdentifier(String uniqueIdentifier) {
+        return shipmentDetailsMapper.getWeightByUniqueIdentifier(uniqueIdentifier);
+    }
+
+
 }
