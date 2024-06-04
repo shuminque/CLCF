@@ -3,6 +3,7 @@ package com.depository_manage.controller.clck;
 import com.depository_manage.entity.BearingRecord;
 import com.depository_manage.entity.ProductId;
 import com.depository_manage.entity.ShipmentDetails;
+import com.depository_manage.service.BearingRecordService;
 import com.depository_manage.service.clck.ShipmentDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,9 @@ public class ShipmentDetailsController {
 
     @Autowired
     private ShipmentDetailsService shipmentDetailsService;
+
+    @Autowired
+    private BearingRecordService bearingRecordService;
 
     @GetMapping
     public ResponseEntity<?> getAllRecords(  @RequestParam Map<String, Object> params,
@@ -129,22 +133,52 @@ public class ShipmentDetailsController {
         response.put("data", transferRecords);
         return ResponseEntity.ok(response);
     }
-    @GetMapping("/viewStockTake")
-    public ResponseEntity<?> viewStockTake(  @RequestParam Map<String, Object> params) {
-        String dateRange = (String) params.get("time");
-        if (dateRange != null && dateRange.contains(" - ")) {
-            String[] dates = dateRange.split(" - ");
-            params.put("startDate", dates[0] + " 00:00:00");
-            params.put("endDate", dates[1] + " 23:59:59");
+        @GetMapping("/viewStockTake")
+        public ResponseEntity<?> viewStockTake(  @RequestParam Map<String, Object> params) {
+            String dateRange = (String) params.get("time");
+            if (dateRange != null && dateRange.contains(" - ")) {
+                String[] dates = dateRange.split(" - ");
+                params.put("startDate", dates[0] + " 00:00:00");
+                params.put("endDate", dates[1] + " 23:59:59");
+            }
+            List<Map<String, String>> result = shipmentDetailsService.getIntoSDs(params);
+            for (Map<String, String> row : result) {
+                String steel_mill= row.get("steel_mill");
+                String steel_grade = row.get("steel_grade");
+                String dimensions= row.get("dimensions");
+                String trade_mode = row.get("trade_mode");
+                String customer = row.get("customer");
+                String startDate = params.get("startDate") != null ? params.get("startDate").toString() : null;
+                String endDate = params.get("endDate") != null ? params.get("endDate").toString() : null;
+                Map<String, Object> params2 = new HashMap<>();
+                params2.put("steelMill", steel_mill);
+                params2.put("steelGrade", steel_grade);
+                params2.put("dimensions", dimensions);
+                params2.put("tradeMode", trade_mode);
+                params2.put("customer", customer);
+                params2.put("startDate", startDate);
+                params2.put("endDate", endDate);
+                // 使用新的params2执行查询获取在库数量
+                List<BearingRecord> records = bearingRecordService.getOutPDs(params2);
+                if (!records.isEmpty()) {
+                    BearingRecord firstRecord = records.get(0);
+                    row.put("totalQuantityLA", String.valueOf(firstRecord.getTotalQuantityLA()));
+                    row.put("totalWeighLA", String.valueOf(firstRecord.getTotalWeighLA()));
+                    row.put("totalCountLA", String.valueOf(firstRecord.getTotalCountLA()));
+                    row.put("totalQuantityLB", String.valueOf(firstRecord.getTotalQuantityLB()));
+                    row.put("totalWeighLB", String.valueOf(firstRecord.getTotalWeighLB()));
+                    row.put("totalCountLB", String.valueOf(firstRecord.getTotalCountLB()));
+                } else {
+                    row.put("totalQuantityLA", "0");
+                    row.put("totalWeighLA", "0");
+                    row.put("totalCountLA", "0");
+                    row.put("totalQuantityLB", "0");
+                    row.put("totalWeighLB", "0");
+                    row.put("totalCountLB", "0");
+                }
+            }
+            return ResponseEntity.ok(result);
         }
-        List<ShipmentDetails> records = shipmentDetailsService.getIntoSDs(params);
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 0);
-        response.put("msg", "");
-        response.put("count", records.size());
-        response.put("data", records);
-        return ResponseEntity.ok(response);
-    }
     @PostMapping("/getWeight")
     public ResponseEntity<Map<String, Object>> getWeight(@RequestBody Map<String, String> request) {
         try {

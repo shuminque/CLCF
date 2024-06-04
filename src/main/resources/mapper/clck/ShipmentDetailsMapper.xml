@@ -234,7 +234,7 @@
     <select id="findStockInOrTransferByUniqueIdentifier" parameterType="string" resultMap="shipmentDetailsMap">
         SELECT * FROM shipment_details
         WHERE unique_identifier = #{uniqueIdentifier}
-          AND (operation_type = '入库' OR operation_type = '转库')
+          AND (operation_type = '入库' OR operation_type = '转库' OR operation_type = '返库')
         ORDER BY id DESC
             LIMIT 1
     </select>
@@ -265,7 +265,7 @@
         FROM
         shipment_details
         WHERE
-        arrival_date &lt;= #{cutoffDate}
+        time &lt;= #{cutoffDate}
         <if test="uniqueIdentifier != null and uniqueIdentifier != ''">
             AND unique_identifier = #{uniqueIdentifier}
         </if>
@@ -317,7 +317,7 @@
         shipment_details
         WHERE
         (operation_type = '入库' OR operation_type = '转库')
-        AND arrival_date &lt;= #{cutoffDate}
+        AND time &lt;= #{cutoffDate}
         <if test="uniqueIdentifier != null and uniqueIdentifier != ''">
             AND unique_identifier = #{uniqueIdentifier}
         </if>
@@ -374,13 +374,13 @@
         latest_in_info.placement_area,
         in_out_count.in_count,
         in_out_count.out_count,
-        latest_in_info.arrival_date
+        latest_in_info.time
         FROM
         latest_in_info
         JOIN
         in_out_count ON latest_in_info.unique_identifier = in_out_count.unique_identifier
         ORDER BY
-        latest_in_info.arrival_date DESC
+        latest_in_info.time DESC
         <if test="begin != null and size != null">
             LIMIT #{begin},#{size}
         </if>
@@ -396,31 +396,31 @@
             unique_identifier,
             placement_area AS from_area,
             to_area,
-            arrival_date
+            time
         FROM (
                  SELECT
                      sd.*,
-                     LEAD(sd.placement_area) OVER (PARTITION BY sd.unique_identifier ORDER BY sd.arrival_date) AS to_area,
-                         LEAD(sd.operation_type) OVER (PARTITION BY sd.unique_identifier ORDER BY sd.arrival_date) AS next_operation
+                     LEAD(sd.placement_area) OVER (PARTITION BY sd.unique_identifier ORDER BY sd.time) AS to_area,
+                         LEAD(sd.operation_type) OVER (PARTITION BY sd.unique_identifier ORDER BY sd.time) AS next_operation
                  FROM
                      shipment_details sd
                  WHERE
                      sd.operation_type IN ('入库', '转库')
-                   AND arrival_date BETWEEN #{startDate} AND #{endDate}
+                   AND time BETWEEN #{startDate} AND #{endDate}
              ) AS subquery
         WHERE
             to_area IS NOT NULL
           AND (operation_type = '入库' AND next_operation = '转库') OR (operation_type = '转库' AND next_operation = '转库')
         ORDER BY
-            unique_identifier, arrival_date;
+            unique_identifier, time;
     </select>
 
-    <select id="getIntoSDs" resultMap="shipmentDetailsMap" parameterType="map">
+    <select id="getIntoSDs"  resultType="map" parameterType="map">
         SELECT steel_mill,steel_grade,dimensions,trade_mode,customer, sum(weight) as weight,sum(bundle_count) as bundle_count
         FROM shipment_details
         where operation_type='入库'
         <if test="startDate != null and endDate != null">
-            AND DATE(arrival_date) BETWEEN #{startDate} AND #{endDate}
+            AND DATE(time) BETWEEN #{startDate} AND #{endDate}
         </if>
         group by  steel_mill,steel_grade,dimensions,trade_mode,customer;
     </select>

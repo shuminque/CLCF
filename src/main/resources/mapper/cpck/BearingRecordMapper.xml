@@ -27,6 +27,12 @@
         <result property="currentDepository" column="current_depository"/>
         <result property="singleEight" column="single_eight"/>
         <result property="mode" column="mode"/>
+        <result property="totalQuantityLA" column="total_quantity_LA" />
+        <result property="totalWeighLA" column="total_weigh_LA" />
+        <result property="totalCountLA" column="total_count_LA" />
+        <result property="totalQuantityLB" column="total_quantity_LB" />
+        <result property="totalWeighLB" column="total_weigh_LB" />
+        <result property="totalCountLB" column="total_count_LB" />
     </resultMap>
 
     <insert id="insertBearingRecord">
@@ -632,15 +638,45 @@
     </select>
 
     <select id="getOutPDs" resultMap="bearingRecordMap" parameterType="map">
-        SELECT outer_inner_ring,steel_type,steel_grade,size,mode,customer,single_eight,
-        sum(quantity) as quantity,
-        (IF(single_eight > 1, sum(quantity * single_eight / 1000), 0))  as weigh,
-        (IF(single_eight &lt; 1, sum(quantity / single_eight), 0)) as count
-        FROM bearing_records
-        where transaction_type='出库' and state='正常'
+        SELECT
+        steel_type,
+        steel_grade,
+        size,
+        mode,
+        customer,
+        sum(IF(outer_inner_ring = 'LA', quantity, 0)) as total_quantity_LA,
+        sum(IF(outer_inner_ring = 'LB', quantity, 0)) as total_quantity_LB,
+        sum(IF(outer_inner_ring = 'LA' AND single_eight > 1, quantity * single_eight / 1000, 0)) as total_weigh_LA,
+        sum(IF(outer_inner_ring = 'LB' AND single_eight > 1, quantity * single_eight / 1000, 0)) as total_weigh_LB,
+        sum(IF(outer_inner_ring = 'LA' AND single_eight &lt; 1, quantity / single_eight, 0)) as total_count_LA,
+        sum(IF(outer_inner_ring = 'LB' AND single_eight &lt; 1, quantity / single_eight, 0)) as total_count_LB
+        FROM
+        bearing_records
+        where transaction_type = '出库' and state = '正常'
         <if test="startDate != null and endDate != null">
             AND DATE(time) BETWEEN #{startDate} AND #{endDate}
         </if>
-        group by  outer_inner_ring,steel_type,steel_grade,size,mode,customer,single_eight;
+        <if test="steelMill != null and steelMill != ''">
+            AND steel_type = #{steelMill}
+        </if>
+        <if test="steelGrade != null and steelGrade != ''">
+            AND steel_grade = #{steelGrade}
+        </if>
+        <if test="dimensions != null and dimensions != ''">
+            AND size = #{dimensions}
+        </if>
+        <if test="tradeMode != null and tradeMode != ''">
+            AND mode = #{tradeMode}
+        </if>
+        <if test="customer != null and customer != ''">
+            AND customer = #{customer}
+        </if>
+        GROUP BY
+        steel_type,
+        steel_grade,
+        size,
+        mode,
+        customer;
     </select>
+
 </mapper>

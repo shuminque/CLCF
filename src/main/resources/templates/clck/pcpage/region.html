@@ -2,246 +2,290 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>各大区在库情况</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
-    <script type="text/javascript" src="/static/js/http_unpkg.com_html5-qrcode.js" charset="utf-8"></script>
-    <script type="text/javascript" src="/static/js/jquery-2.1.0.js" charset="utf-8"></script>
-    <script type="text/javascript" src="/static/js/jquery.qrcode.js" charset="utf-8"></script>
+    <title>材料产品关联</title>
+    <link rel="stylesheet" href="/static/lib/layui-v2.8.17/css/layui.css" media="all">
+    <script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script>
+    <!-- jQuery 库 -->
+    <script src="/static/js/http_ajax.googleapis.com_ajax_libs_jquery_3.5.1_jquery.js"></script>
+    <script src="/static/js/http_code.jquery.com_jquery-3.6.0.min.js"></script>
+    <script src="/static/js/http_cdnjs.cloudflare.com_ajax_libs_bootstrap-3-typeahead_4.0.2_bootstrap3-typeahead.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/vfs_fonts.js"></script>
     <style>
-        body, html {
-            height: 100%;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        body {
+            background-color: #f8f9fa;
         }
         .container {
-            margin-top: 20px;
+            margin: 20px;
         }
-        table {
-            width: 100%;
-            margin-bottom: 20px;
-        }
-        .pagination {
-            justify-content: center;
-        }
-        #printArea div {
-            display: inline-block;
-            margin: 0; /* Add space around each QR code */
-            padding: 10px; /* Optional: Adds padding around the QR code for better visibility */
-            border: 1px solid #ccc; /* Optional: Adds a border around each QR code */
-            background-color: #f9f9f9; /* Optional: Sets a background color for each QR code area */
-        }
-        @media print {
-            body * {
-                visibility: hidden;
-            }
-            #printArea, #printArea * {
-                visibility: visible;
-            }
-            #printArea {
-                position: absolute;
-                left: 0;
-                top: 0;
-            }
+        .layui-table-view .layui-table { /* 调整表格样式 */
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
 <body>
-<section class="section">
-    <div class="container">
-        <h1 class="title">各大区在库情况</h1>
-        <div class="field">
-            <select class="input area-select" name="area" id="areaSelect">
-                <option value="" selected>选择库位</option>
-                <option th:each="placement_area : ${areas}"
-                        th:value="${placement_area.area}"
-                        th:text="${placement_area.area}"></option>
-            </select>
-        </div>
-        <div class="field">
-            <div class="control">
-                <input class="input" type="text" id="search" placeholder="搜索...">
+<div class="container">
+    <!-- 统一的搜索表单 -->
+    <form class="layui-form" id="searchForm">
+        <div class="layui-form-item">
+            <div class="layui-input-inline">
+                <input type="text" name="time" id="date" placeholder="请选择日期" autocomplete="off" class="layui-input">
+            </div>
+            <div class="layui-input-inline">
+                <select class="input area-select" name="placementArea" id="areaSelect">
+                    <option value="" selected>选择库位</option>
+                    <option th:each="placement_area : ${areas}"
+                            th:value="${placement_area.area}"
+                            th:text="${placement_area.area}"></option>
+                </select>
+            </div>
+            <!--            <div class="layui-input-inline">-->
+            <!--                <select name="steelMill">-->
+            <!--                    <option value="" selected>选择钢厂</option>-->
+            <!--                    <option th:each="steel_type : ${steelTypes}"-->
+            <!--                            th:value="${steel_type.name}"-->
+            <!--                            th:text="${steel_type.name}"></option>-->
+            <!--                </select>-->
+            <!--            </div>-->
+            <!--            <div class="layui-input-inline">-->
+            <!--                <select name="steelGrade">-->
+            <!--                    <option value="" selected>选择钢材等级</option>-->
+            <!--                    <option th:each="steel_grade : ${steelGrades}"-->
+            <!--                            th:value="${steel_grade.grade}"-->
+            <!--                            th:text="${steel_grade.grade}"></option>-->
+            <!--                </select>-->
+            <!--            </div>-->
+            <!--            <div class="layui-input-inline">-->
+            <!--                <div class="layui-input">-->
+            <!--                    <select name="dimensions" id="dimensions" lay-search>-->
+            <!--                        <option value="" selected>选择尺寸</option>-->
+            <!--                        <option th:each="steel_size : ${steelSizes}"-->
+            <!--                                th:value="${steel_size.size}"-->
+            <!--                                th:text="${steel_size.size}"></option>-->
+            <!--                    </select>-->
+            <!--                </div>-->
+            <!--            </div>-->
+            <!--            <div class="layui-input-inline">-->
+            <!--                <select name="tradeMode" id="tradeMode"  >-->
+            <!--                    <option value="" selected>选择贸易方式</option>-->
+            <!--                    <option th:each="trade_mode : ${tradeModes}"-->
+            <!--                            th:value="${trade_mode.mode}"-->
+            <!--                            th:text="${trade_mode.mode}"></option>-->
+            <!--                </select>-->
+            <!--            </div>-->
+
+            <!--            <div class="layui-inline">-->
+            <!--                <button type="button" class="layui-btn" id="advancedSearchToggle">高级搜索</button>-->
+            <!--            </div>-->
+            <!--            <div class="layui-inline" id="advancedSearchForm" style="display: none;">-->
+            <!--                <div class="layui-input-inline" >-->
+            <!--                    <select name="purchaser" id="purchaser" >-->
+            <!--                        <option value="" selected>请选择购买方</option>-->
+            <!--                        <option th:each="purchaser : ${purchasers}"-->
+            <!--                                th:value="${purchaser.purchaser}"-->
+            <!--                                th:text="${purchaser.purchaser}"></option>-->
+            <!--                    </select>-->
+            <!--                </div>-->
+            <!--                <div class="layui-input-inline">-->
+            <!--                    <div class="layui-input-inline">-->
+            <!--                        <select name="customer">-->
+            <!--                            <option value="" selected>搜索客户</option>-->
+            <!--                            <option th:each="customer : ${customers}"-->
+            <!--                                    th:value="${customer.name}"-->
+            <!--                                    th:text="${customer.name}"></option>-->
+            <!--                        </select>-->
+            <!--                    </div>-->
+            <!--                </div>-->
+            <!--                <div class="layui-input-inline">-->
+            <!--                    <input type="text" name="furnaceNumber" placeholder="搜索炉号" class="layui-input">-->
+            <!--                </div>-->
+            <!--                <div class="layui-input-inline">-->
+            <!--                    <input type="text" name="supplierBatchNumber" placeholder="搜索批号" class="layui-input">-->
+            <!--                </div>-->
+            <!--            </div>-->
+            <div class="layui-inline">
+                <button type="submit" class="layui-btn layui-btn-primary" lay-submit lay-filter="data-search-btn">
+                    <i class="layui-icon"></i> 搜 索
+                </button>
             </div>
         </div>
-        <table class="table is-striped is-fullwidth">
-            <thead>
-            <tr>
-                <th>炉号</th>
-                <th>客户</th>
-                <th>贸易方式</th>
-                <th>到货点</th>
-                <th>到港日期</th>
-                <th>到达日期</th>
-                <th>钢材等级</th>
-                <th>尺寸</th>
-                <th>重量</th>
-                <th>钢厂</th>
-                <th>操作类型</th>
-                <th>库位</th>
-                <th>操作</th>
-            </tr>
-            </thead>
-            <tbody id="recordsTableBody">
-            </tbody>
-        </table>
-        <nav class="pagination" role="navigation" aria-label="pagination">
-            <a class="pagination-previous" id="prevPage">上一页</a>
-            <a class="pagination-next" id="nextPage">下一页</a>
-            <ul class="pagination-list" id="paginationList">
-            </ul>
-        </nav>
-        <div id="printArea"></div>
-    </div>
-</section>
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script src="/static/js/jquery.qrcode.js"></script>
+    </form>
+    <table id="recordTable" lay-filter="recordTableFilter"></table>
+    <table id="bearingsTable" lay-filter="bearingsTableFilter"></table>
+</div>
+<script type="text/html" id="exportButtonTpl">
+    <button class="layui-btn layui-btn-sm layui-btn-normal" lay-event="exportPDF">导出PDF</button>
+</script>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        let currentPage = 1;
-        const recordsPerPage = 10;
+    var userReviewGroupId;
+    var userAuthority;
+    var userDepositoryId;
+    var userDepository;
+    var depositoryId;
 
-        function fetchRecords(page = 1, query = '', area = '') {
-            axios.get('/records')
-                .then(response => {
-                    const records = response.data;
-                    const filteredRecords = records.filter(record =>
-                        (area ? record.placementArea && record.placementArea.startsWith(area) : true) &&
-                        Object.values(record).some(value =>
-                            value && value.toString().toLowerCase().includes(query.toLowerCase())
-                        )
-                    );
-                    displayRecords(filteredRecords, page);
-                    setupPagination(filteredRecords.length, page);
-                })
-                .catch(error => {
-                    console.error('Error fetching records:', error);
+    layui.use(['table', 'form', 'laydate'], function(){
+        var table = layui.table;
+        var form = layui.form;
+        var laydate=layui.laydate;
+        // 初始化日期范围选择器
+        laydate.render({
+            elem: '#date',
+            value: new Date() // 设置默认值为当前日期
+        });
+        // 渲染表格
+        var recordTable = table.render({
+            elem: '#recordTable',
+            url: '/shipment/getStockStatusBeforeCutoffDate',
+            parseData: function(res) { // 将原始数据格式适配成 layui 表格组件所期望的格式
+                var filteredData = res.filter(function(record) {
+                    return record.weight > 0;
                 });
-        }
-
-        function displayRecords(records, page) {
-            const startIndex = (page - 1) * recordsPerPage;
-            const endIndex = startIndex + recordsPerPage;
-            const recordsToDisplay = records.slice(startIndex, endIndex);
-
-            const tableBody = document.getElementById('recordsTableBody');
-            tableBody.innerHTML = '';
-
-            recordsToDisplay.forEach(record => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${record.furnaceNumber || ''}</td>
-                    <td>${record.customer || ''}</td>
-                    <td>${record.tradeMode || ''}</td>
-                    <td>${record.deliveryPoint || ''}</td>
-                    <td>${formatDate(record.arrivalPortDate) || ''}</td>
-                    <td>${formatDate(record.arrivalDate) || ''}</td>
-                    <td>${record.steelGrade || ''}</td>
-                    <td>${record.dimensions || ''}</td>
-                    <td>${record.weight || ''}</td>
-                    <td>${record.steelMill || ''}</td>
-                    <td>${record.operationType || ''}</td>
-                    <td>${record.placementArea || ''}</td>
-                    <td><button class="button is-small is-link" onclick="printQRCode(${record.id})">打印二维码</button></td>
-                `;
-                tableBody.appendChild(row);
-            });
-        }
-
-        function setupPagination(totalRecords, page) {
-            const totalPages = Math.ceil(totalRecords / recordsPerPage);
-
-            const paginationList = document.getElementById('paginationList');
-            paginationList.innerHTML = '';
-
-            for (let i = 1; i <= totalPages; i++) {
-                const pageItem = document.createElement('li');
-                const pageLink = document.createElement('a');
-                pageLink.className = 'pagination-link';
-                if (i === page) pageLink.classList.add('is-current');
-                pageLink.innerText = i;
-                pageLink.addEventListener('click', () => fetchRecords(i));
-                pageItem.appendChild(pageLink);
-                paginationList.appendChild(pageItem);
+                return {
+                    "code": 0, // 解析接口状态
+                    "msg": "", // 解析提示文本
+                    "count": filteredData.length, // Parse data length
+                    "data": filteredData // Parse data list
+                };
+            },
+            request: {
+                pageName:'page',
+                limitName:'size'
+            },
+            height: 600, // 设置表格高度
+            toolbar: ['filter', 'exports', 'print'],
+            cols: [ [ // 表头
+                {field: 'uniqueIdentifier', title: '材料ID',totalRowText: '合计',colspan:1,rowspan:1},
+                {field: 'invoiceNumber', title: '发票编号',hide:true},
+                {field: 'furnaceNumber', title: '炉号'},
+                {field: 'steelMill', title: '钢厂'},
+                {field: 'steelGrade', title: '钢材等级'},
+                {field: 'dimensions', title: '尺寸'},
+                {field: 'tradeMode', title: '贸易方式'},
+                {field: 'bundleCount', title: '支数'},
+                {field: 'weight', title: '重量'},
+                {field: 'customer', title: '客户'},
+                {field: 'placementArea', title: '库位'},
+                {field: 'supplierBatchNumber', title: '供应商生产批号'},
+                {field: 'purchaser', title: '购买方',hide:true},
+                {field: 'deliveryPoint', title: '到货地址',hide:true},
+                {field: 'arrivalPortDate', title: '到港日期',hide:true, templet: function(d){
+                        return formatDate(d.arrivalDate);
+                    }},
+                {field: 'arrivalDate', title: '到达日期', templet: function(d){
+                        return formatDate(d.arrivalDate);
+                    }},
+                {field: 'export', title: '导出PDF',
+                    templet: '#exportButtonTpl'}
+            ]],
+            limits: [200, 500, 1000, 20000],
+            limit: 200,
+            page: true, // 开启分页
+            totalRow: true, // 开启合计行
+            done: function(res, curr, count) {
+                // 计算支数与重量的合计
+                var totalBundleCount = 0;
+                var totalWeight = 0;
+                res.data.forEach(function(item) {
+                    totalBundleCount += parseInt(item.bundleCount);
+                    totalWeight += parseFloat(item.weight);
+                });
+                // 更新合计行的值
+                var totalRow = document.getElementsByClassName('layui-table-total')[0];
+                if (totalRow) {
+                    var bundleCountCell = totalRow.querySelector('td[data-field="bundleCount"]');
+                    var weightCell = totalRow.querySelector('td[data-field="weight"]');
+                    if (bundleCountCell) {
+                        bundleCountCell.getElementsByClassName('layui-table-cell')[0].innerText = totalBundleCount.toString();
+                    }
+                    if (weightCell) {
+                        weightCell.getElementsByClassName('layui-table-cell')[0].innerText = totalWeight.toFixed(2).toString();
+                    }
+                }
             }
+        });
+        table.on('tool(recordTableFilter)', function(obj){
+            var data = obj.data;
+            if(obj.event === 'exportPDF'){
+                // 获取当前行数据，调用导出 PDF 的函数
+                exportToPDF(data);
+            }
+        });
 
-            document.getElementById('prevPage').disabled = page === 1;
-            document.getElementById('nextPage').disabled = page === totalPages;
+        function exportToPDF(data) {
+            // 定义文档内容
+            var docDefinition = {
+                content: [
+                    { text: '发票编号: ' + data.invoiceNumber },
+                    { text: '炉号: ' + data.furnaceNumber },
+                    { text: '购买方: ' + data.purchaser },
+                    { text: '钢厂: ' + data.steelMill },
+                    { text: '钢材等级: ' + data.steelGrade }
+                    // 可以根据需要添加更多的数据
+                ]
+            };
 
-            document.getElementById('prevPage').addEventListener('click', () => {
-                if (page > 1) fetchRecords(page - 1);
-            });
-            document.getElementById('nextPage').addEventListener('click', () => {
-                if (page < totalPages) fetchRecords(page + 1);
-            });
+            // 使用 PDFMake 生成 PDF 文件
+            pdfMake.createPdf(docDefinition).download('export.pdf');
         }
 
-        document.getElementById('search').addEventListener('input', (event) => {
-            const query = event.target.value;
-            const area = document.getElementById('areaSelect').value;
-            fetchRecords(1, query, area);
+        // 格式化日期
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            let date = new Date(dateStr);
+            let year = date.getFullYear();
+            let month = (date.getMonth() + 1).toString().padStart(2, '0');
+            let day = date.getDate().toString().padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        // 统一搜索表单提交事件
+        form.on('submit(data-search-btn)', function(data) {
+            var req = {};
+            var formData = data.field;
+            if (formData.steelMill !== '') {
+                req.steelMill = formData.steelMill;
+            }
+            if (formData.steelGrade !== '') {
+                req.steelGrade = formData.steelGrade;
+            }
+            if (formData.tradeMode !== '') {
+                req.tradeMode = formData.tradeMode;
+            }
+            if (formData.dimensions !== '') {
+                req.dimensions = formData.dimensions;
+            }
+            if (formData.purchaser !== '') {
+                req.purchaser = formData.purchaser;
+            }
+            if (formData.customer !== '') {
+                req.customer = formData.customer;
+            }
+            if (formData.furnaceNumber !== '') {
+                req.furnaceNumber = formData.furnaceNumber;
+            }
+            if (formData.supplierBatchNumber !== '') {
+                req.supplierBatchNumber = formData.supplierBatchNumber;
+            }
+            if (formData.placementArea !== '') {
+                req.placementArea = formData.placementArea;
+            }
+            req.cutoffDate = formData.time;
+            // 执行搜索重载
+            recordTable.reload({
+                url: '/shipment/getStockStatusBeforeCutoffDate',
+                where: req,
+                page: { curr: 1 }
+            });
+            return false;
         });
-
-        document.getElementById('areaSelect').addEventListener('change', (event) => {
-            const area = event.target.value;
-            const query = document.getElementById('search').value;
-            fetchRecords(1, query, area);
-        });
-
-        fetchRecords();
+        // // 高级搜索开关逻辑
+        // $('#advancedSearchToggle').click(function() {
+        //     $('#advancedSearchForm').slideToggle();
+        // });
     });
 
-    function printQRCode(id) {
-        console.log(id);
-        axios.get(`/records/${id}`)
-            .then(response => {
-                const record = response.data;
-                const printArea = document.getElementById('printArea');
-                printArea.innerHTML = '';
-                const qrDiv = document.createElement('div');
-                $(qrDiv).qrcode({
-                    text: Object.values({
-                        arrivalDate: record.arrivalDate,
-                        steelMill: record.steelMill,
-                        steelGrade: record.steelGrade,
-                        furnaceNumber: record.furnaceNumber,
-                        weight: record.weight,
-                        bundleCount: record.bundleCount,
-                        purchaser: record.purchaser,
-                        tradeMode: record.tradeMode,
-                        customer: record.customer,
-                        deliveryPoint: record.deliveryPoint,
-                        supplierBatchNumber: record.supplierBatchNumber,
-                        uniqueIdentifier:record.uniqueIdentifier
-                    }).join('|'),
-                    width: 185,
-                    height: 185,
-                    correctLevel: 3
-                });
-                const textDiv = document.createElement('div');
-                textDiv.innerHTML = `
-                    <strong>日期:</strong> ${formatDate(record.arrivalDate)}<br>
-                             <strong>钢厂:</strong> ${record.steelMill}<strong>材料ID:</strong> ${record.uniqueIdentifier}<br>
-                    <strong>钢材等级:</strong> ${record.steelGrade}<br>
-                    <strong>炉号:</strong> ${record.furnaceNumber}<br>
-                    <strong>尺寸:</strong> ${record.dimensions}<br>
-                             <strong>重量:</strong> ${record.weight}<span>（kg）</span><strong>购买方:</strong> ${record.purchaser}<br>
-                    <strong>贸易方式:</strong> ${record.tradeMode}
-                `;
-                printArea.appendChild(qrDiv);
-                printArea.appendChild(textDiv);
-                window.print();
-            })
-            .catch(error => {
-                console.error('Error fetching record:', error);
-            });
-    }
-    function formatDate(dateStr) {
-        if (!dateStr) return '';
-        let date = new Date(dateStr);
-        let year = date.getFullYear();
-        let month = (date.getMonth() + 1).toString().padStart(2, '0');
-        let day = date.getDate().toString().padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    }
 </script>
 </body>
 </html>

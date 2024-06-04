@@ -57,16 +57,16 @@
 <!--                            th:text="${steel_grade.grade}"></option>-->
 <!--                </select>-->
 <!--            </div>-->
-<!--            <div class="layui-input-inline">-->
-<!--                <div class="layui-input">-->
-<!--                    <select name="dimensions" id="dimensions" lay-search>-->
-<!--                        <option value="" selected>选择尺寸</option>-->
-<!--                        <option th:each="steel_size : ${steelSizes}"-->
-<!--                                th:value="${steel_size.size}"-->
-<!--                                th:text="${steel_size.size}"></option>-->
-<!--                    </select>-->
-<!--                </div>-->
-<!--            </div>-->
+            <div class="layui-input-inline">
+                <div class="layui-input">
+                    <select name="dimensions" id="dimensions" lay-search>
+                        <option value="" selected>选择尺寸</option>
+                        <option th:each="steel_size : ${steelSizes}"
+                                th:value="${steel_size.size}"
+                                th:text="${steel_size.size}"></option>
+                    </select>
+                </div>
+            </div>
 <!--            <div class="layui-input-inline">-->
 <!--                <select name="tradeMode" id="tradeMode"  >-->
 <!--                    <option value="" selected>选择贸易方式</option>-->
@@ -135,6 +135,8 @@
             elem: '#date',
             value: new Date() // 设置默认值为当前日期
         });
+
+
         // 渲染表格
         var recordTable = table.render({
             elem: '#recordTable',
@@ -157,54 +159,28 @@
             height: 600, // 设置表格高度
             toolbar: ['filter', 'exports', 'print'],
             cols: [ [ // 表头
-                {field: 'uniqueIdentifier', title: '材料ID',totalRowText: '合计'},
-                {field: 'invoiceNumber', title: '发票编号',hide:true},
-                {field: 'furnaceNumber', title: '炉号'},
-                {field: 'steelMill', title: '钢厂'},
-                {field: 'steelGrade', title: '钢材等级'},
-                {field: 'dimensions', title: '尺寸'},
-                {field: 'tradeMode', title: '贸易方式'},
-                {field: 'bundleCount', title: '支数'},
-                {field: 'weight', title: '重量'},
-                {field: 'customer', title: '客户'},
-                {field: 'placementArea', title: '库位'},
-                {field: 'supplierBatchNumber', title: '供应商生产批号'},
-                {field: 'purchaser', title: '购买方',hide:true},
-                {field: 'deliveryPoint', title: '到货地址',hide:true},
-                {field: 'arrivalPortDate', title: '到港日期',hide:true, templet: function(d){
-                        return formatDate(d.arrivalDate);
+                {field: '', title: '材料出入库记录表',colspan:10,rowspan:1},
+                ],
+                [ // 表头
+                    {field: ' ', title: '入库日期',colspan:1,rowspan:1},
+                    {field: ' ', title: '2024.02.27',colspan:1,rowspan:1},
+                    {field: ' ', title: '型号：',colspan:1,rowspan:1},
+                    {field: ' ', title: '材质：山阳SUJ2NG15',colspan:1,rowspan:1},
+                    {field: ' ', title: '放置区域：',colspan:1,rowspan:1},
+                ],
+                [ // 表头
+                    {field: 'uniqueIdentifier', title: '序号'},
+                    {field: 'supplierBatchNumber', title: '生产批号'},
+                    {field: 'bundleCount', title: '数量(个)'},
+                    {field: 'time', title: '领用日期', templet: function(d){
+                        return formatDate(d.time);
                     }},
-                {field: 'arrivalDate', title: '到达日期', templet: function(d){
-                        return formatDate(d.arrivalDate);
-                    }},
-                {field: 'export', title: '导出PDF'}
-                    // templet: '#exportButtonTpl'}
-            ]],
+                    {field: ' ', title: '领用人员'}
+                ]
+            ],
             limits: [200, 500, 1000, 20000],
             limit: 200,
             page: true, // 开启分页
-            totalRow: true, // 开启合计行
-            done: function(res, curr, count) {
-                // 计算支数与重量的合计
-                var totalBundleCount = 0;
-                var totalWeight = 0;
-                res.data.forEach(function(item) {
-                    totalBundleCount += parseInt(item.bundleCount);
-                    totalWeight += parseFloat(item.weight);
-                });
-                // 更新合计行的值
-                var totalRow = document.getElementsByClassName('layui-table-total')[0];
-                if (totalRow) {
-                    var bundleCountCell = totalRow.querySelector('td[data-field="bundleCount"]');
-                    var weightCell = totalRow.querySelector('td[data-field="weight"]');
-                    if (bundleCountCell) {
-                        bundleCountCell.getElementsByClassName('layui-table-cell')[0].innerText = totalBundleCount.toString();
-                    }
-                    if (weightCell) {
-                        weightCell.getElementsByClassName('layui-table-cell')[0].innerText = totalWeight.toFixed(2).toString();
-                    }
-                }
-            }
         });
         table.on('tool(recordTableFilter)', function(obj){
             var data = obj.data;
@@ -272,11 +248,38 @@
                 req.placementArea = formData.placementArea;
             }
             req.cutoffDate = formData.time;
+            var placementArea = $('#areaSelect').val();
+            var selectedDimensions = $('#dimensions').val();
+            var tableHead =[
+                {field: ' ', title: '入库日期：', colspan:1,rowspan:1},
+                {field: ' ', title:  formData.time, colspan:1,rowspan:1},
+                {field: ' ', title: '型号：' + selectedDimensions,colspan:1,rowspan:1},
+                {field: ' ', title: '材质：',colspan:1,rowspan:1},
+                {field: ' ', title: '放置区域：' + placementArea,colspan:1,rowspan:1},
+            ];
             // 执行搜索重载
             recordTable.reload({
                 url: '/shipment/getStockStatusBeforeCutoffDate',
                 where: req,
-                page: { curr: 1 }
+                page: { curr: 1 },
+                cols:[
+                    // 原始表头
+                    [
+                        {field: '', title: '材料出入库记录表',colspan:10,rowspan:1},
+                    ],
+                    // 新的表头内容
+                    tableHead,
+                    // 数据列
+                    [
+                        {field: 'uniqueIdentifier', title: '序号'},
+                        {field: 'supplierBatchNumber', title: '生产批号'},
+                        {field: 'bundleCount', title: '数量(个)'},
+                        {field: 'time', title: '领用日期', templet: function(d){
+                                return formatDate(d.time);
+                            }},
+                        {field: ' ', title: '领用人员'}
+                    ]
+                ]
             });
             return false;
         });

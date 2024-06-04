@@ -32,5 +32,11 @@ public class BearingRecord {
     private String  mode;
     private Double weigh;
     private String  count;
+    private int totalQuantityLA;
+    private double totalWeighLA;
+    private int totalCountLA;
+    private int totalQuantityLB;
+    private double totalWeighLB;
+    private int totalCountLB;
     // Lombok @Data 注解会自动生成构造函数、getter 和 setter 方法、toString 方法等
 }

@@ -19,7 +19,7 @@ public interface ShipmentDetailsService {
     void returnToStock(String uniqueIdentifier, double weight)throws Exception;
     List<ShipmentDetails> getStockStatusBeforeCutoffDate(Map<String, Object> params);
     List<Map<String, Object>> viewTransfer(Map<String, Object> params);
-    List<ShipmentDetails> getIntoSDs(Map<String, Object> params);
+    List<Map<String, String>> getIntoSDs(Map<String, Object> params);
 
     double getWeightByUniqueIdentifier(String uniqueIdentifier);
 

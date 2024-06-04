@@ -58,21 +58,36 @@
             elem: '#recordTable',
             url: '/shipment/viewStockTake',
             title:'材料入库情况',
+            parseData: function(res) {
+                return {
+                    "code": 0, // 解析接口状态
+                    "msg": "", // 解析提示文本
+                    "count": res.length, // Parse data length
+                    "data": res // Parse data list
+                };
+            },
             request: {
                 pageName:'page',
                 limitName:'size'
             },
             height: 600, // 设置表格高度
             toolbar: ['filter', 'exports', 'print'],
-            cols: [ [ // 表头
-                {field: 'steelMill', title: '钢厂',totalRowText: '合计'},
-                {field: 'steelGrade', title: '钢材等级'},
+            cols: [ [
+                {field: 'steel_mill', title: '钢厂', totalRowText: '合计'},
+                {field: 'steel_grade', title: '钢材等级'},
                 {field: 'dimensions', title: '尺寸'},
-                {field: 'tradeMode', title: '贸易方式'},
+                {field: 'trade_mode', title: '贸易方式'},
                 {field: 'customer', title: '客户'},
-                {field: 'bundleCount', title: '支数'},
-                {field: 'weight', title: '重量'}
+                {field: 'bundle_count', title: '支数'},
+                {field: 'weight', title: '重量'},
+                {field: 'totalQuantityLA', title: '总数量 (LA)', templet: function(d) { return Math.round(d.totalQuantityLA); }},
+                {field: 'totalWeighLA', title: '总重量 (LA)', templet: function(d) { return Math.round(d.totalWeighLA); }},
+                {field: 'totalCountLA', title: '总计数 (LA)', templet: function(d) { return Math.round(d.totalCountLA); }},
+                {field: 'totalQuantityLB', title: '总数量 (LB)', templet: function(d) { return Math.round(d.totalQuantityLB); }},
+                {field: 'totalWeighLB', title: '总重量 (LB)', templet: function(d) { return Math.round(d.totalWeighLB); }},
+                {field: 'totalCountLB', title: '总计数 (LB)', templet: function(d) { return Math.round(d.totalCountLB); }}
             ]],
+
             limits: [200, 500, 1000, 20000],
             limit: 200,
             page: true, // 开启分页
@@ -135,67 +150,67 @@
                 where: req,
                 page: { curr: 1 }
             });
-            // 渲染第二个表格
-            var bearingsTable = table.render({
-                elem: '#bearingsTable',
-                url: '/bearingRecords/viewStockTake',
-                title:'产品出库情况',
-                height: 500, // 设置表格高度
-                toolbar: ['filter', 'exports', 'print'],
-                cols: [
-                    [ // 表头
-                        {field: 'outerInnerRing', title: '内外轮',sort:true, totalRowText: '合计'},
-                        {field: 'steelType', title: '钢厂' ,sort:true,totalRowText: 'LA合计重量:'},
-                        {field: 'steelGrade', title: '钢材等级'},
-                        {field: 'size', title: '尺寸',sort:true, totalRowText: 'LA合计消耗个数:'},
-                        {field: 'mode', title: '贸易方式',sort:true},
-                        {field: 'customer', title: '客户',sort:true,totalRowText: 'LB合计重量:'},
-                        {field: 'singleEight', title: '单重',sort:true},
-                        {field: 'quantity', title: '数量',sort:true,totalRowText: 'LB合计消耗个数:'},
-                        {field: 'weigh', title: '重量(kg)', sort: true, },
-                        {field: 'count', title: '消耗个数', sort: true,}
-                    ]
-                ],
-                limits: [500,1000],
-                limit: 500,
-                where: req,
-                page: { curr: 1 },
-                totalRow: true,
-                done: function(res, curr, count) {
-                    var totalLAStockQuantity = 0;
-                    var totalLAConsumableWeight = 0;
-                    var totalLBStockQuantity = 0;
-                    var totalLBConsumableWeight = 0;
-                    res.data.forEach(function(item) {
-                        if (item.outerInnerRing === 'LA') {
-                            totalLAStockQuantity += (item.weigh);
-                            totalLAConsumableWeight += parseInt(item.count);
-                        }else if (item.outerInnerRing === 'LB') {
-                            totalLBStockQuantity += (item.weigh);
-                            totalLBConsumableWeight += parseInt(item.count);
-                        }
-
-                    });
-                    // 更新合计行的值
-                    var totalRow = document.querySelector('[lay-id="bearingsTable"] .layui-table-total'); // 通过 lay-id 来找到第二个表格的合计行
-                    var laStockQuantityCell = totalRow.querySelector('td[data-field="steelGrade"]');
-                    var laConsumableWeightCell = totalRow.querySelector('td[data-field="mode"]');
-                    var lbStockQuantityCell = totalRow.querySelector('td[data-field="singleEight"]');
-                    var lbConsumableWeightCell = totalRow.querySelector('td[data-field="weigh"]');
-                    if (laStockQuantityCell) {
-                        laStockQuantityCell.getElementsByClassName('layui-table-cell')[0].innerText = totalLAStockQuantity.toFixed(0).toString();
-                    }
-                    if (laConsumableWeightCell) {
-                        laConsumableWeightCell.getElementsByClassName('layui-table-cell')[0].innerText = totalLAConsumableWeight.toFixed(0).toString();
-                    }
-                    if (lbStockQuantityCell) {
-                        lbStockQuantityCell.getElementsByClassName('layui-table-cell')[0].innerText = totalLBStockQuantity.toFixed(0).toString();
-                    }
-                    if (lbConsumableWeightCell) {
-                        lbConsumableWeightCell.getElementsByClassName('layui-table-cell')[0].innerText = totalLBConsumableWeight.toFixed(0).toString();
-                    }
-                }
-            });
+            // // 渲染第二个表格
+            // var bearingsTable = table.render({
+            //     elem: '#bearingsTable',
+            //     url: '/bearingRecords/viewStockTake',
+            //     title:'产品出库情况',
+            //     height: 500, // 设置表格高度
+            //     toolbar: ['filter', 'exports', 'print'],
+            //     cols: [
+            //         [ // 表头
+            //             {field: 'outerInnerRing', title: '内外轮',sort:true, totalRowText: '合计'},
+            //             {field: 'steelType', title: '钢厂' ,sort:true,totalRowText: 'LA合计重量:'},
+            //             {field: 'steelGrade', title: '钢材等级'},
+            //             {field: 'size', title: '尺寸',sort:true, totalRowText: 'LA合计消耗个数:'},
+            //             {field: 'mode', title: '贸易方式',sort:true},
+            //             {field: 'customer', title: '客户',sort:true,totalRowText: 'LB合计重量:'},
+            //             {field: 'singleEight', title: '单重',sort:true},
+            //             {field: 'quantity', title: '数量',sort:true,totalRowText: 'LB合计消耗个数:'},
+            //             {field: 'weigh', title: '重量(kg)', sort: true, },
+            //             {field: 'count', title: '消耗个数', sort: true,}
+            //         ]
+            //     ],
+            //     limits: [500,1000],
+            //     limit: 500,
+            //     where: req,
+            //     page: { curr: 1 },
+            //     totalRow: true,
+            //     done: function(res, curr, count) {
+            //         var totalLAStockQuantity = 0;
+            //         var totalLAConsumableWeight = 0;
+            //         var totalLBStockQuantity = 0;
+            //         var totalLBConsumableWeight = 0;
+            //         res.data.forEach(function(item) {
+            //             if (item.outerInnerRing === 'LA') {
+            //                 totalLAStockQuantity += (item.weigh);
+            //                 totalLAConsumableWeight += parseInt(item.count);
+            //             }else if (item.outerInnerRing === 'LB') {
+            //                 totalLBStockQuantity += (item.weigh);
+            //                 totalLBConsumableWeight += parseInt(item.count);
+            //             }
+            //
+            //         });
+            //         // 更新合计行的值
+            //         var totalRow = document.querySelector('[lay-id="bearingsTable"] .layui-table-total'); // 通过 lay-id 来找到第二个表格的合计行
+            //         var laStockQuantityCell = totalRow.querySelector('td[data-field="steelGrade"]');
+            //         var laConsumableWeightCell = totalRow.querySelector('td[data-field="mode"]');
+            //         var lbStockQuantityCell = totalRow.querySelector('td[data-field="singleEight"]');
+            //         var lbConsumableWeightCell = totalRow.querySelector('td[data-field="weigh"]');
+            //         if (laStockQuantityCell) {
+            //             laStockQuantityCell.getElementsByClassName('layui-table-cell')[0].innerText = totalLAStockQuantity.toFixed(0).toString();
+            //         }
+            //         if (laConsumableWeightCell) {
+            //             laConsumableWeightCell.getElementsByClassName('layui-table-cell')[0].innerText = totalLAConsumableWeight.toFixed(0).toString();
+            //         }
+            //         if (lbStockQuantityCell) {
+            //             lbStockQuantityCell.getElementsByClassName('layui-table-cell')[0].innerText = totalLBStockQuantity.toFixed(0).toString();
+            //         }
+            //         if (lbConsumableWeightCell) {
+            //             lbConsumableWeightCell.getElementsByClassName('layui-table-cell')[0].innerText = totalLBConsumableWeight.toFixed(0).toString();
+            //         }
+            //     }
+            // });
 
             // bearingsTable.reload({
             //     url: '/bearings/viewStockTake',
