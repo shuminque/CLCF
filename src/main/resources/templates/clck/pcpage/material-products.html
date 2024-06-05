@@ -117,9 +117,9 @@
                 {field: 'uniqueIdentifier', title: '材料ID',totalRowText: '合计'},
                 {field: 'steelMill', title: '钢厂'},
                 {field: 'steelGrade', title: '钢材等级'},
-                {field: 'dimensions', title: '尺寸'},
+                {field: 'dimensions', title: '尺寸',totalRowText: '捆数:'},
                 {field: 'tradeMode', title: '贸易方式'},
-                {field: 'bundleCount', title: '支数'},
+                {field: 'bundleCount', title: '支数',totalRowText: '总重量:'},
                 {field: 'weight', title: '重量'},
                 {field: 'customer', title: '客户'},
                 {field: 'placementArea', title: '库位'},
@@ -137,13 +137,13 @@
                 var totalBundleCount = 0;
                 var totalWeight = 0;
                 res.data.forEach(function(item) {
-                    totalBundleCount += parseInt(item.bundleCount);
+                    totalBundleCount += 1;
                     totalWeight += parseFloat(item.weight);
                 });
                 // 更新合计行的值
                 var totalRow = document.querySelectorAll('.layui-table-view-1 .layui-table-total')[0]; // 通过父级元素的类名进行区分
                 if (totalRow) {
-                    var bundleCountCell = totalRow.querySelector('td[data-field="bundleCount"]');
+                    var bundleCountCell = totalRow.querySelector('td[data-field="tradeMode"]');
                     var weightCell = totalRow.querySelector('td[data-field="weight"]');
                     if (bundleCountCell) {
                         bundleCountCell.getElementsByClassName('layui-table-cell')[0].innerText = totalBundleCount.toString();

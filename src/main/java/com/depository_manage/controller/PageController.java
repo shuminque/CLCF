@@ -7,6 +7,7 @@ import com.depository_manage.service.clck.PurchaserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -124,6 +125,22 @@ public class PageController {
         ModelAndView mv = new ModelAndView();
         mv.setViewName("clck/pcstorage/shipment-out");return mv;
     }
+    @GetMapping("/loadTable")
+    public ModelAndView loadTable(
+            @RequestParam String steelMill,
+            @RequestParam(required = false) String steelGrade,
+            @RequestParam(required = false) String dimensions,
+            @RequestParam(required = false) String furnaceNumber
+    ) {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("clck/pcpage/12313");
+        mv.addObject("steelMill", steelMill);
+        mv.addObject("steelGrade", steelGrade != null ? steelGrade : "");
+        mv.addObject("dimensions", dimensions != null ? dimensions : "");
+        mv.addObject("furnaceNumber", furnaceNumber != null ? furnaceNumber : "");
+        return mv;
+    }
+
     @GetMapping("/area")
     public ModelAndView Area() {
         ModelAndView mv = new ModelAndView();

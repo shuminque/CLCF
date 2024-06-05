@@ -260,7 +260,7 @@
         WITH in_out_count AS (
         SELECT
         unique_identifier,
-        SUM(CASE WHEN operation_type = '入库' THEN 1 ELSE 0 END) AS in_count,
+        SUM(CASE WHEN operation_type in ('入库','返库') THEN 1 ELSE 0 END) AS in_count,
         SUM(CASE WHEN operation_type = '出库' THEN 1 ELSE 0 END) AS out_count
         FROM
         shipment_details
@@ -316,7 +316,7 @@
         FROM
         shipment_details
         WHERE
-        (operation_type = '入库' OR operation_type = '转库')
+        (operation_type = '入库' OR operation_type = '转库' OR operation_type = '返库')
         AND time &lt;= #{cutoffDate}
         <if test="uniqueIdentifier != null and uniqueIdentifier != ''">
             AND unique_identifier = #{uniqueIdentifier}

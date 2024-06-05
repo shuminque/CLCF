@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Print Template</title>
+    <script src="/static/js/http_ajax.googleapis.com_ajax_libs_jquery_3.5.1_jquery.js"></script>
+    <script src="/static/js/http_code.jquery.com_jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif; /* 使用无衬线字体 */
+        }
+        table {
+            width: 80%; /* 表格宽度 */
+            margin: 20px auto; /* 居中显示 */
+            border-collapse: collapse; /* 边框合并 */
+        }
+        th, td {
+            border: 1px solid black; /* 单元格边框 */
+            padding: 8px; /* 内边距 */
+            text-align: center; /* 文本居中 */
+        }
+        .header-section {
+            background-color: #b6d7a8; /* 头部背景颜色 */
+        }
+        .title {
+            font-size: 24px; /* 标题字体大小 */
+            text-align: center; /* 标题居中 */
+        }
+        .date-input {
+            margin-right: 8px; /* 右边距创建空间 */
+        }
+        /* 定位样式 */
+        .date-cell span {
+            position: absolute;
+        }
+        /*@media print {*/
+        /*    body * {*/
+        /*        visibility: hidden; !* 隐藏页面中所有内容 *!*/
+        /*    }*/
+        /*    .title, .title *, .printable-table {*/
+        /*        visibility: visible; !* 仅显示 .title 及其子元素 *!*/
+        /*    }*/
+        /*    .title {*/
+        /*        position: static;*/
+        /*        left: 0;*/
+        /*        top: 0;*/
+        /*        width: 100%;*/
+        /*    }*/
+        /*}*/
+        @media print {
+            body * {
+                visibility: hidden; /* 隐藏页面中所有内容 */
+            }
+            .printable-table, .printable-table * {
+                visibility: visible; /* 仅显示 .printable-table 及其子元素 */
+            }
+            .printable-table {
+                position: static;
+                top: 0;
+                width: 100%;
+            }
+            .print-btn {
+                display: none; /* 隐藏打印按钮 */
+            }
+        }
+    </style>
+
+</head>
+<body>
+<button class="btn btn-primary print-btn" onclick="window.print()">打印页面</button>
+<div class="title">
+<table>
+        <tr>
+            <th colspan="8">产品履历追溯记录表</th> <!-- 标题跨十列 -->
+        </tr>
+        <tr>
+            <td rowspan="3">L1工程</td> <!-- "L1工程"跨三行 -->
+            <td>型号/材质</td>
+            <td colspan="2"><span th:text="${steelMill}"></span> <span th:text="${steelGrade}"></span></td>
+            <td colspan="2">材料炉批号</td>
+            <td colspan="2"><span th:text="${furnaceNumber}"></span> </td>
+        </tr>
+        <tr>
+            <td>规格(mm)</td>
+            <td><span th:text="${dimensions}"></span> </td>
+            <td>钢厂</td>
+            <td colspan="2"><span th:text="${steelMill}"></span> </td>
+            <td>重量</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>区分</td>
+            <td>机号</td>
+            <td>数量</td>
+            <td>生产者</td>
+            <td colspan="2">生产完了日期</td>
+            <td>备注</td>
+        </tr>
+        <tr>
+            <td rowspan="3">切断</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td colspan="2">____月____日_____时</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td colspan="2">____月____日_____时</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td colspan="2">____月____日_____时</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td rowspan="1">冲孔</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td colspan="2">____月____日_____时</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td rowspan="2">平面磨</td>
+            <td>粗磨</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td colspan="2">____月____日_____时</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>精磨</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td colspan="2">____月____日_____时</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td rowspan="2">外径磨</td>
+            <td>粗磨</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td colspan="2">____月____日_____时</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>精磨</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td colspan="2">____月____日_____时</td>
+            <td></td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <td rowspan="2">L2工程</td>
+            <td colspan="3">客户/型号/材质</td>
+            <td colspan="6"></td>
+        </tr>
+        <tr>
+            <td>班别</td>
+            <td>区分</td>
+            <td>线别/生产者</td>
+            <td>数量</td>
+            <td>总箱数</td>
+            <td colspan="2">生产完了日期</td>
+            <td>待处理</td>
+        </tr>
+        <tr>
+            <td>刻印</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td colspan="2">____月____日_____时</td>
+            <td>
+                <label><input type="checkbox"> 有</label>
+                <label><input type="checkbox"> 无</label>
+            </td>
+        </tr>
+        <tr>
+            <td rowspan="3">单能线</td>
+            <td>日</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td colspan="2">____月____日_____时</td>
+            <td>
+                <label><input type="checkbox"> 有</label>
+                <label><input type="checkbox"> 无</label>
+            </td>
+        </tr>
+        <tr>
+            <td>中</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td colspan="2">____月____日_____时</td>
+            <td>
+                <label><input type="checkbox"> 有</label>
+                <label><input type="checkbox"> 无</label>
+            </td>
+        </tr>
+        <tr>
+            <td>夜</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td colspan="2">____月____日_____时</td>
+            <td>
+                <label><input type="checkbox"> 有</label>
+                <label><input type="checkbox"> 无</label>
+            </td>
+        </tr>
+        <tr>
+            <td>N沟</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td colspan="2">____月____日_____时</td>
+            <td>
+                <label><input type="checkbox"> 有</label>
+                <label><input type="checkbox"> 无</label>
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="title">
+    <table>
+        <tr>
+            <th colspan="8">产品履历追溯记录表</th> <!-- 标题跨十列 -->
+        </tr>
+        <tr>
+            <td rowspan="3">L1工程</td> <!-- "L1工程"跨三行 -->
+            <td>型号/材质</td>
+            <td colspan="2"><span th:text="${steelMill}"></span> <span th:text="${steelGrade}"></span></td>
+            <td colspan="2">材料炉批号</td>
+            <td colspan="2"><span th:text="${furnaceNumber}"></span> </td>
+        </tr>
+        <tr>
+            <td>规格(mm)</td>
+            <td><span th:text="${dimensions}"></span> </td>
+            <td>钢厂</td>
+            <td colspan="2"><span th:text="${steelMill}"></span> </td>
+            <td>重量</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>区分</td>
+            <td>机号</td>
+            <td>数量</td>
+            <td>生产者</td>
+            <td colspan="2">生产完了日期</td>
+            <td>备注</td>
+        </tr>
+        <tr>
+            <td rowspan="3">切断</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td colspan="2">____月____日_____时</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td colspan="2">____月____日_____时</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td colspan="2">____月____日_____时</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td rowspan="1">冲孔</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td colspan="2">____月____日_____时</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td rowspan="2">平面磨</td>
+            <td>粗磨</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td colspan="2">____月____日_____时</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>精磨</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td colspan="2">____月____日_____时</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td rowspan="2">外径磨</td>
+            <td>粗磨</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td colspan="2">____月____日_____时</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>精磨</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td colspan="2">____月____日_____时</td>
+            <td></td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <td rowspan="2">L2工程</td>
+            <td colspan="3">客户/型号/材质</td>
+            <td colspan="6"></td>
+        </tr>
+        <tr>
+            <td>班别</td>
+            <td>区分</td>
+            <td>线别/生产者</td>
+            <td>数量</td>
+            <td>总箱数</td>
+            <td colspan="2">生产完了日期</td>
+            <td>待处理</td>
+        </tr>
+        <tr>
+            <td>刻印</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td colspan="2">____月____日_____时</td>
+            <td>
+                <label><input type="checkbox"> 有</label>
+                <label><input type="checkbox"> 无</label>
+            </td>
+        </tr>
+        <tr>
+            <td rowspan="3">单能线</td>
+            <td>日</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td colspan="2">____月____日_____时</td>
+            <td>
+                <label><input type="checkbox"> 有</label>
+                <label><input type="checkbox"> 无</label>
+            </td>
+        </tr>
+        <tr>
+            <td>中</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td colspan="2">____月____日_____时</td>
+            <td>
+                <label><input type="checkbox"> 有</label>
+                <label><input type="checkbox"> 无</label>
+            </td>
+        </tr>
+        <tr>
+            <td>夜</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td colspan="2">____月____日_____时</td>
+            <td>
+                <label><input type="checkbox"> 有</label>
+                <label><input type="checkbox"> 无</label>
+            </td>
+        </tr>
+        <tr>
+            <td>N沟</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td colspan="2">____月____日_____时</td>
+            <td>
+                <label><input type="checkbox"> 有</label>
+                <label><input type="checkbox"> 无</label>
+            </td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>

@@ -259,9 +259,9 @@
                 {field: 'furnaceNumber', title: '炉号'},
                 {field: 'steelMill', title: '钢厂'},
                 {field: 'steelGrade', title: '钢材等级'},
-                {field: 'dimensions', title: '尺寸'},
+                {field: 'dimensions', title: '尺寸',totalRowText: '总捆数:'},
                 {field: 'tradeMode', title: '贸易方式'},
-                {field: 'bundleCount', title: '支数',totalRowText: '合计'},
+                {field: 'bundleCount', title: '支数',totalRowText: '总重量:'},
                 {field: 'weight', title: '重量',totalRowText: '合计'},
                 {field: 'customer', title: '客户'},
                 {field: 'placementArea', title: '库位'},
@@ -285,13 +285,13 @@
                 var totalBundleCount = 0;
                 var totalWeight = 0;
                 res.data.forEach(function(item) {
-                    totalBundleCount += parseInt(item.bundleCount);
+                    totalBundleCount += 1;
                     totalWeight += parseFloat(item.weight);
                 });
                 // 更新合计行的值
                 var totalRow = document.getElementsByClassName('layui-table-total')[0];
                 if (totalRow) {
-                    var bundleCountCell = totalRow.querySelector('td[data-field="bundleCount"]');
+                    var bundleCountCell = totalRow.querySelector('td[data-field="tradeMode"]');
                     var weightCell = totalRow.querySelector('td[data-field="weight"]');
                     if (bundleCountCell) {
                         bundleCountCell.getElementsByClassName('layui-table-cell')[0].innerText = totalBundleCount.toString();
