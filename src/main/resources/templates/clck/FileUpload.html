@@ -19,7 +19,7 @@
             }
             #qrcodeDisplayArea {
                 position: absolute;
-                left: 0;
+                right: 0;
                 top: 0;
             }
         }
@@ -244,10 +244,11 @@
     }
     function generateQRCode(shipments) {
         const qrcodeDisplayArea = document.getElementById('qrcodeDisplayArea');
-        shipments.forEach(shipment => {
+        shipments.forEach((shipment, index) => {
             let containerDiv = document.createElement('div'); // Container for each QR code and its text
             containerDiv.className = 'container';
             containerDiv.style.display = 'flex';
+            containerDiv.style.flexDirection = 'column'; // 垂直排列
             containerDiv.style.alignItems = 'center'; // Align the QR code and text vertically
             containerDiv.style.marginBottom = '20px'; // Space between each set of QR code and text
             let qrDiv = document.createElement('div'); // Div for the QR code
@@ -281,10 +282,14 @@
                 height: 160,
                 correctLevel: 3
             });
-
             containerDiv.appendChild(qrDiv); // Append the QR code to the container
             containerDiv.appendChild(textDiv); // Append the text to the container
             qrcodeDisplayArea.appendChild(containerDiv); // Append the container to the QR code display area
+            if ((index) % 2 === 0) {
+                let spacerDiv = document.createElement('div');
+                spacerDiv.style.height = '300px'; // 设置留空的高度
+                qrcodeDisplayArea.appendChild(spacerDiv);
+            }
         });
     }
 
