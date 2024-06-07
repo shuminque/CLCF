@@ -18,6 +18,8 @@
         <result property="pair" column="pair"/>
         <result property="state" column="state"/>
         <result property="currentDepository" column="current_depository"/>
+        <result property="singleEight" column="single_eight"/>
+        <result property="mode" column="mode"/>
     </resultMap>
 
     <select id="selectBearingByBoxTextAndDepository" resultMap="bearingMap">
@@ -66,6 +68,12 @@
             <if test="state != null">
                 state = #{state}
             </if>
+            <if test="singleEight != null">
+                single_eight = #{singleEight},
+            </if>
+            <if test="mode != null">
+                mode = #{mode}
+            </if>
         </set>
         WHERE id = #{id}
     </update>
@@ -100,6 +108,15 @@
         </if>
         <if test="state != null and state != ''">
             AND state  LIKE CONCAT('%',#{state},'%')
+        </if>
+        <if test="state != null and state != ''">
+            AND state  LIKE CONCAT('%',#{state},'%')
+        </if>
+        <if test="mode != null and mode != ''">
+            AND mode  LIKE CONCAT('%',#{mode},'%')
+        </if>
+        <if test="size != null and size != ''">
+            AND size = #{size}
         </if>
         ORDER BY id
     </select>

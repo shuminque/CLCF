@@ -20,5 +20,7 @@ public class Bearing {
     private Integer pair;
     private String state;
     private String currentDepository;
+    private Double singleEight;
+    private String  mode;
     // Lombok 的 @Data 注解会自动生成构造函数、getter 和 setter 方法
 }

@@ -232,6 +232,7 @@ public class PageController {
         mv.addObject("steelTypes", steelTypeService.findAll());
         mv.addObject("customers", customerService.findAll());
         mv.addObject("tradeModes", tradeModeService.findAll());
+        mv.addObject("steelSizes", steelSizeService.findAll());
 
         return mv;
     }

@@ -253,9 +253,10 @@
                             ]]
                         });
                         // 判断steelMill内容并发起请求
-                        if (steelMill.includes("大同材")) {
+                        if (steelMill.includes("大同材") || steelMill.includes("山阳材")) {
                             $.get("/loadTable", {
-                                steelMill: steelMill
+                                steelMill: steelMill,
+                                dimensions: selectedDimensions,
                             }, function(data) {
                                 $("#newTableContainer").html(data);
                             });

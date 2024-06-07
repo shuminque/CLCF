@@ -52,6 +52,13 @@
                     <option value="LB" >LB</option>
                 </select>
             </div>
+            <div class="layui-input-inline">
+                <select name="state">
+                    <option value="">搜索状态</option>
+                    <option value="正常">正常</option>
+                    <option value="死库">死库</option>
+                </select>
+            </div>
             <div class="layui-inline">
                 <button type="button" class="layui-btn" id="advancedSearchToggle">高级搜索</button>
             </div>
@@ -76,10 +83,19 @@
                     </select>
                 </div>
                 <div class="layui-input-inline">
-                    <select name="state">
-                        <option value="">搜索状态</option>
-                        <option value="正常">正常</option>
-                        <option value="死库">死库</option>
+                    <select name="mode" id="mode" >
+                        <option value="" selected>搜索贸易方式</option>
+                        <option th:each="trade_mode : ${tradeModes}"
+                                th:value="${trade_mode.mode}"
+                                th:text="${trade_mode.mode}"></option>
+                    </select>
+                </div>
+                <div class="layui-input-inline">
+                    <select name="size" id="size">
+                        <option value="" selected>搜索尺寸</option>
+                        <option th:each="steel_size : ${steelSizes}"
+                                th:value="${steel_size.size}"
+                                th:text="${steel_size.size}"></option>
                     </select>
                 </div>
             </div>
@@ -474,6 +490,8 @@
                 {field: 'size', title: '材料尺寸'},
                 // {field: 'storageLocation', title: '库位',  hide:true},
                 {field: 'state', title: '状态'},
+                {field: 'singleEight', title: '单重'},
+                {field: 'mode', title: '贸易方式'},
                 {title: '操作', toolbar: '#actionBar'} // 添加操作列
             ]],
             limits:[500,1000],
@@ -510,6 +528,15 @@
             }
             if (formData.state !== '') {
                 req.state = formData.state;
+            }
+            if (formData.singleEight !== '') {
+                req.singleEight = formData.singleEight;
+            }
+            if (formData.mode !== '') {
+                req.mode = formData.mode;
+            }
+            if (formData.size !== '') {
+                req.size = formData.size;
             }
             // 重新加载表格数据
             recordTable.reload({
@@ -699,38 +726,10 @@
 
             return false; // 阻止表单跳转。
         });
-
         // 高级搜索开关
         $('#advancedSearchToggle').click(function() {
             $('#advancedSearchForm').slideToggle();
         });
-        // table.on('edit(recordTableFilter)', function(obj) {
-        //     var value = obj.value; // 获取编辑后的值
-        //     var data = obj.data; // 获取整行数据
-        //     var field = obj.field; // 获取编辑的字段
-        //
-        //     if (field !== 'depository') {
-        //         // 只有当编辑的字段是“溶解号”时才处理
-        //         data.dissolve = value;
-        //         // 发送AJAX请求更新后端数据
-        //         layer.confirm('确定要更新吗？', function (index) {
-        //             $.ajax({
-        //                 url: '/bearings/' + data.id, // 更新API URL
-        //                 type: 'PUT',
-        //                 contentType: 'application/json',
-        //                 data: JSON.stringify(data), // 发送整个更新后的数据对象
-        //                 success: function(response) {
-        //                     layer.msg('更新成功');
-        //                 },
-        //                 error: function(xhr, status, error) {
-        //                     layer.msg('更新失败: ' + error);
-        //                     // 错误处理
-        //                 }
-        //             });
-        //             layer.close(index);
-        //         });
-        //     }
-        // });
     });
 </script>
 </body>
