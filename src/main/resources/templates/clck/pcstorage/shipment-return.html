@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>返库管理</title>
+    <link rel="stylesheet" href="/static/css/http_cdn.jsdelivr.net_npm_bootstrap@5.1.0_dist_css_bootstrap.css">
+    <!--    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">-->
+    <script src="/static/js/http_code.jquery.com_jquery-3.6.0.min.js"></script>
+    <!--    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>-->
+    <script src="/static/js/http_cdnjs.cloudflare.com_ajax_libs_bootstrap-3-typeahead_4.0.2_bootstrap3-typeahead.js"></script>
+    <link rel="stylesheet" href="/static/css/__cdnjs.cloudflare.com_ajax_libs_toastr.js_latest_toastr.css">
+    <script src="/static/js/__cdnjs.cloudflare.com_ajax_libs_toastr.js_latest_toastr.min.js"></script>
+    <style>
+        body {
+            padding-top: 30px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 600px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-title {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .btn-custom {
+            background-color: #0056b3;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="form-title">
+        <h2>材料返库操作</h2>
+    </div>
+    <form id="stockOutForm">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="steelType">钢厂</label>
+                <select name="steelType" id="steelType" class="form-control" required>
+                    <option value="" selected>选择钢厂</option>
+                    <option th:each="steel_type : ${steelTypes}"
+                            th:value="${steel_type.name}"
+                            th:text="${steel_type.name}"></option>
+                </select>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="steelGrade">钢等</label>
+                <select name="steelGrade" id="steelGrade" class="form-control" required>
+                    <option value="" selected>选择钢等</option>
+                    <option th:each="steel_grade : ${steelGrades}"
+                            th:value="${steel_grade.grade}"
+                            th:text="${steel_grade.grade}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="steelSize">尺寸</label>
+                <select name="steelSize" id="steelSize" class="form-control" required>
+                    <option value="" selected>选择尺寸</option>
+                    <option th:each="steel_size : ${steelSizes}"
+                            th:value="${steel_size.size}"
+                            th:text="${steel_size.size}"></option>
+                </select>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="tradeMode">方式</label>
+                <select name="tradeMode" id="tradeMode" class="form-control" required>
+                    <option value="" selected>选择方式</option>
+                    <option th:each="trade_mode : ${tradeModes}"
+                            th:value="${trade_mode.mode}"
+                            th:text="${trade_mode.mode}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="furnaceNumber">炉号</label>
+                <input type="text" class="form-control" id="furnaceNumber" placeholder="请输入炉号" required autocomplete="off">
+            </div>
+            <div class="col-md-6 mb-3">
+                    重量<input type="text" class="form-control" id="weight" placeholder="请输入重量" required autocomplete="off">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="area">库位</label>
+                <select class="form-control" name="area" id="area">
+                    <option value="" selected>选择库位</option>
+                    <option th:each="placement_area : ${areas}"
+                            th:value="${placement_area.area}"
+                            th:text="${placement_area.area}"></option>
+                </select>            </div>
+            <div class="col-md-6 mb-3">
+                日期<input type="date" class="form-control" id="date" value="">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-custom w-100">提交返库</button>
+    </form>
+</div>
+<script src="/static/js/bootstrap@5.1.0_dist_js_bootstrap.bundle.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('date').value = today;
+    });
+    document.getElementById('stockOutForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const steelType = document.getElementById('steelType').value;
+        const steelGrade = document.getElementById('steelGrade').value;
+        const steelSize = document.getElementById('steelSize').value;
+        const tradeMode = document.getElementById('tradeMode').value;
+        const furnaceNumber = document.getElementById('furnaceNumber').value;
+        const weight = document.getElementById('weight').value;
+        const area = document.getElementById('area').value;
+        const date = document.getElementById('date').value || new Date().toISOString().split('T')[0];
+        const data = {
+            steelType,
+            steelGrade,
+            steelSize,
+            tradeMode,
+            furnaceNumber,
+            weight,
+            area,
+            date
+        };
+        returnPC(data);
+    });
+    function returnPC(data) {
+        fetch('/shipment/returnPC', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        }).then(response => {
+            if (response.ok) {
+                console.log("返库成功", data);
+                toastr.success('返库操作成功');
+                clearForm();
+            }else {
+                toastr.error('该产品无库存，操作无效');
+            }
+            })
+            .catch(error => {
+                console.error('返库操作失败:', error);
+                toastr.error(`返库操作失败: ${error.message}`);
+            });
+    }
+    function clearForm() {
+        document.getElementById('steelType').value = '';
+        document.getElementById('steelGrade').value = '';
+        document.getElementById('steelSize').value = '';
+        document.getElementById('tradeMode').value = '';
+        document.getElementById('furnaceNumber').value = '';
+        document.getElementById('area').value = '';
+        document.getElementById('date').value = new Date().toISOString().split('T')[0];
+        $('#furnaceNumber').focus();
+    }
+</script>
+</body>
+</html>

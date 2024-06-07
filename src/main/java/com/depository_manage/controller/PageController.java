@@ -125,6 +125,13 @@ public class PageController {
         ModelAndView mv = new ModelAndView();
         mv.setViewName("clck/pcstorage/shipment-out");return mv;
     }
+    @GetMapping("/shipment-return")
+    public ModelAndView shipmentReturn(Map<String, Object> params) {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("clck/pcstorage/shipment-return");
+        addCommonObjects(mv, params);
+        return mv;
+    }
     @GetMapping("/loadTable")
     public ModelAndView loadTable(
             @RequestParam String steelMill,

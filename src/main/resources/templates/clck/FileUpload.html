@@ -195,7 +195,7 @@
                 document.getElementById('excelFile').value = '';
             })
             .catch(error => {
-                layer.alert("错误的导入文件，请重新选择")
+                layer.alert("导入文件格式不匹配，请重新选择文件")
                 console.error('Error:', error);
             });
     }
@@ -250,7 +250,7 @@
             containerDiv.style.display = 'flex';
             containerDiv.style.flexDirection = 'column'; // 垂直排列
             containerDiv.style.alignItems = 'center'; // Align the QR code and text vertically
-            containerDiv.style.marginBottom = '20px'; // Space between each set of QR code and text
+            containerDiv.style.marginBottom = '40px'; // Space between each set of QR code and text
             let qrDiv = document.createElement('div'); // Div for the QR code
             let textDiv = document.createElement('div'); // Div for the text description
             textDiv.style.marginLeft = '5px'; // Space between QR code and text
@@ -278,16 +278,16 @@
                     supplierBatchNumber: shipment.supplierBatchNumber,
                     uniqueIdentifier:shipment.uniqueIdentifier
                 }).join('|'),
-                width: 160,
-                height: 160,
+                width: 180,
+                height: 180,
                 correctLevel: 3
             });
-            containerDiv.appendChild(qrDiv); // Append the QR code to the container
-            containerDiv.appendChild(textDiv); // Append the text to the container
-            qrcodeDisplayArea.appendChild(containerDiv); // Append the container to the QR code display area
+            containerDiv.appendChild(qrDiv);
+            containerDiv.appendChild(textDiv);
+            qrcodeDisplayArea.appendChild(containerDiv);
             if ((index) % 2 === 0) {
                 let spacerDiv = document.createElement('div');
-                spacerDiv.style.height = '300px'; // 设置留空的高度
+                spacerDiv.style.height = '290px'; // 设置留空的高度
                 qrcodeDisplayArea.appendChild(spacerDiv);
             }
         });

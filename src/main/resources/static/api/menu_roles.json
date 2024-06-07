@@ -56,6 +56,15 @@
                     ],
                     "child": [
                         {
+                            "title": "返库操作",
+                            "href": "/shipment-return",
+                            "icon": "fa fa-arrow-up",
+                            "target": "_self",
+                            "roles": [
+                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
+                            ]
+                        },
+                        {
                             "title": "出库操作",
                             "href": "/shipment-out",
                             "icon": "fa fa-arrow-up",

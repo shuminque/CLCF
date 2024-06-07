@@ -63,7 +63,6 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
     @Override
     public void updateShipmentDetail(ShipmentDetails shipmentDetails) {
         shipmentDetailsMapper.updateShipmentDetail(shipmentDetails);
-
     }
     @Override
     @Transactional

@@ -1,18 +1,18 @@
 package com.depository_manage.controller.clck;
 
 import com.depository_manage.entity.BearingRecord;
-import com.depository_manage.entity.ProductId;
 import com.depository_manage.entity.ShipmentDetails;
 import com.depository_manage.service.BearingRecordService;
+import com.depository_manage.service.clck.DailyCounterService;
 import com.depository_manage.service.clck.ShipmentDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @RestController
 @RequestMapping("/shipment")
@@ -23,6 +23,9 @@ public class ShipmentDetailsController {
 
     @Autowired
     private BearingRecordService bearingRecordService;
+
+    @Autowired
+    private DailyCounterService dailyCounterService;
 
     @GetMapping
     public ResponseEntity<?> getAllRecords(  @RequestParam Map<String, Object> params,
@@ -99,6 +102,35 @@ public class ShipmentDetailsController {
             double weight = Double.parseDouble(request.get("weight"));
             shipmentDetailsService.returnToStock(uniqueIdentifier, weight);
             return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(null);  // Return 400 Bad Request if return operation is not allowed
+        }
+    }
+    @PostMapping("/returnPC")
+    public ResponseEntity<List<ShipmentDetails>> returnPC(@RequestBody Map<String, String> request) {
+        try {
+            List<ShipmentDetails> shipments = new ArrayList<>();
+            ShipmentDetails shipment = new ShipmentDetails();
+            shipment.setSteelMill(request.get("steelType"));
+            shipment.setSteelGrade(request.get("steelGrade"));
+            shipment.setDimensions(request.get("steelSize"));
+            shipment.setTradeMode(request.get("tradeMode"));
+            shipment.setFurnaceNumber(request.get("furnaceNumber"));
+            shipment.setWeight(Double.valueOf(request.get("weight")));
+            shipment.setPlacementArea(request.get("area"));
+            String dateString = request.get("date");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            Date date = dateFormat.parse(dateString);
+            shipment.setTime(date);
+            LocalDate today = LocalDate.now();
+            int counter = dailyCounterService.findAndUpdateCounterByDate(today); // 查询并更新序号
+            String index = String.valueOf(counter);
+            String uniqueIdentifier = today.format(DateTimeFormatter.ofPattern("yyMMdd")) + "-" + index; // 生成唯一标识符
+            shipment.setOperationType("返库");
+            shipment.setUniqueIdentifier(uniqueIdentifier);
+            shipments.add(shipment);
+            List<ShipmentDetails> savedShipments = shipmentDetailsService.saveAll(shipments);
+            return ResponseEntity.ok(savedShipments);
         } catch (Exception e) {
             return ResponseEntity.status(400).body(null);  // Return 400 Bad Request if return operation is not allowed
         }

@@ -10,65 +10,44 @@
             font-family: 'Arial', sans-serif; /* 使用无衬线字体 */
         }
         table {
-            width: 80%; /* 表格宽度 */
+            width: 100%; /* 表格宽度 */
             margin: 20px auto; /* 居中显示 */
             border-collapse: collapse; /* 边框合并 */
         }
         th, td {
-            border: 1px solid black; /* 单元格边框 */
+            border: 3px solid black; /* 单元格边框 */
             padding: 8px; /* 内边距 */
             text-align: center; /* 文本居中 */
         }
-        .header-section {
-            background-color: #b6d7a8; /* 头部背景颜色 */
-        }
-        .title {
+
+        .title .title1{
             font-size: 24px; /* 标题字体大小 */
             text-align: center; /* 标题居中 */
         }
-        .date-input {
-            margin-right: 8px; /* 右边距创建空间 */
-        }
-        /* 定位样式 */
-        .date-cell span {
-            position: absolute;
-        }
-        /*@media print {*/
-        /*    body * {*/
-        /*        visibility: hidden; !* 隐藏页面中所有内容 *!*/
-        /*    }*/
-        /*    .title, .title *, .printable-table {*/
-        /*        visibility: visible; !* 仅显示 .title 及其子元素 *!*/
-        /*    }*/
-        /*    .title {*/
-        /*        position: static;*/
-        /*        left: 0;*/
-        /*        top: 0;*/
-        /*        width: 100%;*/
-        /*    }*/
-        /*}*/
+
         @media print {
             body * {
                 visibility: hidden; /* 隐藏页面中所有内容 */
             }
-            .printable-table, .printable-table * {
-                visibility: visible; /* 仅显示 .printable-table 及其子元素 */
+            .title, .title *, .title1, .title1 *, .printable-table {
+                visibility: visible; /* 仅显示 .title 及其子元素 */
             }
-            .printable-table {
-                position: static;
+            .title .title1{
+                position: absolute;
+                left: 0;
                 top: 0;
-                width: 100%;
             }
-            .print-btn {
-                display: none; /* 隐藏打印按钮 */
+            .layui-table-view, .layui-form{
+                display: none;
             }
         }
+
     </style>
 
 </head>
 <body>
 <button class="btn btn-primary print-btn" onclick="window.print()">打印页面</button>
-<div class="title">
+<div class="title ">
 <table>
         <tr>
             <th colspan="8">产品履历追溯记录表</th> <!-- 标题跨十列 -->
@@ -245,7 +224,7 @@
         </tr>
     </table>
 </div>
-<div class="title">
+<div class="title1 ">
     <table>
         <tr>
             <th colspan="8">产品履历追溯记录表</th> <!-- 标题跨十列 -->
@@ -422,5 +401,6 @@
         </tr>
     </table>
 </div>
+
 </body>
 </html>
