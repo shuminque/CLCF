@@ -252,11 +252,14 @@
                                 {field: ' ', title: '领用人员'}
                             ]]
                         });
+                        // 计算数组总重量
+                        var totalWeight = res.reduce((sum, record) => sum + (record.weight || 0), 0);
+                        console.log("总重量：", totalWeight);
                         // 判断steelMill内容并发起请求
                         if (steelMill.includes("大同材") || steelMill.includes("山阳材")) {
                             $.get("/loadTable", {
                                 steelMill: steelMill,
-                                dimensions: selectedDimensions,
+                                dimensions: selectedDimensions
                             }, function(data) {
                                 $("#newTableContainer").html(data);
                             });
@@ -265,7 +268,8 @@
                                 steelMill: steelMill,
                                 steelGrade: steelGrade,
                                 dimensions: selectedDimensions,
-                                furnaceNumber: furnaceNumber
+                                furnaceNumber: furnaceNumber,
+                                totalWeight: totalWeight
                             }, function(data) {
                                 $("#newTableContainer").html(data);
                             });

@@ -137,14 +137,16 @@ public class PageController {
             @RequestParam String steelMill,
             @RequestParam(required = false) String steelGrade,
             @RequestParam(required = false) String dimensions,
-            @RequestParam(required = false) String furnaceNumber
-    ) {
+            @RequestParam(required = false) String furnaceNumber,
+            @RequestParam(required = false) String totalWeight
+            ) {
         ModelAndView mv = new ModelAndView();
         mv.setViewName("clck/pcpage/12313");
         mv.addObject("steelMill", steelMill);
         mv.addObject("steelGrade", steelGrade != null ? steelGrade : "");
         mv.addObject("dimensions", dimensions != null ? dimensions : "");
         mv.addObject("furnaceNumber", furnaceNumber != null ? furnaceNumber : "");
+        mv.addObject("totalWeight", totalWeight != null ? totalWeight : "");
         return mv;
     }
 
