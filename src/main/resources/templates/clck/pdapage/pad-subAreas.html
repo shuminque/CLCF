@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/css/http_cdn.jsdelivr.net_npm_bulma@0.9.3_css_bulma.css">
+    <link rel="stylesheet" href="/static/lib/layui-v2.8.17/css/layui.css" media="all">
+    <style>
+        body, html {
+            height: 100%;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            padding: 20px;
+        }
+        .area-title {
+            color: #4A4A4A;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            cursor: pointer;
+        }
+        .columns {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 10px;
+        }
+    </style>
+    <title>小区详情</title>
+</head>
+<body>
+<div class="container">
+    <button class="button" onclick="history.back()" aria-label="返回">返回</button>
+    <div id="recordTableContainer" style="width: 100%; margin-top: 20px;">
+        <table id="recordTable" lay-filter="recordTableFilter"></table>
+    </div>
+    <div id="subAreasContainer" class="columns">
+        <!-- 小区信息将会被动态插入 -->
+    </div>
+</div>
+
+<script src="/static/js/http_ajax.googleapis.com_ajax_libs_jquery_3.5.1_jquery.js"></script>
+<script src="/static/lib/layui-v2.8.17/layui.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var params = new URLSearchParams(window.location.search);
+        var area = params.get('area');
+        var subAreasContainer = document.getElementById('subAreasContainer');
+
+        $.ajax({
+            url: '/areas/',
+            type: 'GET',
+            data: { area: area },
+            success: function(response) {
+                console.log(response);
+
+                var column;
+                response.forEach(function(subArea, index) {
+                    if (index % 6 === 0) {
+                        column = document.createElement('div');
+                        column.className = 'column';
+                        subAreasContainer.appendChild(column);
+                    }
+
+                    var subAreaElement = document.createElement('h3');
+                    subAreaElement.className = 'area-title';
+                    subAreaElement.innerText = subArea.area;
+                    subAreaElement.onclick = function() {
+                        showStockTable(subArea.area);
+                    };
+                    column.appendChild(subAreaElement);
+                });
+            },
+            error: function(xhr, status, error) {
+                console.error('Error fetching sub-areas:', error);
+            }
+        });
+    });
+
+    function showStockTable(subArea) {
+        var currentTime = new Date().toISOString();
+        layui.use(['table'], function() {
+            var table = layui.table;
+            table.render({
+                elem: '#recordTable',
+                url: '/shipment/getStockStatusBeforeCutoffDate',
+                where: { placementArea: subArea, cutoffDate: currentTime},
+                parseData: function(res) {
+                    var filteredData = res.filter(function(record) {
+                        return record.weight > 0;
+                    });
+                    return {
+                        "code": 0,
+                        "msg": "",
+                        "count": filteredData.length,
+                        "data": filteredData
+                    };
+                },
+                request: {
+                    pageName: 'page',
+                    limitName: 'size'
+                },
+                cols: [ [
+                    {field: 'uniqueIdentifier', title: '材料ID', totalRowText: '合计'},
+                    {field: 'furnaceNumber', title: '炉号'},
+                    {field: 'steelMill', title: '钢厂'},
+                    {field: 'steelGrade', title: '钢材等级'},
+                    {field: 'dimensions', title: '尺寸', totalRowText: '总捆数:'},
+                    {field: 'tradeMode', title: '贸易方式'},
+                    {field: 'weight', title: '重量', totalRowText: '总重量'},
+                    {field: 'customer', title: '客户'},
+                ]],
+                limits: [200, 500, 1000, 20000],
+                limit: 200,
+                page: true,
+                totalRow: true,
+                done: function(res, curr, count) {
+                    var totalBundleCount = 0;
+                    var totalWeight = 0;
+                    res.data.forEach(function(item) {
+                        totalBundleCount += 1;
+                        totalWeight += parseFloat(item.weight);
+                    });
+                    var totalRow = document.getElementsByClassName('layui-table-total')[0];
+                    if (totalRow) {
+                        var bundleCountCell = totalRow.querySelector('td[data-field="tradeMode"]');
+                        var weightCell = totalRow.querySelector('td[data-field="customer"]');
+                        if (bundleCountCell) {
+                            bundleCountCell.getElementsByClassName('layui-table-cell')[0].innerText = totalBundleCount.toString();
+                        }
+                        if (weightCell) {
+                            weightCell.getElementsByClassName('layui-table-cell')[0].innerText = totalWeight.toFixed(2).toString();
+                        }
+                    }
+                }
+            });
+        });
+    }
+
+</script>
+</body>
+</html>

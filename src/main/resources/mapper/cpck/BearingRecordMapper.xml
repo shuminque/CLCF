@@ -641,7 +641,7 @@
         SELECT
         steel_type,
         steel_grade,
-        size,
+        #{dimensions} as size,
         mode,
         customer,
         sum(IF(outer_inner_ring = 'LA', quantity, 0)) as total_quantity_LA,
@@ -663,7 +663,11 @@
             AND steel_grade = #{steelGrade}
         </if>
         <if test="dimensions != null and dimensions != ''">
-            AND size = #{dimensions}
+            AND (
+            (LOCATE('|', size) > 0 AND SUBSTRING_INDEX(size, '|', 1) = #{dimensions} AND size LIKE CONCAT('%', #{dimensions}, '%'))
+            OR
+            (LOCATE('|', size) = 0 AND size = #{dimensions})
+            )
         </if>
         <if test="tradeMode != null and tradeMode != ''">
             AND mode = #{tradeMode}
@@ -674,7 +678,6 @@
         GROUP BY
         steel_type,
         steel_grade,
-        size,
         mode,
         customer;
     </select>

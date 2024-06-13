@@ -120,6 +120,20 @@ public class PageController {
         mv.addObject("areas",areaService.findAll(params));
         return mv;
     }
+    @GetMapping("/pda-stockBoard")
+    public ModelAndView pdaStockBoard(Map<String, Object> params) {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("clck/pdapage/pda-stockBoard");
+        addCommonObjects(mv, params);
+        return mv;
+    }
+    @GetMapping("/pad-subAreas")
+    public ModelAndView padSubAreas(Map<String, Object> params) {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("clck/pdapage/pad-subAreas");
+        addCommonObjects(mv, params);
+        return mv;
+    }
     @GetMapping("/shipment-out")
     public ModelAndView shipmentOut() {
         ModelAndView mv = new ModelAndView();

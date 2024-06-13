@@ -19,14 +19,17 @@
             }
             #qrcodeDisplayArea {
                 position: absolute;
-                right: 0;
+                left: 0;
                 top: 0;
+            }
+            .container {
+                page-break-inside: avoid; /* 避免二维码跨页 */
             }
         }
         #qrcodeDisplayArea div {
             display: inline-block;
             margin: 10px; /* Add space around each QR code */
-            padding: 10px; /* Optional: Adds padding around the QR code for better visibility */
+            padding: 1px; /* Optional: Adds padding around the QR code for better visibility */
             border: 1px solid #ccc; /* Optional: Adds a border around each QR code */
             background-color: #f9f9f9; /* Optional: Sets a background color for each QR code area */
         }
@@ -250,18 +253,18 @@
             containerDiv.style.display = 'flex';
             containerDiv.style.flexDirection = 'column'; // 垂直排列
             containerDiv.style.alignItems = 'center'; // Align the QR code and text vertically
-            containerDiv.style.marginBottom = '40px'; // Space between each set of QR code and text
+            containerDiv.style.marginBottom = '10px'; // Space between each set of QR code and text
             let qrDiv = document.createElement('div'); // Div for the QR code
             let textDiv = document.createElement('div'); // Div for the text description
             textDiv.style.marginLeft = '5px'; // Space between QR code and text
-            textDiv.style.fontSize = '18px';
+            textDiv.style.fontSize = '13px';
             textDiv.innerHTML = `
-                             <strong>日期:</strong> ${formatDate(shipment.arrivalDate)}<br>
+                             <strong>日期:</strong> ${formatDate(shipment.arrivalDate)}<strong><span> </span>重量:</strong> ${shipment.weight}<span>kg</span><br>
                              <strong>钢厂:</strong> ${shipment.steelMill}<strong><span> </span>材料ID:</strong> ${shipment.uniqueIdentifier}<br>
                              <strong>钢材等级:</strong> ${shipment.steelGrade}<br>
                              <strong>炉号:</strong> ${shipment.furnaceNumber}<br>
                              <strong>尺寸:</strong> ${shipment.dimensions}<br>
-                             <strong>重量:</strong> ${shipment.weight}<span>（kg）</span><strong>购买方:</strong> ${shipment.purchaser}<br>
+                             <strong>购买方:</strong> ${shipment.purchaser}<br>
                              <strong>贸易方式:</strong> ${shipment.tradeMode}`;
             $(qrDiv).qrcode({
                 text: Object.values({
@@ -278,8 +281,8 @@
                     supplierBatchNumber: shipment.supplierBatchNumber,
                     uniqueIdentifier:shipment.uniqueIdentifier
                 }).join('|'),
-                width: 180,
-                height: 180,
+                width: 140,
+                height: 140,
                 correctLevel: 3
             });
             containerDiv.appendChild(qrDiv);
@@ -287,7 +290,7 @@
             qrcodeDisplayArea.appendChild(containerDiv);
             if ((index) % 2 === 0) {
                 let spacerDiv = document.createElement('div');
-                spacerDiv.style.height = '290px'; // 设置留空的高度
+                spacerDiv.style.height = '340px'; // 设置留空的高度
                 qrcodeDisplayArea.appendChild(spacerDiv);
             }
         });
