@@ -120,7 +120,7 @@ public class FileUploadController {
             shipment.setInvoiceApplication(getCellValueAsString(row.getCell(13)));
             filledFieldsCount++;
         }
-        if (filledFieldsCount < 7) {
+        if (filledFieldsCount < 1) {
             return null;
         }
 

@@ -1,32 +1,23 @@
 {
     "homeInfo": {
         "title": "首页",
-        "href": "/welcome"
+        "href": "/uploadExcel"
     },
     "logoInfo": {
         "title": "材料仓库",
         "image": "static/images/xuri-logo.jpeg",
-        "href": "/index#//welcome"
+        "href": "/index#//uploadExcel"
     },
     "menuInfo": [
         {
             "title": "仓库信息",
-            "href": "/welcome",
+            "href": "/uploadExcel",
             "icon": "fa fa-tachometer",
             "target": "_self",
             "roles": [
                 "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "onlyRead"
             ],
             "child": [
-                {
-                    "title": "首页",
-                    "href": "/welcome",
-                    "icon": "fa fa-home",
-                    "target": "_self",
-                    "roles": [
-                        "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "onlyRead"
-                    ]
-                },
                 {
                     "title": "上传",
                     "href": "/uploadExcel",
