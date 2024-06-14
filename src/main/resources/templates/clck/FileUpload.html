@@ -247,6 +247,8 @@
     }
     function generateQRCode(shipments) {
         const qrcodeDisplayArea = document.getElementById('qrcodeDisplayArea');
+        qrcodeDisplayArea.innerHTML = '';
+
         shipments.forEach((shipment, index) => {
             let containerDiv = document.createElement('div'); // Container for each QR code and its text
             containerDiv.className = 'container';
