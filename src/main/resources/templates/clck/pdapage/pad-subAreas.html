@@ -78,10 +78,11 @@
 
                     var subAreaElement = document.createElement('h3');
                     subAreaElement.className = 'area-title';
-                    subAreaElement.innerText = subArea.area;
-                    subAreaElement.onclick = function() {
-                        showStockTable(subArea.area);
-                    };
+                    subAreaElement.innerText = area;
+                        // subArea.area;
+                    // subAreaElement.onclick = function() {
+                    //     showStockTable(subArea.area);
+                    // };
                     column.appendChild(subAreaElement);
                 });
             },
