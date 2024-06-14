@@ -103,24 +103,26 @@
             <label class="layui-form-label">贸易方式:</label>
             <div class="layui-input-inline">
                 <select name="tradeMode" id="tradeMode" required lay-verify="required">
-                    <option value="" selected>选择方式</option>
+                    <option value="">选择方式</option>
                     <option th:each="trade_mode : ${tradeModes}"
                             th:value="${trade_mode.mode}"
-                            th:text="${trade_mode.mode}"></option>
+                            th:text="${trade_mode.mode}"
+                            th:selected="${trade_mode.mode == '一般贸易'}"></option>
                 </select>
             </div>
             <label class="layui-form-label">购买方:</label>
             <div class="layui-input-inline" style="width: 140px">
                 <select name="tradeMode" id="purchaser" required lay-verify="required">
-                    <option value="" selected>请选择购买方</option>
+                    <option value="" >请选择购买方</option>
                     <option th:each="purchaser : ${purchasers}"
                             th:value="${purchaser.purchaser}"
-                            th:text="${purchaser.purchaser}"></option>
+                            th:text="${purchaser.purchaser}"
+                            th:selected="${purchaser.purchaser == '浙江旭日'}"></option>
                 </select>
             </div>
             <label class="layui-form-label">尺寸:</label>
             <div class="layui-input-inline"  style="width: 140px">
-                <select name="steelSize" id="steelSize">
+                <select name="steelSize" id="steelSize" lay-search>
                     <option value="" selected>搜索尺寸</option>
                     <option th:each="steel_size : ${steelSizes}"
                             th:value="${steel_size.size}"
@@ -155,15 +157,17 @@
     layui.use(['form', 'laydate'], function() {
         var form = layui.form,
             laydate = layui.laydate;
-        form.render(); // Update all form elements
+        form.render();
 
         laydate.render({
             elem: '#arrivalPortDate',
-            type: 'date'
+            type: 'date',
+            value: new Date() // 设置默认值为当前日期
         });
         laydate.render({
             elem: '#arrivalDate',
-            type: 'date'
+            type: 'date',
+            value: new Date() // 设置默认值为当前日期
         });
     });
     function uploadFile() {
@@ -250,15 +254,15 @@
         qrcodeDisplayArea.innerHTML = '';
 
         shipments.forEach((shipment, index) => {
-            let containerDiv = document.createElement('div'); // Container for each QR code and its text
+            let containerDiv = document.createElement('div');
             containerDiv.className = 'container';
             containerDiv.style.display = 'flex';
             containerDiv.style.flexDirection = 'column'; // 垂直排列
-            containerDiv.style.alignItems = 'center'; // Align the QR code and text vertically
-            containerDiv.style.marginBottom = '10px'; // Space between each set of QR code and text
-            let qrDiv = document.createElement('div'); // Div for the QR code
-            let textDiv = document.createElement('div'); // Div for the text description
-            textDiv.style.marginLeft = '5px'; // Space between QR code and text
+            containerDiv.style.alignItems = 'center';
+            containerDiv.style.marginBottom = '10px';
+            let qrDiv = document.createElement('div');
+            let textDiv = document.createElement('div');
+            textDiv.style.marginLeft = '5px';
             textDiv.style.fontSize = '13px';
             textDiv.innerHTML = `
                              <strong>日期:</strong> ${formatDate(shipment.arrivalDate)}<strong><span> </span>重量:</strong> ${shipment.weight}<span>kg</span><br>
