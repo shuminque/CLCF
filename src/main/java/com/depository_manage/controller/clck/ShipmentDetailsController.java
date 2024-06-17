@@ -173,12 +173,12 @@ public class ShipmentDetailsController {
                 params.put("startDate", dates[0] + " 00:00:00");
                 params.put("endDate", dates[1] + " 23:59:59");
             }
-            List<Map<String, String>> result = shipmentDetailsService.getIntoSDs(params);
+            List<Map<String, String>> result = bearingRecordService.getAllWEs(params);
             for (Map<String, String> row : result) {
-                String steel_mill= row.get("steel_mill");
+                String steel_mill= row.get("steel_type");
                 String steel_grade = row.get("steel_grade");
-                String dimensions= row.get("dimensions");
-                String trade_mode = row.get("trade_mode");
+                String dimensions= row.get("size");
+                String trade_mode = row.get("mode");
                 String customer = row.get("customer");
                 String startDate = params.get("startDate") != null ? params.get("startDate").toString() : null;
                 String endDate = params.get("endDate") != null ? params.get("endDate").toString() : null;
@@ -190,6 +190,15 @@ public class ShipmentDetailsController {
                 params2.put("customer", customer);
                 params2.put("startDate", startDate);
                 params2.put("endDate", endDate);
+                List<ShipmentDetails> records0 = shipmentDetailsService.getIntoSDs(params2);
+                if (!records0.isEmpty()) {
+                    ShipmentDetails firstRecord = records0.get(0);
+                    row.put("weight", String.valueOf(firstRecord.getWeight()));
+                    row.put("bundle_count", String.valueOf(firstRecord.getBundleCount()));
+                } else {
+                    row.put("weight", "0");
+                    row.put("bundle_count", "0");
+                }
                 // 使用新的params2执行查询获取在库数量
                 List<BearingRecord> records = bearingRecordService.getOutPDs(params2);
                 if (!records.isEmpty()) {

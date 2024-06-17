@@ -240,7 +240,7 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
     }
 
     @Override
-    public List<Map<String, String>> getIntoSDs(Map<String, Object> params) {
+    public List<ShipmentDetails> getIntoSDs(Map<String, Object> params) {
         return shipmentDetailsMapper.getIntoSDs(params);
     }
     public double getWeightByUniqueIdentifier(String uniqueIdentifier) {

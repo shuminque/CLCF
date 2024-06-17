@@ -2,7 +2,6 @@ package com.depository_manage.service.impl;
 
 import com.depository_manage.entity.BearingInventory;
 import com.depository_manage.entity.BearingRecord;
-import com.depository_manage.entity.ShipmentDetails;
 import com.depository_manage.mapper.cpck.BearingRecordMapper;
 import com.depository_manage.service.BearingInventoryService;
 import com.depository_manage.service.BearingRecordService;
@@ -182,6 +181,11 @@ public class BearingRecordServiceImpl implements BearingRecordService {
                                                               String time) {
         Integer inStockQuantity = bearingRecordMapper.getDistinctCustomerModelAndInStockQuantity(customer, outerInnerRing, model, time);
         return inStockQuantity != null ? inStockQuantity : 0; // 如果返回值为 null，则返回默认值 0
+    }
+
+    @Override
+    public List<Map<String, String>> getAllWEs(Map<String, Object> params) {
+        return bearingRecordMapper.getAllWEs(params);
     }
 
     @Override

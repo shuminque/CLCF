@@ -70,6 +70,8 @@ public interface BearingRecordMapper {
                                                    @Param("outerInnerRing") String outerInnerRing,
                                                    @Param("model") String model,
                                                    @Param("time") String time);
+    List<Map<String, String>> getAllWEs(Map<String, Object> params);
+
     List<BearingRecord> getOutPDs(Map<String, Object> params);
 
 }

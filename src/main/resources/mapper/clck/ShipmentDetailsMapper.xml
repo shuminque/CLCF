@@ -415,12 +415,27 @@
             unique_identifier, time;
     </select>
 
-    <select id="getIntoSDs"  resultType="map" parameterType="map">
+    <select id="getIntoSDs"  resultMap="shipmentDetailsMap" parameterType="map">
         SELECT steel_mill,steel_grade,dimensions,trade_mode,customer, sum(weight) as weight,sum(bundle_count) as bundle_count
         FROM shipment_details
         where operation_type='入库'
         <if test="startDate != null and endDate != null">
             AND DATE(time) BETWEEN #{startDate} AND #{endDate}
+        </if>
+        <if test="steelMill != null and steelMill != ''">
+            AND steel_mill = #{steelMill}
+        </if>
+        <if test="steelGrade != null and steelGrade != ''">
+            AND steel_grade = #{steelGrade}
+        </if>
+        <if test="dimensions != null and dimensions != ''">
+            AND dimensions = #{dimensions}
+        </if>
+        <if test="tradeMode != null and tradeMode != ''">
+            AND trade_mode = #{tradeMode}
+        </if>
+        <if test="customer != null and customer != ''">
+            AND customer = #{customer}
         </if>
         group by  steel_mill,steel_grade,dimensions,trade_mode,customer;
     </select>

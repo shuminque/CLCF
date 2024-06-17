@@ -60,7 +60,7 @@
             title:'材料入库情况',
             parseData: function(res) {
                 var filteredData = res.filter(function(item) {
-                    return parseFloat(item.totalWeighLA) !== 0 || parseFloat(item.totalWeighLB) !== 0;
+                    return (!item.size || !item.size.includes('锻造材'));
                 });
                 return {
                     "code": 0,
@@ -76,10 +76,10 @@
             height: 600, // 设置表格高度
             toolbar: ['filter', 'exports', 'print'],
             cols: [ [
-                {field: 'steel_mill', title: '钢厂', totalRowText: '合计'},
+                {field: 'steel_type', title: '钢厂', totalRowText: '合计'},
                 {field: 'steel_grade', title: '钢材等级'},
-                {field: 'dimensions', title: '尺寸',totalRowText: '总捆数:'},
-                {field: 'trade_mode', title: '贸易方式'},
+                {field: 'size', title: '尺寸',totalRowText: '总捆数:'},
+                {field: 'mode', title: '贸易方式'},
                 {field: 'customer', title: '客户',totalRowText:   '总重量:'},
                 {field: 'weight', title: '入荷重量'},
                 {field: 'totalQuantityLA', title: '出荷数 (LA)', templet: function(d) { return Math.round(d.totalQuantityLA); }},
@@ -120,7 +120,7 @@
             title:'材料入库情况',
             parseData: function(res) {
                 var filteredData = res.filter(function(item) {
-                    return parseFloat(item.totalCountLA) !== 0 || parseFloat(item.totalCountLB) !== 0;
+                    return (!item.size || item.size.includes('锻造材') && (!item.size.includes('|')) );
                 });
                 return {
                     "code": 0,
@@ -136,10 +136,10 @@
             height: 600, // 设置表格高度
             toolbar: ['filter', 'exports', 'print'],
             cols: [ [
-                {field: 'steel_mill', title: '钢厂', totalRowText: '合计'},
+                {field: 'steel_type', title: '钢厂', totalRowText: '合计'},
                 {field: 'steel_grade', title: '钢材等级'},
-                {field: 'dimensions', title: '尺寸',totalRowText: '总捆数:'},
-                {field: 'trade_mode', title: '贸易方式'},
+                {field: 'size', title: '尺寸',totalRowText: '总捆数:'},
+                {field: 'mode', title: '贸易方式'},
                 {field: 'customer', title: '客户',totalRowText: '总重量:'},
                 {field: 'weight', title: '入荷数'},
                 {field: 'totalQuantityLA', title: '出荷数 (LA)', templet: function(d) { return Math.round(d.totalQuantityLA); }},

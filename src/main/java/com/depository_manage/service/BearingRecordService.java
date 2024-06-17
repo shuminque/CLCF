@@ -30,6 +30,7 @@ public interface BearingRecordService {
     Map<String, Object> getCountsByDateAndDepository(Date date, String depository);
     // 查询客户、型号和在库数量
     Integer getDistinctCustomerModelAndInStockQuantity(String customer, String outerInnerRing, String model, String time);
+    List<Map<String, String>> getAllWEs(Map<String, Object> params);
     List<BearingRecord> getOutPDs(Map<String, Object> params);
 
 }

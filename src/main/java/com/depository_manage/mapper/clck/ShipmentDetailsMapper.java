@@ -35,7 +35,7 @@ public interface ShipmentDetailsMapper {
 
     List<Map<String, Object>> viewTransfer(Map<String, Object> params);
 
-    List<Map<String, String>> getIntoSDs(Map<String, Object> params);
+    List<ShipmentDetails> getIntoSDs(Map<String, Object> params);
 
 
     double getWeightByUniqueIdentifier(@Param("uniqueIdentifier") String uniqueIdentifier);

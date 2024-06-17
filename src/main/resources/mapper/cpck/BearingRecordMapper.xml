@@ -637,6 +637,15 @@
         br.model;
     </select>
 
+    <select id="getAllWEs" resultType="map" parameterType="map">
+        select distinct steel_type,steel_grade,customer ,size,mode
+        from bearings
+        order BY
+            steel_type  ,
+            steel_grade,
+            customer ;
+    </select>
+
     <select id="getOutPDs" resultMap="bearingRecordMap" parameterType="map">
         SELECT
         steel_type,
