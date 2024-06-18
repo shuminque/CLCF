@@ -65,7 +65,6 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
         shipmentDetailsMapper.updateShipmentDetail(shipmentDetails);
     }
     @Override
-    @Transactional
     public boolean deleteShipmentDetailById(int id) {
         return shipmentDetailsMapper.deleteShipmentDetail(id) > 0;
     }

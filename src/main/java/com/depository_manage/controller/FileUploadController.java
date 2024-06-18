@@ -88,15 +88,11 @@ public class FileUploadController {
             shipment.setPurchaser(purchaser);
             shipment.setArrivalPortDate(arrivalPortDate);
             shipment.setArrivalDate(arrivalDate);
-
             shipment.setSteelGrade(steelGrade);
-            filledFieldsCount++;
-
             shipment.setDimensions(steelSize);
-            filledFieldsCount++;
-
             shipment.setSteelMill(steelType);
             filledFieldsCount++;
+
         if (getCellValueAsDouble(row.getCell(3)) != null) {
             shipment.setWeight(getCellValueAsDouble(row.getCell(3)));
             filledFieldsCount++;
@@ -111,27 +107,44 @@ public class FileUploadController {
         }
 
         if (getCellValueAsString(row.getCell(6)) != null) {
-            String count= String.valueOf(row.getCell(6));
-            Integer c1= Integer.valueOf(count);
-            shipment.setBundleCount(c1);
-            filledFieldsCount++;
+            String cellValue = getCellValueAsString(row.getCell(6));
+            try {
+                Integer c1 = Integer.valueOf(cellValue);
+                shipment.setBundleCount(c1);
+                filledFieldsCount++;
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
         }
-        if (getCellValueAsString(row.getCell(13)) != null) {
-            shipment.setInvoiceApplication(getCellValueAsString(row.getCell(13)));
-            filledFieldsCount++;
-        }
-        if (filledFieldsCount < 1) {
+//        if (getCellValueAsString(row.getCell(13)) != null) {
+//            shipment.setInvoiceApplication(getCellValueAsString(row.getCell(13)));
+//            filledFieldsCount++;
+//        }
+        if (filledFieldsCount < 3) {
             return null;
         }
-
         return shipment;
     }
 
     private String getCellValueAsString(Cell cell) {
-        try {
-            return cell == null || cell.getCellType() == CellType.BLANK ? null : cell.getStringCellValue();
-        } catch (Exception e) {
-            return null;  // Return null if there is any exception, which includes type mismatches
+        if (cell == null || cell.getCellType() == CellType.BLANK) {
+            return null;
+        }
+        switch (cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue();
+            case NUMERIC:
+                if (DateUtil.isCellDateFormatted(cell)) {
+                    return cell.getDateCellValue().toString();
+                } else {
+                    return String.valueOf((int) cell.getNumericCellValue());
+                }
+            case BOOLEAN:
+                return String.valueOf(cell.getBooleanCellValue());
+            case FORMULA:
+                return cell.getCellFormula();
+            default:
+                return null;
         }
     }
 

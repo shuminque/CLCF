@@ -275,32 +275,33 @@
             },
             height: 600, // 设置表格高度
             toolbar: ['filter', 'exports', 'print'],
-            cols: [ [ // 表头
-                {title: '操作', toolbar: '#actionBar'},
-                {field: 'id', title: 'id',hide:true},
-                {field: 'invoiceNumber', title: '发票编号',hide:true},
-                {field: 'operationType', title: '操作类型',totalRowText: '合计'},
-                {field: 'uniqueIdentifier', title: '材料ID'},
-                {field: 'furnaceNumber', title: '炉号'},
-                {field: 'steelMill', title: '钢厂'},
-                {field: 'steelGrade', title: '钢材等级'},
-                {field: 'dimensions', title: '尺寸',totalRowText: '总捆数:'},
-                {field: 'tradeMode', title: '贸易方式'},
-                {field: 'bundleCount', title: '支数',totalRowText: '总重量:'},
-                {field: 'weight', title: '重量',totalRowText: '合计'},
-                {field: 'customer', title: '客户'},
-                {field: 'placementArea', title: '库位'},
-                {field: 'supplierBatchNumber', title: '供应商生产批号'},
-                {field: 'deliveryPoint', title: '到货地址'},
-                {field: 'arrivalPortDate', title: '到港日期', templet: function(d){
-                        return formatDate(d.arrivalDate);
-                    }},
-                {field: 'arrivalDate', title: '到达日期', templet: function(d){
-                        return formatDate(d.arrivalDate);
-                    }},
-                {field: 'purchaser', title: '购买方'},
-
-            ]],
+            cols: [
+                [ // 表头
+                    {title: '操作', toolbar: '#actionBar', minWidth: 80},
+                    {field: 'id', title: 'id', hide: true},
+                    {field: 'invoiceNumber', title: '发票编号', hide: true},
+                    {field: 'operationType', title: '操作类型', totalRowText: '合计', minWidth: 120},
+                    {field: 'uniqueIdentifier', title: '材料ID', minWidth: 120},
+                    {field: 'furnaceNumber', title: '炉号', minWidth: 100},
+                    {field: 'steelMill', title: '钢厂', minWidth: 100},
+                    {field: 'steelGrade', title: '钢材等级', minWidth: 100},
+                    {field: 'dimensions', title: '尺寸', totalRowText: '总捆数:', minWidth: 100},
+                    {field: 'tradeMode', title: '贸易方式', minWidth: 120},
+                    {field: 'bundleCount', title: '支数', totalRowText: '总重量:', minWidth: 100},
+                    {field: 'weight', title: '重量', totalRowText: '合计', minWidth: 100},
+                    {field: 'customer', title: '客户', minWidth: 120},
+                    {field: 'placementArea', title: '库位', minWidth: 100},
+                    {field: 'supplierBatchNumber', title: '供应商生产批号', minWidth: 150},
+                    {field: 'purchaser', title: '购买方', minWidth: 100},
+                    {field: 'deliveryPoint', title: '到货地址', minWidth: 150},
+                    {field: 'arrivalPortDate', title: '到港日期', templet: function(d){
+                            return formatDate(d.arrivalDate);
+                        },minWidth: 150},
+                    {field: 'arrivalDate', title: '到达日期', templet: function(d){
+                            return formatDate(d.arrivalDate);
+                        },minWidth: 150},
+                ]
+            ],
             limits: [200, 500, 1000, 20000],
             limit: 200,
             page: true, // 开启分页
@@ -384,6 +385,8 @@
                 printQRCode(data.id);
             } else if (layEvent === 'edit') {
                 editSteelGrade(data);
+            } else if (layEvent === 'delete') {
+                deleteRecord(data, obj);
             }
         });
         function editSteelGrade(data) {
@@ -447,7 +450,24 @@
         });
 
     });
-
+    function deleteRecord(data, obj) {
+        // 确认删除
+        layer.confirm('确定要删除这条记录吗？', function(index) {
+            // 发送删除请求
+            $.ajax({
+                url: '/shipment/delete/' + data.id,
+                type: 'DELETE',
+                success: function(res) {
+                        layer.msg('删除成功');
+                        obj.del(); // 删除表格中的这一行
+                },
+                error: function(err) {
+                    layer.msg('删除失败: ' + err.responseText);
+                }
+            });
+            layer.close(index);
+        });
+    }
     // 打印二维码的函数
     function printQRCode(id) {
         console.log(id);

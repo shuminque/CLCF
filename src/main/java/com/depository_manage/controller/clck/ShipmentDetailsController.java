@@ -6,6 +6,7 @@ import com.depository_manage.service.BearingRecordService;
 import com.depository_manage.service.clck.DailyCounterService;
 import com.depository_manage.service.clck.ShipmentDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -60,6 +61,15 @@ public class ShipmentDetailsController {
         record.setId(id);
         shipmentDetailsService.updateShipmentDetail(record);
         return ResponseEntity.ok(record);
+    }
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deleteShipmentDetail(@PathVariable int id) {
+        boolean isDeleted = shipmentDetailsService.deleteShipmentDetailById(id);
+        if (isDeleted) {
+            return new ResponseEntity<>("Shipment detail deleted successfully", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Failed to delete shipment detail", HttpStatus.NOT_FOUND);
+        }
     }
     @PostMapping("/updateOperationType")
     public ResponseEntity<Void> updateOperationType(@RequestBody Map<String, String> request) {
