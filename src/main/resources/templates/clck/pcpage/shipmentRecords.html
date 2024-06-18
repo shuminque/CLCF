@@ -173,41 +173,44 @@
                 </select>
             </div>
         </div>
-        <label class="layui-form-label">钢厂:</label>
-        <div class="layui-input-block">
-            <select name="steelMill">
-                <option value="" selected>选择钢厂</option>
-                <option th:each="steel_type : ${steelTypes}"
-                        th:value="${steel_type.name}"
-                        th:text="${steel_type.name}"></option>
-            </select>
+        <div class="layui-form-item">
+            <label class="layui-form-label">钢厂:</label>
+            <div class="layui-input-block">
+                <select name="steelMill">
+                    <option value="" selected>选择钢厂</option>
+                    <option th:each="steel_type : ${steelTypes}"
+                            th:value="${steel_type.name}"
+                            th:text="${steel_type.name}"></option>
+                </select>
+            </div>
         </div>
-        <label class="layui-form-label">钢等:</label>
-        <div class="layui-input-block">
-            <select name="steelGrade">
-                <option value="" selected>选择钢材等级</option>
-                <option th:each="steel_grade : ${steelGrades}"
-                        th:value="${steel_grade.grade}"
-                        th:text="${steel_grade.grade}"></option>
-            </select>
-        </div>
-        <label class="layui-form-label">客户:</label>
-        <div class="layui-input-block">
-            <select name="customer">
-                <option value="" selected>搜索客户</option>
-                <option th:each="customer : ${customers}"
-                        th:value="${customer.name}"
-                        th:text="${customer.name}"></option>
-            </select>
+        <div class="layui-form-item">
+            <label class="layui-form-label">钢等:</label>
+            <div class="layui-input-block">
+                <select name="steelGrade">
+                    <option value="" selected>选择钢材等级</option>
+                    <option th:each="steel_grade : ${steelGrades}"
+                            th:value="${steel_grade.grade}"
+                            th:text="${steel_grade.grade}"></option>
+                </select>
+            </div>
         </div>
 
-        <label class="layui-form-label">时间:</label>
-        <div class="layui-input-block">
-            <input type="text" name="time" id="date2" class="layui-input">
+        <div class="layui-form-item">
+            <label class="layui-form-label">客户:</label>
+            <div class="layui-input-block">
+                <select name="customer">
+                    <option value="" selected>搜索客户</option>
+                    <option th:each="customer : ${customers}"
+                            th:value="${customer.name}"
+                            th:text="${customer.name}"></option>
+                </select>
+            </div>
         </div>
-        <label class="layui-form-label">尺寸:</label>
-        <div class="layui-input-block">
-            <div class="layui-input">
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">尺寸:</label>
+            <div class="layui-input-block">
                 <select name="dimensions"  lay-search>
                     <option value="" selected>选择尺寸</option>
                     <option th:each="steel_size : ${steelSizes}"
@@ -216,12 +219,35 @@
                 </select>
             </div>
         </div>
+
         <div class="layui-form-item">
-            <label class="layui-form-label">库位:</label>
+            <label class="layui-form-label">贸易方式:</label>
             <div class="layui-input-block">
-                <input type="text" name="placementArea" required class="layui-input" readonly>
+                <select name="tradeMode"   lay-verify="required">
+                    <option value="">选择方式</option>
+                    <option th:each="trade_mode : ${tradeModes}"
+                            th:value="${trade_mode.mode}"
+                            th:text="${trade_mode.mode}"></option>
+                </select>
             </div>
         </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">时间:</label>
+            <div class="layui-input-block">
+                <input type="text" name="time" id="date2" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-form-item">
+                <label class="layui-form-label">库位:</label>
+                <div class="layui-input-block">
+                    <input type="text" name="placementArea" required class="layui-input" readonly>
+                </div>
+            </div>
+        </div>
+
         <div class="layui-form-item" style="text-align: center;">
             <button class="layui-btn layui-btn-normal" lay-submit lay-filter="editGradeSubmitBtnFilter">更新</button>
         </div>
@@ -384,6 +410,7 @@
                         'steelMill': data.steelMill,
                         'customer': data.customer,
                         'steelGrade': data.steelGrade,
+                        'tradeMode': data.tradeMode,
                         'model': data.model,
                         'steelType': data.steelType,
                         'dimensions': data.dimensions,

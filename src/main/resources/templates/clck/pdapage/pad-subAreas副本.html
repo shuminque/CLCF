@@ -92,8 +92,63 @@
     });
 
     function showStockTable(subArea) {
-        var url = `/stockTable?subArea=${encodeURIComponent(subArea)}`;
-        window.location.href = url;
+        var currentTime = new Date().toISOString();
+        layui.use(['table'], function() {
+            var table = layui.table;
+            table.render({
+                elem: '#recordTable',
+                url: '/shipment/getStockStatusBeforeCutoffDate',
+                where: { placementArea: subArea, cutoffDate: currentTime},
+                parseData: function(res) {
+                    var filteredData = res.filter(function(record) {
+                        return record.weight > 0;
+                    });
+                    return {
+                        "code": 0,
+                        "msg": "",
+                        "count": filteredData.length,
+                        "data": filteredData
+                    };
+                },
+                request: {
+                    pageName: 'page',
+                    limitName: 'size'
+                },
+                cols: [ [
+                    {field: 'uniqueIdentifier', title: '材料ID', totalRowText: '合计'},
+                    {field: 'furnaceNumber', title: '炉号'},
+                    {field: 'steelMill', title: '钢厂'},
+                    {field: 'steelGrade', title: '钢材等级'},
+                    {field: 'dimensions', title: '尺寸', totalRowText: '总捆数:'},
+                    {field: 'tradeMode', title: '贸易方式'},
+                    {field: 'weight', title: '重量', totalRowText: '总重量'},
+                    {field: 'customer', title: '客户'},
+                ]],
+                limits: [200, 500, 1000, 20000],
+                limit: 200,
+                page: true,
+                totalRow: true,
+                done: function(res, curr, count) {
+                    var totalBundleCount = 0;
+                    var totalWeight = 0;
+                    res.data.forEach(function(item) {
+                        totalBundleCount += 1;
+                        totalWeight += parseFloat(item.weight);
+                    });
+                    var totalRow = document.getElementsByClassName('layui-table-total')[0];
+                    if (totalRow) {
+                        var bundleCountCell = totalRow.querySelector('td[data-field="tradeMode"]');
+                        var weightCell = totalRow.querySelector('td[data-field="customer"]');
+                        if (bundleCountCell) {
+                            bundleCountCell.getElementsByClassName('layui-table-cell')[0].innerText = totalBundleCount.toString();
+                        }
+                        if (weightCell) {
+                            weightCell.getElementsByClassName('layui-table-cell')[0].innerText = totalWeight.toFixed(2).toString();
+                        }
+                    }
+                }
+            });
+        });
     }
 
 </script>

@@ -134,6 +134,15 @@ public class PageController {
         addCommonObjects(mv, params);
         return mv;
     }
+    @GetMapping("/stockTable")
+    public ModelAndView stockTable(@RequestParam String subArea, Map<String, Object> params) {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("clck/pdapage/stockTable");
+        params.put("subArea", subArea);
+        addCommonObjects(mv, params);
+        return mv;
+    }
+
     @GetMapping("/shipment-out")
     public ModelAndView shipmentOut() {
         ModelAndView mv = new ModelAndView();
