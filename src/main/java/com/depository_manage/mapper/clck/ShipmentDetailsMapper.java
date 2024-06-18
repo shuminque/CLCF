@@ -20,6 +20,7 @@ public interface ShipmentDetailsMapper {
     void updateShipmentDetail(ShipmentDetails shipmentDetails);
 
     int deleteShipmentDetail(@Param("id") int id);
+    int batchDeleteShipmentDetails(@Param("ids") List<Integer> ids);
 
     int insertShipmentDetails(List<ShipmentDetails> shipmentDetailsList);
 

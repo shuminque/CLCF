@@ -13,6 +13,7 @@ public interface ShipmentDetailsService {
     List<ShipmentDetails> saveAll(List<ShipmentDetails> shipmentDetailsList); // Change return type to List
     void updateShipmentDetail(ShipmentDetails shipmentDetails);
     boolean deleteShipmentDetailById(int id);
+    boolean batchDeleteShipmentDetails(List<Integer> ids);
     void updateOperationTypeByUniqueIdentifier(String uniqueIdentifier, String operationType, String placementArea) throws Exception;
     void stockOut(String uniqueIdentifier) throws Exception;
     void transfer(String uniqueIdentifier, String placementArea) throws Exception;  // 新增的方法

@@ -68,7 +68,10 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
     public boolean deleteShipmentDetailById(int id) {
         return shipmentDetailsMapper.deleteShipmentDetail(id) > 0;
     }
-
+    @Override
+    public boolean batchDeleteShipmentDetails(List<Integer> ids) {
+        return shipmentDetailsMapper.batchDeleteShipmentDetails(ids) > 0;
+    }
     @Override
     public void updateOperationTypeByUniqueIdentifier(String uniqueIdentifier, String operationType, String placementArea) throws Exception {
         if ("入库".equals(operationType)) {

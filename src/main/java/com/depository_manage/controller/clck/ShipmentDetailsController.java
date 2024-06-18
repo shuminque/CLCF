@@ -71,6 +71,15 @@ public class ShipmentDetailsController {
             return new ResponseEntity<>("Failed to delete shipment detail", HttpStatus.NOT_FOUND);
         }
     }
+    @PostMapping("/batchDelete")
+    public ResponseEntity<String> batchDeleteShipmentDetails(@RequestBody List<Integer> ids) {
+        boolean isDeleted = shipmentDetailsService.batchDeleteShipmentDetails(ids);
+        if (isDeleted) {
+            return new ResponseEntity<>("Shipment details deleted successfully", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Failed to delete shipment details", HttpStatus.NOT_FOUND);
+        }
+    }
     @PostMapping("/updateOperationType")
     public ResponseEntity<Void> updateOperationType(@RequestBody Map<String, String> request) {
         try {

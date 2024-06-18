@@ -144,6 +144,7 @@
             </div>
         </div>
     </form>
+    <button id="batchDeleteBtn" class="layui-btn layui-btn-danger">批量删除</button>
     <table id="recordTable" lay-filter="recordTableFilter"></table>
     <table id="bearingsTable" lay-filter="bearingsTableFilter"></table>
     <div id="printArea"></div>
@@ -278,6 +279,7 @@
             toolbar: ['filter', 'exports', 'print'],
             cols: [
                 [ // 表头
+                    {type: 'checkbox'}, // 添加多选框
                     {title: '操作', toolbar: '#actionBar', minWidth: 80},
                     {field: 'id', title: 'id', hide: true},
                     {field: 'invoiceNumber', title: '发票编号', hide: true},
@@ -329,7 +331,6 @@
                 }
             }
         });
-
 
         // 统一搜索表单提交事件
         form.on('submit(data-search-btn)', function(data) {
@@ -448,12 +449,40 @@
             });
             return false; // 阻止表单跳转
         });
+        // 批量删除按钮事件
+        $('#batchDeleteBtn').on('click', function() {
+            var checkStatus = table.checkStatus('recordTable'); // 获取选中行的数据
+            var data = checkStatus.data;
+            if (data.length === 0) {
+                layer.msg('请先选择要删除的记录');
+                return;
+            }
+            layer.confirm('确定要删除选中的记录吗？', function(index) {
+                var ids = data.map(function(item) {
+                    return item.id;
+                });
+                $.ajax({
+                    url: '/shipment/batchDelete', // 批量删除API URL
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(ids),
+                    success: function(response) {
+                        layer.msg('删除成功');
+                        table.reload('recordTable'); // 重新加载表格数据
+                    },
+                    error: function(xhr, status, error) {
+                        layer.msg('删除失败: ' + xhr.responseText);
+                    }
+                });
+                layer.close(index);
+            });
+        });
         // 高级搜索开关逻辑
         $('#advancedSearchToggle').click(function () {
             $('#advancedSearchForm').slideToggle();
         });
-
     });
+
     function deleteRecord(data, obj) {
         // 确认删除
         layer.confirm('确定要删除这条记录吗？', function(index) {

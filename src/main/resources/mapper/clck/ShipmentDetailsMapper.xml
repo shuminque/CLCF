@@ -209,7 +209,12 @@
     <delete id="deleteShipmentDetail" parameterType="int">
         DELETE FROM shipment_details WHERE id = #{id}
     </delete>
-
+    <delete id="batchDeleteShipmentDetails" parameterType="list">
+        DELETE FROM shipment_details WHERE id IN
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
     <!-- 更新 operation_type, placement_area 和 time -->
     <update id="updateOperationTypeByUniqueIdentifier" parameterType="com.depository_manage.entity.ShipmentDetails">
         UPDATE shipment_details
@@ -219,8 +224,6 @@
         WHERE unique_identifier = #{uniqueIdentifier}
           AND (operation_type IS NULL OR operation_type = '')
     </update>
-
-
     <!-- 根据 unique_identifier 查询在库记录 -->
     <select id="findStockInByUniqueIdentifier" parameterType="string" resultMap="shipmentDetailsMap">
         SELECT * FROM shipment_details
