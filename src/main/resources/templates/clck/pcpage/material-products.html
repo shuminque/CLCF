@@ -119,7 +119,7 @@
                 {field: 'steelGrade', title: '钢材等级'},
                 {field: 'dimensions', title: '尺寸',totalRowText: '捆数:'},
                 {field: 'tradeMode', title: '贸易方式'},
-                {field: 'bundleCount', title: '支数',totalRowText: '总重量:'},
+                {field: 'bundleCount', title: '支数',totalRowText: '总重量:', maxWidth: 70},
                 {field: 'weight', title: '重量'},
                 {field: 'customer', title: '客户'},
                 {field: 'placementArea', title: '库位'},
@@ -220,10 +220,10 @@
                 cols: [
                     [ // 表头
                         {field: 'customer', title: '客户',sort:true, totalRowText: '合计'},
-                        {field: 'outer_inner_ring', title: '内外轮',sort:true},
+                        {field: 'outer_inner_ring', title: '内外轮',sort:true, maxWidth: 100},
                         {field: 'model', title: '型号' ,sort:true},
-                        {field: 'single_eight', title: '单重',sort:true},
-                        {field: 'pair', title: '配对号',sort:true},
+                        {field: 'single_eight', title: '单重',sort:true, maxWidth: 100},
+                        {field: 'pair', title: '配对号',sort:true, maxWidth: 100},
                         {field: 'mode', title: '贸易方式',sort:true},
                         {field: 'in_stock_quantity', title: '在库数量', sort: true, },
                         {field: 'consumable_weight', title: '耗材重量(kg)或个数', templet: function(d){
@@ -281,10 +281,10 @@
                 cols: [
                     [ // 表头
                         {field: 'customer', title: '客户',sort:true, totalRowText: '合计'},
-                        {field: 'outer_inner_ring', title: '内外轮',sort:true},
+                        {field: 'outer_inner_ring', title: '内外轮',sort:true, maxWidth: 100},
                         {field: 'model', title: '型号' ,sort:true},
-                        {field: 'single_eight', title: '单重',sort:true},
-                        {field: 'pair', title: '配对号',sort:true},
+                        {field: 'single_eight', title: '单重',sort:true, maxWidth: 100},
+                        {field: 'pair', title: '配对号',sort:true, maxWidth: 100},
                         {field: 'mode', title: '贸易方式',sort:true},
                         {field: 'in_stock_quantity', title: '在库数量', sort: true, },
                         {field: 'consumable_weight', title: '耗材重量(kg)/个数', templet: function(d){

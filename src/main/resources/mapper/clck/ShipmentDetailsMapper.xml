@@ -287,15 +287,13 @@
         <if test="steelMill != null and steelMill != ''">
             AND steel_mill = #{steelMill}
         </if>
-        <if test="supplierBatchNumber != null and steelMill != ''">
+        <if test="supplierBatchNumber != null and supplierBatchNumber != ''">
             AND supplier_batch_number LIKE CONCAT('%',#{supplierBatchNumber},'%')
         </if>
         <if test="furnaceNumber != null and furnaceNumber != ''">
             AND furnace_number LIKE CONCAT('%',#{furnaceNumber},'%')
         </if>
-        <if test="placementArea != null and placementArea != ''">
-            AND placement_area = #{placementArea}
-        </if>
+
         <if test="purchaser != null and purchaser != ''">
             AND purchaser = #{purchaser}
         </if>
@@ -339,7 +337,7 @@
         <if test="steelMill != null and steelMill != ''">
             AND steel_mill = #{steelMill}
         </if>
-        <if test="supplierBatchNumber != null and steelMill != ''">
+        <if test="supplierBatchNumber != null and supplierBatchNumber != ''">
             AND supplier_batch_number LIKE CONCAT('%',#{supplierBatchNumber},'%')
         </if>
         <if test="furnaceNumber != null and furnaceNumber != ''">
@@ -360,7 +358,6 @@
         latest_in_info.unique_identifier,
         latest_in_info.invoice_number,
         latest_in_info.delivery_point,
-        latest_in_info.arrival_port_date,
         latest_in_info.arrival_port_date,
         latest_in_info.purchaser,
         latest_in_info.customer,
@@ -385,6 +382,7 @@
             LIMIT #{begin},#{size}
         </if>
     </select>
+
 
     <select id="viewTransfer" parameterType="map" resultType="map">
         SELECT

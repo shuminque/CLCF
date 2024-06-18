@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>出库管理</title>
+    <title>入库管理</title>
     <link rel="stylesheet" href="/static/css/http_cdn.jsdelivr.net_npm_bootstrap@5.1.0_dist_css_bootstrap.css">
     <!--    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">-->
     <script src="/static/js/http_code.jquery.com_jquery-3.6.0.min.js"></script>
@@ -35,18 +35,27 @@
 <body>
 <div class="container">
     <div class="form-title">
-        <h2>材料出库操作</h2>
+        <h2>材料入库操作</h2>
     </div>
-    <form id="stockOutForm">
+    <form id="stockInForm">
         <div class="mb-3">
             <label for="uniqueIdentifier" class="form-label">材料ID</label>
             <input type="text" class="form-control" id="uniqueIdentifier" placeholder="请输入材料ID" required autocomplete="off">
         </div>
         <div class="mb-3">
+            <label for="area">库位</label>
+            <select class="form-control" name="area" id="area" required >
+                <option value="" selected>选择库位</option>
+                <option th:each="placement_area : ${areas}"
+                        th:value="${placement_area.area}"
+                        th:text="${placement_area.area}"></option>
+            </select>
+        </div>
+        <div class="mb-3">
             <label for="date" class="form-label">日期</label>
             <input type="date" class="form-control" id="date" value="">
         </div>
-        <button type="submit" class="btn btn-custom w-100">提交出库</button>
+        <button type="submit" class="btn btn-custom w-100">提交入库</button>
     </form>
 </div>
 <script src="/static/js/bootstrap@5.1.0_dist_js_bootstrap.bundle.js"></script>
@@ -56,36 +65,38 @@
         document.getElementById('date').value = today;
         document.getElementById('uniqueIdentifier').focus(); // 自动聚焦到材料ID输入框
     });
-    document.getElementById('stockOutForm').addEventListener('submit', function(event) {
+    document.getElementById('stockInForm').addEventListener('submit', function(event) {
         event.preventDefault();
         const uniqueIdentifier = document.getElementById('uniqueIdentifier').value;
+        const area = document.getElementById('area').value;
         const date = document.getElementById('date').value || new Date().toISOString().split('T')[0];
-        stockOut({ uniqueIdentifier, date });
+        stockIn({ uniqueIdentifier, date, area});
     });
-    function stockOut(data) {
-        fetch('/shipment/stockOut', {
+    function stockIn(data) {
+        fetch('/shipment/updateOperationType', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ uniqueIdentifier: data.uniqueIdentifier })
+            body: JSON.stringify({ uniqueIdentifier: data.uniqueIdentifier,operationType:'入库',placementArea:data.area})
         }).then(response => {
             if (response.ok) {
-                console.log("出库成功", data);
-                toastr.success('出库操作成功');
+                console.log("入库成功", data);
+                toastr.success('入库操作成功');
                 clearForm();
             }else {
-                toastr.error('该产品无库存，操作无效');
+                toastr.error('该批次号已入库，重复入库无效');
             }
             })
             .catch(error => {
-                console.error('出库操作失败:', error);
-                toastr.error(`出库操作失败: ${error.message}`);
+                console.error('入库操作失败:', error);
+                toastr.error(`入库操作失败: ${error.message}`);
             });
     }
 
     function clearForm() {
         document.getElementById('uniqueIdentifier').value = '';
+        document.getElementById('area').value= '';
         document.getElementById('date').value = new Date().toISOString().split('T')[0];
         $('#uniqueIdentifier').focus();
     }

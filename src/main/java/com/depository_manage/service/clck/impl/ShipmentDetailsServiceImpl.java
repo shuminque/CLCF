@@ -188,7 +188,7 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
             shipmentDetailsMapper.insertShipmentDetail(transferRecord);
         }
     }
-    public void returnToStock(String uniqueIdentifier, double weight)throws Exception {
+    public void returnToStock(String uniqueIdentifier, double weight, String placementArea)throws Exception {
         if (!canStockIn(uniqueIdentifier)) {
             throw new Exception("该批次号已在库，不能重复入库");
         }
@@ -213,7 +213,7 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
             stockOutRecord.setOperationType("返库");
             stockOutRecord.setSupplierBatchNumber(stockInRecord.getSupplierBatchNumber());
             stockOutRecord.setBundleCount(stockInRecord.getBundleCount());
-            stockOutRecord.setPlacementArea(stockInRecord.getPlacementArea());
+            stockOutRecord.setPlacementArea(placementArea);
             stockOutRecord.setPurchaser(stockInRecord.getPurchaser());
             stockOutRecord.setTime(new Date()); // 设置当前时间
             shipmentDetailsMapper.insertShipmentDetail(stockOutRecord);
@@ -245,6 +245,5 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
     public double getWeightByUniqueIdentifier(String uniqueIdentifier) {
         return shipmentDetailsMapper.getWeightByUniqueIdentifier(uniqueIdentifier);
     }
-
 
 }

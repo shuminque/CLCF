@@ -110,7 +110,8 @@ public class ShipmentDetailsController {
         try {
             String uniqueIdentifier = request.get("uniqueIdentifier");
             double weight = Double.parseDouble(request.get("weight"));
-            shipmentDetailsService.returnToStock(uniqueIdentifier, weight);
+            String placementArea = request.get("placementArea");
+            shipmentDetailsService.returnToStock(uniqueIdentifier, weight ,placementArea);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.status(400).body(null);  // Return 400 Bad Request if return operation is not allowed

@@ -56,14 +56,12 @@
                 </select>
             </div>
             <div class="layui-input-inline">
-                <div class="layui-input">
-                    <select name="dimensions" id="dimensions" lay-search>
-                        <option value="" selected>选择尺寸</option>
-                        <option th:each="steel_size : ${steelSizes}"
-                                th:value="${steel_size.size}"
-                                th:text="${steel_size.size}"></option>
-                    </select>
-                </div>
+                <select name="dimensions" id="dimensions" lay-search>
+                    <option value="" selected>选择尺寸</option>
+                    <option th:each="steel_size : ${steelSizes}"
+                            th:value="${steel_size.size}"
+                            th:text="${steel_size.size}"></option>
+                </select>
             </div>
             <div class="layui-input-inline">
                 <select name="tradeMode" id="tradeMode"  >
@@ -102,7 +100,9 @@
                 <div class="layui-input-inline">
                     <input type="text" name="supplierBatchNumber" placeholder="搜索批号" class="layui-input">
                 </div>
-
+                <div class="layui-input-inline">
+                    <input type="text" name="uniqueIdentifier" placeholder="搜索材料ID" class="layui-input">
+                </div>
             </div>
             <div class="layui-inline">
                 <button type="submit" class="layui-btn layui-btn-primary" lay-submit lay-filter="data-search-btn">
@@ -238,6 +238,9 @@
             }
             if (formData.placementArea !== '') {
                 req.placementArea = formData.placementArea;
+            }
+            if (formData.uniqueIdentifier !== '') {
+                req.uniqueIdentifier = formData.uniqueIdentifier;
             }
             req.cutoffDate = formData.time;
             // 执行搜索重载

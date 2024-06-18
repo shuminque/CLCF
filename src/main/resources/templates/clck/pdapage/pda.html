@@ -81,7 +81,7 @@
     <button class="button " onclick="prepareModal('stockIn')" aria-label="入库">入库</button>
     <button class="button " onclick="showModal('stockOut')" aria-label="出库">出库</button>
     <button class="button " onclick="prepareModal('transfer')" aria-label="转库">转库</button>
-    <button class="button " onclick="showModal('return')" aria-label="返库">返库</button>
+    <button class="button " onclick="prepareModal('return')" aria-label="返库">返库</button>
     <button class="button" onclick="location.href='/pda-stockBoard'" aria-label="库存看板">库存看板</button>
   </div>
 </section>
@@ -132,7 +132,7 @@
 
   function prepareModal(operation) {
     var placementArea = document.getElementById('area').value;
-    if (!placementArea && (operation === 'stockIn' || operation === 'transfer')) {
+    if (!placementArea && (operation === 'stockIn' || operation === 'transfer' || operation === 'return')) {
       showNotification('请选择库位', 'is-danger');
       return;
     }
@@ -150,7 +150,6 @@
       isListenerAdded = true;
     }
   }
-
 
   function updateModalTitle() {
     var placementArea = document.getElementById('area').value;
@@ -174,11 +173,17 @@
         break;
       case 'return':
         title = '返库';
+        if (placementArea) {
+          title += '到 ' + placementArea;
+        }
         break;
     }
     document.getElementById('modalTitle').innerText = title;
   }
-
+  function openModal() {
+    var modal = document.getElementById('scanModal');
+    modal.classList.add('is-active');
+  }
   document.getElementById('area').addEventListener('change', updateModalTitle);
 
   function handleEnterKey(event) {
@@ -186,24 +191,6 @@
       processScannedData();
     }
   }
-
-  function openModal() {
-    var modal = document.getElementById('scanModal');
-    modal.classList.add('is-active');
-  }
-
-  function closeModal() {
-    var modal = document.getElementById('scanModal');
-    modal.classList.remove('is-active');
-    document.getElementById('modalScanInput').value = '';
-    var modalScanInput = document.getElementById('modalScanInput');
-    if (isListenerAdded) {
-      modalScanInput.removeEventListener('keydown', handleEnterKey);
-      isListenerAdded = false;
-    }
-    currentOperation = null;
-  }
-
   function processScannedData() {
     var scannedData = document.getElementById('modalScanInput').value;
     console.log(scannedData);
@@ -250,6 +237,21 @@
       console.error('解析扫描数据时出错: ', error);
     }
   }
+
+  function closeModal() {
+    var modal = document.getElementById('scanModal');
+    modal.classList.remove('is-active');
+    document.getElementById('modalScanInput').value = '';
+    document.getElementById('area').value = '';
+    var modalScanInput = document.getElementById('modalScanInput');
+    if (isListenerAdded) {
+      modalScanInput.removeEventListener('keydown', handleEnterKey);
+      isListenerAdded = false;
+    }
+    currentOperation = null;
+  }
+
+
   function checkPlacementArea() {
     var placementAreaData = document.getElementById('area').value;
     if (!placementAreaData) {
@@ -284,7 +286,7 @@
     });
   }
 
-  function stockOut(data) {
+  function stockOut(data){
     fetch('/shipment/stockOut', {
       method: 'POST',
       headers: {
@@ -348,6 +350,7 @@
     });
   }
   function fetchWeight(data) {
+    var placementAreaData = checkPlacementArea();
     fetch('/shipment/getWeight', {
       method: 'POST',
       headers: {
@@ -359,30 +362,30 @@
               console.log(data);
               document.getElementById('weightInput').value = data.weight;
               closeModal();
-              openConfirmModal(data.uniqueIdentifier, data.weight);
+              openConfirmModal(data.uniqueIdentifier, data.weight,placementAreaData);
             })
             .catch(error => {
               console.error('Error fetching weight:', error);
             });
   }
 
-  function openConfirmModal(uniqueIdentifier, weight) {
+  function openConfirmModal(uniqueIdentifier, weight,placementAreaData) {
     var confirmModal = document.getElementById('confirmModal');
     confirmModal.classList.add('is-active');
     document.getElementById('confirmButton').onclick = function() {
       var newWeight = document.getElementById('weightInput').value;
-      confirmReturnToStock(uniqueIdentifier, newWeight);
+      confirmReturnToStock(uniqueIdentifier, newWeight,placementAreaData);
     };
+  }
+
+  function confirmReturnToStock(uniqueIdentifier, weight, placementAreaData) {
+    returnToStock({ uniqueIdentifier: uniqueIdentifier, weight: weight, placementArea: placementAreaData});
+    closeConfirmModal();
   }
 
   function closeConfirmModal() {
     var confirmModal = document.getElementById('confirmModal');
     confirmModal.classList.remove('is-active');
-  }
-
-  function confirmReturnToStock(uniqueIdentifier, weight) {
-    returnToStock({ uniqueIdentifier: uniqueIdentifier, weight: weight });
-    closeConfirmModal();
   }
 
   function showNotification(message, type) {

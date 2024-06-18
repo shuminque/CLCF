@@ -81,11 +81,13 @@
                 {field: 'size', title: '尺寸',totalRowText: '总捆数:'},
                 {field: 'mode', title: '贸易方式'},
                 {field: 'customer', title: '客户',totalRowText:   '总重量:'},
-                {field: 'weight', title: '入荷重量'},
+                {field: 'weight', title: '入荷重量',templet: function(d) { return Math.round(d.weight); }},
                 {field: 'totalQuantityLA', title: '出荷数 (LA)', templet: function(d) { return Math.round(d.totalQuantityLA); }},
                 {field: 'totalWeighLA', title: '折算材料重量 (LA)', templet: function(d) { return Math.round(d.totalWeighLA); }},
                 {field: 'totalQuantityLB', title: '出荷数 (LB)', templet: function(d) { return Math.round(d.totalQuantityLB); }},
                 {field: 'totalWeighLB', title: '折算材料重量 (LB)', templet: function(d) { return Math.round(d.totalWeighLB); }},
+                {field: 'inLA', title: '入-出 (LA)', templet: function(d) { return Math.round(d.weight - d.totalWeighLA); }},
+                {field: 'OutLB', title: '入-出 (LB)', templet: function(d) { return Math.round(d.weight - d.totalWeighLB); }}
             ]],
 
             limits: [200, 500, 1000, 20000],
@@ -109,7 +111,7 @@
                         bundleCountCell.getElementsByClassName('layui-table-cell')[0].innerText = totalBundleCount.toString();
                     }
                     if (weightCell) {
-                        weightCell.getElementsByClassName('layui-table-cell')[0].innerText = totalWeight.toFixed(2).toString();
+                        weightCell.getElementsByClassName('layui-table-cell')[0].innerText = totalWeight.toFixed(0).toString();
                     }
                 }
             }
@@ -141,13 +143,13 @@
                 {field: 'size', title: '尺寸',totalRowText: '总捆数:'},
                 {field: 'mode', title: '贸易方式'},
                 {field: 'customer', title: '客户',totalRowText: '总重量:'},
-                {field: 'weight', title: '入荷数'},
+                {field: 'weight', title: '入荷数',templet: function(d) { return Math.round(d.weight); }},
                 {field: 'totalQuantityLA', title: '出荷数 (LA)', templet: function(d) { return Math.round(d.totalQuantityLA); }},
                 {field: 'totalCountLA', title: '折算材料数量 (LA)', templet: function(d) { return Math.round(d.totalCountLA); }},
                 {field: 'totalQuantityLB', title: '出荷数 (LB)', templet: function(d) { return Math.round(d.totalQuantityLB); }},
                 {field: 'totalCountLB', title: '折算材料数量 (LB)', templet: function(d) { return Math.round(d.totalCountLB); }},
-                {field: 'inOutLA', title: '入-出 (LA)', templet: function(d) { return Math.round(d.weight - d.totalQuantityLA); }},
-                {field: 'inOutLB', title: '入-出 (LB)', templet: function(d) { return Math.round(d.weight - d.totalQuantityLB); }}
+                {field: 'inOutLA', title: '入-出 (LA)', templet: function(d) { return Math.round(d.weight - d.totalCountLA); }},
+                {field: 'inOutLB', title: '入-出 (LB)', templet: function(d) { return Math.round(d.weight - d.totalCountLB); }}
             ]],
 
             limits: [200, 500, 1000, 20000],
@@ -171,7 +173,7 @@
                         bundleCountCell.getElementsByClassName('layui-table-cell')[0].innerText = totalBundleCount.toString();
                     }
                     if (weightCell) {
-                        weightCell.getElementsByClassName('layui-table-cell')[0].innerText = totalWeight.toFixed(2).toString();
+                        weightCell.getElementsByClassName('layui-table-cell')[0].innerText = totalWeight.toFixed(0).toString();
                     }
                 }
             }
