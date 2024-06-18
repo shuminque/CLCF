@@ -232,7 +232,6 @@
         ORDER BY id DESC
             LIMIT 1
     </select>
-
     <!-- 根据 unique_identifier 查询在库或转库记录 -->
     <select id="findStockInOrTransferByUniqueIdentifier" parameterType="string" resultMap="shipmentDetailsMap">
         SELECT * FROM shipment_details
