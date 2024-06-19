@@ -233,7 +233,12 @@
                 </select>
             </div>
         </div>
-
+        <div class="layui-form-item">
+            <label class="layui-form-label">重量:</label>
+            <div class="layui-input-block">
+                <input type="text" name="weight" id="weight" class="layui-input">
+            </div>
+        </div>
         <div class="layui-form-item">
             <label class="layui-form-label">时间:</label>
             <div class="layui-input-block">
@@ -422,6 +427,7 @@
                         'model': data.model,
                         'steelType': data.steelType,
                         'dimensions': data.dimensions,
+                        'weight': data.weight,
                         'placementArea': data.placementArea
                     });
                     layui.form.render();
