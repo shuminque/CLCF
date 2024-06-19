@@ -86,8 +86,7 @@
                 {field: 'totalWeighLA', title: '折算材料重量 (LA)', templet: function(d) { return Math.round(d.totalWeighLA); }},
                 {field: 'totalQuantityLB', title: '出荷数 (LB)', templet: function(d) { return Math.round(d.totalQuantityLB); }},
                 {field: 'totalWeighLB', title: '折算材料重量 (LB)', templet: function(d) { return Math.round(d.totalWeighLB); }},
-                {field: 'inLA', title: '入-出 (LA)', templet: function(d) { return Math.round(d.weight - d.totalWeighLA); }},
-                {field: 'OutLB', title: '入-出 (LB)', templet: function(d) { return Math.round(d.weight - d.totalWeighLB); }}
+                {field: 'in-out', title: '入-出', templet: function(d) { return Math.round(d.weight) - Math.round(d.totalWeighLA) -Math.round(d.totalWeighLB); }},
             ]],
 
             limits: [200, 500, 1000, 20000],
