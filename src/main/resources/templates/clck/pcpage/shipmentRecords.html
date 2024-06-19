@@ -247,11 +247,14 @@
         </div>
 
         <div class="layui-form-item">
-            <div class="layui-form-item">
-                <label class="layui-form-label">库位:</label>
-                <div class="layui-input-block">
-                    <input type="text" name="placementArea" required class="layui-input" >
-                </div>
+            <label class="layui-form-label">库位:</label>
+            <div class="layui-input-block">
+                <select class="form-control" name="placementArea" id="area"  >
+                    <option value="" selected>选择库位</option>
+                    <option th:each="placement_area : ${areas}"
+                            th:value="${placement_area.area}"
+                            th:text="${placement_area.area}"></option>
+                </select>
             </div>
         </div>
 
