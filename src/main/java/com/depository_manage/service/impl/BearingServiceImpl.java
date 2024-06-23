@@ -67,4 +67,9 @@ public class BearingServiceImpl implements BearingService {
             Map<String, Object> params) {
         return bearingMapper.getDistinctCustomerAndModel(params);
     }
+
+    @Override
+    public List<Map<String, String>> getModelInfo(Map<String, Object> params) {
+        return bearingMapper.getModelInfo(params);
+    }
 }

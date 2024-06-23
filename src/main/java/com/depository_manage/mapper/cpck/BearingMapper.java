@@ -24,4 +24,5 @@ public interface BearingMapper {
     String getMaxPairNumber();
     List<Map<String, String>> getDistinctCustomerAndModel(Map<String, Object> params);
 
+    List<Map<String, String>> getModelInfo(Map<String, Object> params);
 }

@@ -228,6 +228,7 @@
                         var steelGrade = firstRecord.steelGrade || '';
                         var dimensions = firstRecord.dimensions || '';
                         var furnaceNumber = firstRecord.furnaceNumber || '';
+                        var customer = firstRecord.customer || '';
                         var placementArea = $('#areaSelect').val();
                         var selectedDimensions = $('#dimensions').val();
                         var tableHead = [
@@ -253,33 +254,51 @@
                                 {field: ' ', title: '领用人员'}
                             ]]
                         });
-                        // 计算数组总重量
-                        var totalWeight = res.reduce((sum, record) => sum + (record.weight || 0), 0);
-                        console.log("总重量：", totalWeight);
-                        if (selectedDimensions.includes("锻造材")) {
-                            $('#newTableContainer').hide();
-                        } else {
-                            $('#newTableContainer').show();
-                            // 判断steelMill内容并发起请求
-                            if (steelMill.includes("大同材") || steelMill.includes("山阳材")) {
-                                $.get("/loadTable", {
-                                    steelMill: steelMill,
-                                    dimensions: selectedDimensions
-                                }, function (data) {
-                                    $("#newTableContainer").html(data);
-                                });
-                            } else {
-                                $.get("/loadTable", {
-                                    steelMill: steelMill,
-                                    steelGrade: steelGrade,
-                                    dimensions: selectedDimensions,
-                                    furnaceNumber: furnaceNumber,
-                                    totalWeight: totalWeight
-                                }, function (data) {
-                                    $("#newTableContainer").html(data);
-                                });
+                        var model1='';
+                        $.ajax({
+                            url: '/bearings/getModelInfo',
+                            method: 'GET',
+                            data: {
+                                size: dimensions,
+                                steelType: steelMill,
+                                steelGrade: steelGrade,
+                                customer: customer
+                            },
+                            success: function(bearingInfo) {
+                                model1 = bearingInfo[0].model;
+                                console.log(model1);
+                                var model2 = model1.substring(0, 4);
+                                // 计算数组总重量
+                                var totalWeight = res.reduce((sum, record) => sum + (record.weight || 0), 0);
+                                console.log("总重量：", totalWeight);
+                                if (selectedDimensions.includes("锻造材")) {
+                                    $('#newTableContainer').hide();
+                                } else {
+                                    $('#newTableContainer').show();
+                                    // 判断steelMill内容并发起请求
+                                    if (steelMill.includes("大同材") || steelMill.includes("山阳材")) {
+                                        $.get("/loadTable", {
+                                            steelMill: steelMill,
+                                            dimensions: selectedDimensions
+                                        }, function (data) {
+                                            $("#newTableContainer").html(data);
+                                        });
+                                    } else {
+                                        $.get("/loadTable", {
+                                            steelMill: steelMill,
+                                            steelGrade: steelGrade,
+                                            dimensions: selectedDimensions,
+                                            furnaceNumber: furnaceNumber,
+                                            totalWeight: totalWeight,
+                                            model: model2
+                                        }, function (data) {
+                                            $("#newTableContainer").html(data);
+                                        });
+                                    }
+                                }
                             }
-                        }
+                        });
+
                     }
                 }
             });

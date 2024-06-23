@@ -204,6 +204,26 @@
             </if>
         </where>
     </select>
-
+    <select id="getModelInfo" resultType="map" parameterType="map">
+        SELECT DISTINCT
+        model
+        FROM
+        bearings
+        <where>
+            <if test="steelType != null and steelType != ''">
+                AND steel_type = #{steelType}
+            </if>
+            <if test="steelGrade != null and steelGrade != ''">
+                AND steel_grade = #{steelGrade}
+            </if>
+            <if test="customer != null and customer != ''">
+                AND customer = #{customer}
+            </if>
+            <if test="size != null and size != ''">
+                AND size = #{size}
+            </if>
+        </where>
+        limit 1
+    </select>
 </mapper>
 

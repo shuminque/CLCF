@@ -20,4 +20,5 @@ public interface BearingService {
     String getNextPairNumber();
     List<Map<String, String>> getDistinctCustomerAndModel(Map<String, Object> params);
 
+    List<Map<String, String>> getModelInfo(Map<String, Object> params);
 }

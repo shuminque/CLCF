@@ -273,7 +273,16 @@ public class BearingController {
         }
         return ResponseEntity.ok(result);
     }
+    @GetMapping("/getModelInfo")
+    public ResponseEntity<?> getModelInfo(@RequestParam Map<String, Object> params) {
+        String size = (String) params.get("size");
+        String steelType = (String) params.get("steelType");
+        String steelGrade = (String) params.get("steelGrade");
+        String customer = (String) params.get("customer");
+        List<Map<String, String>> result = bearingService.getModelInfo(params);
+        return ResponseEntity.ok(result);
 
+    }
     public String convertDepositoryIdToText(int depositoryId) {
         switch (depositoryId) {
             case 1: return "SAB";

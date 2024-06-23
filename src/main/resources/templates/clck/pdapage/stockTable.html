@@ -20,7 +20,6 @@
             padding: 0px;
             transform: rotate(-90deg); /* 顺时针旋转90度 */
             overflow-x: scroll; /* 允许水平滚动 */
-
         }
     </style>
     <title>库存表格</title>
@@ -64,10 +63,10 @@
                 },
                 cols: [ [
                     {field: 'uniqueIdentifier', title: '材料ID', totalRowText: '合计',minWidth: 120},
-                    // {field: 'furnaceNumber', title: '炉号'},
-                    {field: 'steelMill', title: '钢厂',minWidth: 120, totalRowText: '总捆数:'},
-                    {field: 'steelGrade', title: '钢材等级',minWidth: 120},
-                    {field: 'dimensions', title: '尺寸',minWidth: 120, totalRowText: '总重量'},
+                    {field: 'furnaceNumber', title: '炉号',minWidth: 150,},
+                    {field: 'steelMill', title: '钢厂',minWidth: 100, totalRowText: '总捆数:'},
+                    {field: 'steelGrade', title: '钢材等级',minWidth: 110},
+                    {field: 'dimensions', title: '尺寸',minWidth: 90, totalRowText: '总重量'},
                     // {field: 'tradeMode', title: '贸易方式'},
                     {field: 'weight', title: '重量',minWidth: 120},
                     // {field: 'customer', title: '客户',minWidth: 120},
