@@ -13,18 +13,21 @@
         .container {
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: left;
             align-items: center;
-            height: 100%;
-            padding: 20px;
+            height: 85%;
+            width: 150%;
+            padding: 0px;
+            transform: rotate(-90deg); /* 顺时针旋转90度 */
+
         }
     </style>
     <title>库存表格</title>
 </head>
 <body>
+<button class="button" onclick="history.back()" aria-label="返回">返回</button>
 <div class="container">
-    <button class="button" onclick="history.back()" aria-label="返回">返回</button>
-    <div id="recordTableContainer" style="width: 100%; margin-top: 20px;">
+    <div id="recordTableContainer" style="width: 100%; margin-top: 6px;">
         <table id="recordTable" lay-filter="recordTableFilter"></table>
     </div>
 </div>
@@ -59,14 +62,14 @@
                     limitName: 'size'
                 },
                 cols: [ [
-                    {field: 'uniqueIdentifier', title: '材料ID', totalRowText: '合计'},
-                    {field: 'furnaceNumber', title: '炉号'},
-                    {field: 'steelMill', title: '钢厂'},
-                    {field: 'steelGrade', title: '钢材等级'},
-                    {field: 'dimensions', title: '尺寸', totalRowText: '总捆数:'},
-                    {field: 'tradeMode', title: '贸易方式'},
-                    {field: 'weight', title: '重量', totalRowText: '总重量'},
-                    {field: 'customer', title: '客户'},
+                    {field: 'uniqueIdentifier', title: '材料ID', totalRowText: '合计',minWidth: 120},
+                    // {field: 'furnaceNumber', title: '炉号'},
+                    {field: 'steelMill', title: '钢厂',minWidth: 120},
+                    {field: 'steelGrade', title: '钢材等级',minWidth: 120},
+                    {field: 'dimensions', title: '尺寸', totalRowText: '总捆数:',minWidth: 120},
+                    // {field: 'tradeMode', title: '贸易方式'},
+                    {field: 'weight', title: '重量', totalRowText: '总重量',minWidth: 120},
+                    // {field: 'customer', title: '客户',minWidth: 120},
                 ]],
                 limits: [200, 500, 1000, 20000],
                 limit: 200,
