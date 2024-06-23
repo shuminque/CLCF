@@ -8,7 +8,6 @@
     <style>
         body, html {
             height: 100%;
-            overflow: hidden; /* 防止垂直滚动条 */
             background: linear-gradient(13deg, #f5f7fa 0%, rgb(4, 84, 145) 100%);
         }
         .container {
@@ -20,6 +19,7 @@
             width: 150%;
             padding: 0px;
             transform: rotate(-90deg); /* 顺时针旋转90度 */
+            overflow-x: scroll; /* 允许水平滚动 */
 
         }
     </style>
