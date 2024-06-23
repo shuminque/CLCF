@@ -8,6 +8,7 @@
     <style>
         body, html {
             height: 100%;
+            overflow: hidden; /* 防止垂直滚动条 */
             background: linear-gradient(13deg, #f5f7fa 0%, rgb(4, 84, 145) 100%);
         }
         .container {
@@ -64,11 +65,11 @@
                 cols: [ [
                     {field: 'uniqueIdentifier', title: '材料ID', totalRowText: '合计',minWidth: 120},
                     // {field: 'furnaceNumber', title: '炉号'},
-                    {field: 'steelMill', title: '钢厂',minWidth: 120},
+                    {field: 'steelMill', title: '钢厂',minWidth: 120, totalRowText: '总捆数:'},
                     {field: 'steelGrade', title: '钢材等级',minWidth: 120},
-                    {field: 'dimensions', title: '尺寸', totalRowText: '总捆数:',minWidth: 120},
+                    {field: 'dimensions', title: '尺寸',minWidth: 120, totalRowText: '总重量'},
                     // {field: 'tradeMode', title: '贸易方式'},
-                    {field: 'weight', title: '重量', totalRowText: '总重量',minWidth: 120},
+                    {field: 'weight', title: '重量',minWidth: 120},
                     // {field: 'customer', title: '客户',minWidth: 120},
                 ]],
                 limits: [200, 500, 1000, 20000],
@@ -84,8 +85,8 @@
                     });
                     var totalRow = document.getElementsByClassName('layui-table-total')[0];
                     if (totalRow) {
-                        var bundleCountCell = totalRow.querySelector('td[data-field="tradeMode"]');
-                        var weightCell = totalRow.querySelector('td[data-field="customer"]');
+                        var bundleCountCell = totalRow.querySelector('td[data-field="steelGrade"]');
+                        var weightCell = totalRow.querySelector('td[data-field="weight"]');
                         if (bundleCountCell) {
                             bundleCountCell.getElementsByClassName('layui-table-cell')[0].innerText = totalBundleCount.toString();
                         }
