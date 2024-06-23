@@ -145,11 +145,15 @@
     updateModalTitle();
     openModal();
     var modalScanInput = document.getElementById('modalScanInput');
+    modalScanInput.readOnly = true; // 设置为只读，防止弹出键盘
     modalScanInput.focus();
     if (!isListenerAdded) {
       modalScanInput.addEventListener('keydown', handleEnterKey);
       isListenerAdded = true;
     }
+    setTimeout(function() {
+      modalScanInput.readOnly = false; // 移除只读属性以便用户输入
+    }, 100);
   }
 
   function updateModalTitle() {
