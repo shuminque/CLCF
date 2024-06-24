@@ -7,7 +7,7 @@
     </resultMap>
 
     <select id="findAll" resultMap="SteelSizeMap">
-        SELECT size
+        SELECT *
         FROM steel_size
         ORDER BY
             CASE
