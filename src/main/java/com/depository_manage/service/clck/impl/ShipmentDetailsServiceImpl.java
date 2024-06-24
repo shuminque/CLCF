@@ -249,4 +249,8 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
         return shipmentDetailsMapper.getWeightByUniqueIdentifier(uniqueIdentifier);
     }
 
+    @Override
+    public List<Map<String, Object>> getclstatus(Date cutoffDate) {
+        return shipmentDetailsMapper.getclstatus(cutoffDate);
+    }
 }

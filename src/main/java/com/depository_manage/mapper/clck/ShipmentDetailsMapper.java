@@ -4,6 +4,7 @@ import com.depository_manage.entity.BearingRecord;
 import com.depository_manage.entity.ShipmentDetails;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -41,4 +42,5 @@ public interface ShipmentDetailsMapper {
 
     double getWeightByUniqueIdentifier(@Param("uniqueIdentifier") String uniqueIdentifier);
 
+    List<Map<String, Object>> getclstatus(@Param("date") Date cutoffDate);
 }

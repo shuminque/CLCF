@@ -262,7 +262,7 @@
         WITH in_out_count AS (
         SELECT
         unique_identifier,
-        SUM(CASE WHEN operation_type in ('入库','返库') THEN 1 ELSE 0 END) AS in_count,
+        SUM(CASE WHEN operation_type in ('入库', '返库') THEN 1 ELSE 0 END) AS in_count,
         SUM(CASE WHEN operation_type = '出库' THEN 1 ELSE 0 END) AS out_count
         FROM
         shipment_details
@@ -295,7 +295,6 @@
         <if test="furnaceNumber != null and furnaceNumber != ''">
             AND furnace_number LIKE CONCAT('%',#{furnaceNumber},'%')
         </if>
-
         <if test="purchaser != null and purchaser != ''">
             AND purchaser = #{purchaser}
         </if>
@@ -318,42 +317,44 @@
         WHERE
         (operation_type = '入库' OR operation_type = '转库' OR operation_type = '返库')
         AND time &lt;= #{cutoffDate}
-        <if test="uniqueIdentifier != null and uniqueIdentifier != ''">
-            AND unique_identifier = #{uniqueIdentifier}
-        </if>
-        <if test="invoiceNumber != null and invoiceNumber != ''">
-            AND invoice_number = #{invoiceNumber}
-        </if>
-        <if test="customer != null and customer != ''">
-            AND customer = #{customer}
-        </if>
-        <if test="tradeMode != null and tradeMode != ''">
-            AND trade_mode = #{tradeMode}
-        </if>
-        <if test="steelGrade != null and steelGrade != ''">
-            AND steel_grade = #{steelGrade}
-        </if>
-        <if test="dimensions != null and dimensions != ''">
-            AND dimensions = #{dimensions}
-        </if>
-        <if test="steelMill != null and steelMill != ''">
-            AND steel_mill = #{steelMill}
-        </if>
-        <if test="supplierBatchNumber != null and supplierBatchNumber != ''">
-            AND supplier_batch_number LIKE CONCAT('%',#{supplierBatchNumber},'%')
-        </if>
-        <if test="furnaceNumber != null and furnaceNumber != ''">
-            AND furnace_number LIKE CONCAT('%',#{furnaceNumber},'%')
-        </if>
-        <if test="placementArea != null and placementArea != ''">
-            AND placement_area = #{placementArea}
-        </if>
-        <if test="purchaser != null and purchaser != ''">
-            AND purchaser = #{purchaser}
-        </if>
         GROUP BY
         unique_identifier
         ) sub ON sd.id = sub.latest_id
+        WHERE
+        1=1
+        <if test="uniqueIdentifier != null and uniqueIdentifier != ''">
+            AND sd.unique_identifier = #{uniqueIdentifier}
+        </if>
+        <if test="invoiceNumber != null and invoiceNumber != ''">
+            AND sd.invoice_number = #{invoiceNumber}
+        </if>
+        <if test="customer != null and customer != ''">
+            AND sd.customer = #{customer}
+        </if>
+        <if test="tradeMode != null and tradeMode != ''">
+            AND sd.trade_mode = #{tradeMode}
+        </if>
+        <if test="steelGrade != null and steelGrade != ''">
+            AND sd.steel_grade = #{steelGrade}
+        </if>
+        <if test="dimensions != null and dimensions != ''">
+            AND sd.dimensions = #{dimensions}
+        </if>
+        <if test="steelMill != null and steelMill != ''">
+            AND sd.steel_mill = #{steelMill}
+        </if>
+        <if test="supplierBatchNumber != null and supplierBatchNumber != ''">
+            AND sd.supplier_batch_number LIKE CONCAT('%',#{supplierBatchNumber},'%')
+        </if>
+        <if test="furnaceNumber != null and furnaceNumber != ''">
+            AND sd.furnace_number LIKE CONCAT('%',#{furnaceNumber},'%')
+        </if>
+        <if test="placementArea != null and placementArea != ''">
+            AND sd.placement_area = #{placementArea}
+        </if>
+        <if test="purchaser != null and purchaser != ''">
+            AND sd.purchaser = #{purchaser}
+        </if>
         )
         SELECT
         latest_in_info.supplier_batch_number,
@@ -381,10 +382,9 @@
         ORDER BY
         latest_in_info.time DESC
         <if test="begin != null and size != null">
-            LIMIT #{begin},#{size}
+            LIMIT #{begin}, #{size}
         </if>
     </select>
-
 
     <select id="viewTransfer" parameterType="map" resultType="map">
         SELECT
@@ -449,5 +449,47 @@
             LIMIT 1
     </select>
 
-
+    <select id="getclstatus" resultType="map">
+        WITH in_out_count AS (
+        SELECT
+        unique_identifier,
+        SUM(CASE WHEN operation_type in ('入库','返库') THEN 1 ELSE 0 END) AS in_count,
+        SUM(CASE WHEN operation_type = '出库' THEN 1 ELSE 0 END) AS out_count
+        FROM
+        shipment_details
+        WHERE
+        time &lt;= DATE_ADD(#{date}, INTERVAL 1 DAY)
+        GROUP BY
+        unique_identifier
+        HAVING
+        in_count > out_count
+        ),
+        latest_in_info AS (
+        SELECT
+        sd.*
+        FROM
+        shipment_details sd
+        JOIN (
+        SELECT
+        unique_identifier,
+        MAX(id) AS latest_id
+        FROM
+        shipment_details
+        WHERE
+        (operation_type = '入库' OR operation_type = '转库' OR operation_type = '返库')
+        AND time &lt;= DATE_ADD(#{date}, INTERVAL 1 DAY)
+        GROUP BY
+        unique_identifier
+        ) sub ON sd.id = sub.latest_id
+        )
+        SELECT  distinct
+        latest_in_info.customer,
+        sum(latest_in_info.weight) as weight,
+        sum(latest_in_info.bundle_count) as bundle_count
+        FROM
+        latest_in_info
+        JOIN
+        in_out_count ON latest_in_info.unique_identifier = in_out_count.unique_identifier
+        group by latest_in_info.customer;
+    </select>
 </mapper>

@@ -1,6 +1,8 @@
 package com.depository_manage.service.clck;
 
 import com.depository_manage.entity.ShipmentDetails;
+
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -23,5 +25,6 @@ public interface ShipmentDetailsService {
     List<ShipmentDetails> getIntoSDs(Map<String, Object> params);
 
     double getWeightByUniqueIdentifier(String uniqueIdentifier);
+    List<Map<String, Object>> getclstatus(Date cutoffDate);
 
 }

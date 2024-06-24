@@ -6,6 +6,7 @@ import com.depository_manage.service.BearingRecordService;
 import com.depository_manage.service.clck.DailyCounterService;
 import com.depository_manage.service.clck.ShipmentDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -254,6 +255,11 @@ public class ShipmentDetailsController {
         }
     }
 
-
+    @GetMapping("/clstatus")
+    public ResponseEntity<List<Map<String, Object>>> getclstatus(
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date cutoffDate) {
+        List<Map<String, Object>> inventoryStatus = shipmentDetailsService.getclstatus(cutoffDate);
+        return ResponseEntity.ok(inventoryStatus);
+    }
 
 }
