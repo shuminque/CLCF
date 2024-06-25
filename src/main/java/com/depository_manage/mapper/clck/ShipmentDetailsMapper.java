@@ -43,4 +43,9 @@ public interface ShipmentDetailsMapper {
     double getWeightByUniqueIdentifier(@Param("uniqueIdentifier") String uniqueIdentifier);
 
     List<Map<String, Object>> getclstatus(@Param("date") Date cutoffDate);
+    List<Map<String, Object>> getClstatusByDimensions(@Param("date") Date cutoffDate);
+
+    List<Map<String, Object>> getMonthlyInOutWeightByYear(int year);
+
+    List<Map<String, Object>> getMonthlyCumulativeInventoryStatusByYear(int year);
 }

@@ -448,7 +448,7 @@
         ORDER BY id DESC
             LIMIT 1
     </select>
-
+    <!-- 饼图厂家 -->
     <select id="getclstatus" resultType="map">
         WITH in_out_count AS (
         SELECT
@@ -458,7 +458,7 @@
         FROM
         shipment_details
         WHERE
-        time &lt;= DATE_ADD(#{date}, INTERVAL 1 DAY)
+        time &lt;= #{date}
         GROUP BY
         unique_identifier
         HAVING
@@ -477,19 +477,127 @@
         shipment_details
         WHERE
         (operation_type = '入库' OR operation_type = '转库' OR operation_type = '返库')
-        AND time &lt;= DATE_ADD(#{date}, INTERVAL 1 DAY)
+        AND time &lt;= #{date}
         GROUP BY
         unique_identifier
         ) sub ON sd.id = sub.latest_id
         )
         SELECT  distinct
-        latest_in_info.customer,
+        latest_in_info.steel_mill,
         sum(latest_in_info.weight) as weight,
         sum(latest_in_info.bundle_count) as bundle_count
         FROM
         latest_in_info
         JOIN
         in_out_count ON latest_in_info.unique_identifier = in_out_count.unique_identifier
-        group by latest_in_info.customer;
+        group by latest_in_info.steel_mill;
     </select>
+    <!-- 饼图尺寸 -->
+    <select id="getClstatusByDimensions" resultType="map">
+        WITH in_out_count AS (
+            SELECT
+                unique_identifier,
+                SUM(CASE WHEN operation_type in ('入库','返库') THEN 1 ELSE 0 END) AS in_count,
+                SUM(CASE WHEN operation_type = '出库' THEN 1 ELSE 0 END) AS out_count
+            FROM
+                shipment_details
+            WHERE
+            time &lt;= #{date}
+        GROUP BY
+            unique_identifier
+        HAVING
+            in_count > out_count
+            ),
+            latest_in_info AS (
+        SELECT
+            sd.*
+        FROM
+            shipment_details sd
+            JOIN (
+            SELECT
+            unique_identifier,
+            MAX(id) AS latest_id
+            FROM
+            shipment_details
+            WHERE
+            (operation_type = '入库' OR operation_type = '转库' OR operation_type = '返库')
+            AND time &lt;= #{date}
+            GROUP BY
+            unique_identifier
+            ) sub ON sd.id = sub.latest_id
+            )
+        SELECT  distinct
+            latest_in_info.dimensions,
+            sum(latest_in_info.weight) as weight,
+            sum(latest_in_info.bundle_count) as bundle_count
+        FROM
+            latest_in_info
+                JOIN
+            in_out_count ON latest_in_info.unique_identifier = in_out_count.unique_identifier
+        group by latest_in_info.dimensions;
+    </select>
+    <!-- 柱形图进出 -->
+    <select id="getMonthlyInOutWeightByYear" resultType="map">
+        WITH monthly_in_out AS (
+            SELECT
+                DATE_FORMAT(time, '%Y-%m') AS month,
+            SUM(CASE WHEN operation_type in ('入库', '返库') THEN weight ELSE 0 END) AS in_weight,
+            SUM(CASE WHEN operation_type = '出库' THEN weight ELSE 0 END) AS out_weight
+        FROM
+            shipment_details
+        WHERE
+            YEAR(time) = #{year} -- 根据传入的年份筛选数据
+        GROUP BY
+            DATE_FORMAT(time, '%Y-%m')
+            )
+        SELECT
+            month,
+            in_weight,
+            out_weight
+        FROM
+            monthly_in_out
+        ORDER BY
+            month;
+    </select>
+    <!-- 折线图在库 -->
+    <select id="getMonthlyCumulativeInventoryStatusByYear" resultType="map">
+        WITH in_out_count AS (
+            SELECT
+                unique_identifier,
+                DATE_FORMAT(time, '%Y-%m') AS month,
+            SUM(CASE WHEN operation_type in ('入库', '返库') THEN weight ELSE 0 END) AS in_weight,
+            SUM(CASE WHEN operation_type = '出库' THEN weight ELSE 0 END) AS out_weight
+        FROM
+            shipment_details
+        WHERE
+            YEAR(time) = #{year}
+        GROUP BY
+            unique_identifier, DATE_FORMAT(time, '%Y-%m')
+            ),
+            monthly_net AS (
+        SELECT
+            month,
+            SUM(in_weight) AS total_in_weight,
+            SUM(out_weight) AS total_out_weight
+        FROM
+            in_out_count
+        GROUP BY
+            month
+            ),
+            cumulative_net AS (
+        SELECT
+            month,
+            SUM(total_in_weight - total_out_weight) OVER (ORDER BY month ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS cumulative_weight
+        FROM
+            monthly_net
+            )
+        SELECT
+            month,
+            cumulative_weight
+        FROM
+            cumulative_net
+        ORDER BY
+            month;
+    </select>
+
 </mapper>

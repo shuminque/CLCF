@@ -253,4 +253,19 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
     public List<Map<String, Object>> getclstatus(Date cutoffDate) {
         return shipmentDetailsMapper.getclstatus(cutoffDate);
     }
+
+    @Override
+    public List<Map<String, Object>> getClstatusByDimensions(Date cutoffDate) {
+        return shipmentDetailsMapper.getClstatusByDimensions(cutoffDate);
+    }
+
+    @Override
+    public List<Map<String, Object>> getMonthlyInOutWeightByYear(int year) {
+        return shipmentDetailsMapper.getMonthlyInOutWeightByYear(year);
+    }
+
+    @Override
+    public List<Map<String, Object>> getMonthlyCumulativeInventoryStatusByYear(int year) {
+        return shipmentDetailsMapper.getMonthlyCumulativeInventoryStatusByYear(year);
+    }
 }

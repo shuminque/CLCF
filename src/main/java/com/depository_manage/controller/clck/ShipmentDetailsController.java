@@ -255,11 +255,27 @@ public class ShipmentDetailsController {
         }
     }
 
-    @GetMapping("/clstatus")
+    @GetMapping("/clstatus_steel_mill")
     public ResponseEntity<List<Map<String, Object>>> getclstatus(
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date cutoffDate) {
         List<Map<String, Object>> inventoryStatus = shipmentDetailsService.getclstatus(cutoffDate);
         return ResponseEntity.ok(inventoryStatus);
     }
-
+    @GetMapping("/clstatus_dimensions")
+    public ResponseEntity<List<Map<String, Object>>> getClstatusByDimensions(
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date cutoffDate) {
+        List<Map<String, Object>> inventoryStatus = shipmentDetailsService.getClstatusByDimensions(cutoffDate);
+        return ResponseEntity.ok(inventoryStatus);
+    }
+    @GetMapping("/monthlyInOutWeightByYear")
+    public ResponseEntity<List<Map<String, Object>>> getMonthlyInOutWeightByYear(@RequestParam int year) {
+        List<Map<String, Object>> monthlyInOutWeight = shipmentDetailsService.getMonthlyInOutWeightByYear(year);
+        return ResponseEntity.ok(monthlyInOutWeight);
+    }
+    // Controller层
+    @GetMapping("/monthlyCumulativeInventoryStatusByYear")
+    public ResponseEntity<List<Map<String, Object>>> getMonthlyCumulativeInventoryStatusByYear(@RequestParam int year) {
+        List<Map<String, Object>> monthlyInventoryStatus = shipmentDetailsService.getMonthlyCumulativeInventoryStatusByYear(year);
+        return ResponseEntity.ok(monthlyInventoryStatus);
+    }
 }

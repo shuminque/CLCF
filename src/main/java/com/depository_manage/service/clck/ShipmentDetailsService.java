@@ -27,4 +27,9 @@ public interface ShipmentDetailsService {
     double getWeightByUniqueIdentifier(String uniqueIdentifier);
     List<Map<String, Object>> getclstatus(Date cutoffDate);
 
+    List<Map<String, Object>> getClstatusByDimensions(Date cutoffDate);
+
+    List<Map<String, Object>> getMonthlyInOutWeightByYear(int year);
+
+    List<Map<String, Object>> getMonthlyCumulativeInventoryStatusByYear(int year);
 }

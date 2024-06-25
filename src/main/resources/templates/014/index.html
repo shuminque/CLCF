@@ -6,249 +6,348 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="../../static/css/index.css">
     <title>数字化分析</title>
-<!--    <script src="../../static/js/jquery-2.2.1.min.js"></script>旧版本-->
     <script src="/static/js/http_ajax.googleapis.com_ajax_libs_jquery_3.5.1_jquery.js"></script>
     <script src="../../static/js/rem.js"></script>
     <script src="../../static/js/echarts.min.js"></script>
     <script src="../../static/js/index.js"></script>
 </head>
 <body>
-    <div class="t_container">
-        <main class="t_main">
-            <header class="t_title">
-                <h2>各客户库存概况</h2>
-                <div>
-                    <input type="date" id="cutoff-date">
-                    <select id="depository-select">
-                        <option value="ALL">所有厂区</option>
-                        <option value="SAB">SAB</option>
-                        <option value="ZAB">ZAB</option>
-                    </select>
-                    <select id="state-select">
-                        <option value="ALL">所有状态</option>
-                        <option value="正常">正常</option>
-                        <option value="死库">死库</option>
-                    </select>
-                </div>
-            </header>
-            <div class="t_box">
-                <div id="chart_2" style="width: 100%; height: 100%;"></div>
+<div class="t_container">
+    <main class="t_main">
+        <header class="t_title">
+            <div>
+                <input type="date" id="cutoff-date">
             </div>
-        </main>
-    </div>
-    <script>
-        // 添加事件监听器，当日期或厂区改变时，更新图表数据
-        document.getElementById('cutoff-date').addEventListener('change', updateChartData);
-        document.getElementById('depository-select').addEventListener('change', updateChartData);
-        document.getElementById('state-select').addEventListener('change', updateChartData);
+        </header>
+        <div class="t_box">
+            <div id="chart_2" style="width: 100%; height: 60%;"></div>
+            <div id="bar_chart" style="width: 100%; height: 40%;"></div>
+        </div>
+    </main>
+</div>
+<script>
+    // 添加事件监听器，当日期改变时，更新图表数据
+    document.getElementById('cutoff-date').addEventListener('change', updateChartData);
 
-        function updateChartData() {
-            const selectedDate = document.getElementById('cutoff-date').value;
-            const selectedDepository = document.getElementById('depository-select').value;
-            const selectedState = document.getElementById('state-select').value;
-            if (selectedDate) {
-                fetchChartDataAndUpdateEchart(selectedDate, selectedDepository, selectedState);
-            }
+    function updateChartData() {
+        const selectedDate = document.getElementById('cutoff-date').value;
+        if (selectedDate) {
+            fetchChartDataAndUpdateEchart(selectedDate);
         }
-        function loadInitialChartData() {
-            const today = new Date().toISOString().split('T')[0]; // 获取今天的日期，格式为YYYY-MM-DD
-            document.getElementById('cutoff-date').value = today; // 设置日期选择器为今天
-            updateChartData(); // 使用今天的日期加载图表数据
-        }
-        // 获取并更新图表数据的函数，根据指定的截止日期
-        function fetchChartDataAndUpdateEchart(cutoffDate, depository, state) {
-            // 构建请求URL，根据是否选择了“所有厂区”来调整参数
-            let url = `/shipment/clstatus?cutoffDate=${cutoffDate}`;
-            // if (depository !== 'ALL') {
-            //     url += `&depository=${depository}`;
-            // }
-            // if (state !== 'ALL') {
-            //     url += `&state=${state}`;
-            // }
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    echart_2(data); // 使用获取的数据更新图表
-                })
-                .catch(error => console.error('Error fetching chart data:', error));
-        }
+    }
 
-        function echart_2(chartData) {
-            // 基于准备好的dom，初始化echarts实例
-            var myChart = echarts.init(document.getElementById('chart_2'));
-            const customers = [...new Set(chartData.map(item => item.customer))]; // 假设chartData是您的数据
-            const colors = customers.map(() => generateRandomColor());
-            // 处理从后端获取的数据
-            const yAxisData = chartData.map(item => item.customer); // 顾客名称
-            const totals = chartData.reduce((acc, item) => {
-                acc.weight += item.weight;
-                return acc;
-            }, { weight: 0});
-            const legendData = yAxisData;
-            const barSeriesData = chartData.map(item => item.weight ); // 假设后端数据有LA_quantity属性
-            const pieSeriesData = chartData.map(item => ({
-                value: 1,
-                name: item.customer, // 使用name作为饼图的名称
-                weight: item.weight, // 在这里添加LB的数量
-            }));
-            myChart.setOption   ({
-                tooltip: {
-                    trigger: 'axis',
-                    axisPointer: { type: 'shadow' }
+    function loadInitialChartData() {
+        const today = new Date().toISOString().split('T')[0]; // 获取今天的日期，格式为YYYY-MM-DD
+        document.getElementById('cutoff-date').value = today; // 设置日期选择器为今天
+        updateChartData(); // 使用今天的日期加载图表数据
+    }
+
+    // 获取并更新图表数据的函数，根据指定的截止日期
+    function fetchChartDataAndUpdateEchart(cutoffDate) {
+        const year = cutoffDate.split('-')[0];
+        let url1 = `/shipment/clstatus_steel_mill?cutoffDate=${cutoffDate}`;
+        let url2 = `/shipment/clstatus_dimensions?cutoffDate=${cutoffDate}`;
+        let url3 = `/shipment/monthlyInOutWeightByYear?year=${year}`;
+        let url4 = `/shipment/monthlyCumulativeInventoryStatusByYear?year=${year}`;
+
+        Promise.all([
+            fetch(url1).then(response => response.json()),
+            fetch(url2).then(response => response.json()),
+            fetch(url3).then(response => response.json()),
+            fetch(url4).then(response => response.json())
+        ])
+            .then(([steelMillData, dimensionsData, monthlyInOutData, cumulativeInventoryData]) => {
+                echart_2(steelMillData, dimensionsData);
+                updateBarChart(monthlyInOutData, cumulativeInventoryData); // 使用获取的数据更新图表
+            })
+            .catch(error => console.error('Error fetching chart data:', error));
+    }
+
+    function echart_2(steelMillData, dimensionsData) {
+        var myChart = echarts.init(document.getElementById('chart_2'));
+
+        const steelMillColors = steelMillData.map(() => generateRandomColor());
+        const dimensionsColors = dimensionsData.map(() => generateRandomColor());
+
+        const pieSeriesDataSteelMill = steelMillData.map(item => ({
+            value: item.weight,
+            name: item.steel_mill,
+        }));
+        const pieSeriesDataDimensions = dimensionsData.map(item => ({
+            value: item.weight,
+            name: item.dimensions,
+        }));
+
+        myChart.setOption({
+            title: [
+                {
+                    text: '材料厂家在库情况',
+                    left: '25%',
+                    top: '5%',
+                    textAlign: 'center',
+                    textStyle: {
+                        color: '#FFFFFF' // 标题文字颜色
+                    }
                 },
-                grid: {
-                    left: '5%',
-                    right: '80%',
-                    top: '10%',
-                    bottom: '10%',
-                    containLabel: true,
-                },
-                series: [
-                    {
-                        type: 'pie',
-                        radius: ['50%', '77%'],
-                        center: ['20%', '50%'],
-                        roseType: 'radius',
-                        color: function(params) {
-                            // 这里使用params.dataIndex来获取当前数据项的索引，然后使用该索引从colors数组中获取颜色
-                            return colors[params.dataIndex % colors.length]; // 使用模运算确保索引不会超出数组长度
-                        },
-                        data: pieSeriesData,
-                        label: {
-                            normal: {
-                                rich: {
-                                    nameStyle: {
-                                        // 名称样式
-                                        color: '#FFFFFF',
-                                        align: 'left',
-                                        fontSize: 13,
-                                        lineHeight: 12
-                                    },
-                                    valueStyle: {
-                                        // 数值样式
-                                        color: '#FFFFFF',
-                                        align: 'left',
-                                        fontSize: 13,
-                                        lineHeight: 12
-                                    }
+                {
+                    text: '棒材各规格在库情况',
+                    left: '75%',
+                    top: '5%',
+                    textAlign: 'center',
+                    textStyle: {
+                        color: '#FFFFFF' // 标题文字颜色
+                    }
+                }
+            ],
+            tooltip: {
+                trigger: 'item',
+                formatter: function(param) {
+                    const formatter = new Intl.NumberFormat('en-US');
+                    const weightFormatted = formatter.format(param.data.value);
+                    return `${param.name}: ${weightFormatted}`;
+                }
+            },
+            grid: {
+                left: '5%',
+                right: '80%',
+                top: '10%',
+                bottom: '10%',
+                containLabel: true,
+            },
+            series: [
+                {
+                    type: 'pie',
+                    radius: ['0%', '50%'],
+                    center: ['25%', '45%'],
+                    roseType: 'radius',
+                    color: function(params) {
+                        return steelMillColors[params.dataIndex % steelMillColors.length];
+                    },
+                    data: pieSeriesDataSteelMill,
+                    label: {
+                        normal: {
+                            rich: {
+                                nameStyle: {
+                                    color: '#FFFFFF',
+                                    align: 'left',
+                                    fontSize: 13,
+                                    lineHeight: 12
                                 },
-                                formatter: function(param) {
-                                    const formatter = new Intl.NumberFormat('en-US');
-                                    const weightFormatted = formatter.format(param.data.weight);
-
-                                    return [
-                                        '{nameStyle|' + param.name + '}',
-                                        '{valueStyle|重量: ' + weightFormatted + '}'
-                                    ].join('\n');
-                                },
-                                padding: [0, 10] // 根据需要调整padding来对齐文本
-                            }
-                        },
-                        labelLine: {
-                            normal: {
-                                length: 30, // 调整指向线的起始部分长度
-                                length2: 15, // 调整指向线从转折点到标签的部分长度
-                                smooth: 0.2, // 可以尝试启用平滑
-                                lineStyle: {
-                                    color: '#FFFFFF' // 设置线条颜色为白色
+                                valueStyle: {
+                                    color: '#FFFFFF',
+                                    align: 'left',
+                                    fontSize: 13,
+                                    lineHeight: 12
                                 }
-                            }
-                        },
-                        itemStyle: {
-                            normal: {
-                                shadowBlur: 30,
-                                shadowColor: 'rgba(0, 0, 0, 0.4)'
-                            }
-                        },
-                        animationType: 'scale',
-                        animationEasing: 'elasticOut',
-                        animationDelay: function(idx) {
-                            return Math.random() * 200;
+                            },
+                            formatter: function(param) {
+                                const formatter = new Intl.NumberFormat('en-US');
+                                const weightFormatted = formatter.format(param.data.value);
+
+                                return [
+                                    '{nameStyle|' + param.name + '}',
+                                    '{valueStyle|重量: ' + weightFormatted + '}'
+                                ].join('\n');
+                            },
+                            padding: [0, 10]
                         }
                     },
-                    {
-                        type: 'pie',
-                        radius: ['50%', '77%'],
-                        center: ['80%', '50%'],
-                        roseType: 'radius',
-                            color: function(params) {
-                                // 这里使用params.dataIndex来获取当前数据项的索引，然后使用该索引从colors数组中获取颜色
-                                return colors[params.dataIndex % colors.length]; // 使用模运算确保索引不会超出数组长度
-                            },
-                        data: pieSeriesData,
-                        label: {
-                            normal: {
-                                rich: {
-                                    nameStyle: {
-                                        // 名称样式
-                                        color: '#FFFFFF',
-                                        align: 'left',
-                                        fontSize: 13,
-                                        lineHeight: 12
-                                    },
-                                    valueStyle: {
-                                        // 数值样式
-                                        color: '#FFFFFF',
-                                        align: 'left',
-                                        fontSize: 13,
-                                        lineHeight: 12
-                                    }
-                                },
-                                formatter: function(param) {
-                                    const formatter = new Intl.NumberFormat('en-US');
-                                    const weightFormatted = formatter.format(param.data.weight);
-
-                                    return [
-                                        '{nameStyle|' + param.name + '}',
-                                        '{valueStyle|重量: ' + weightFormatted + '}'
-                                    ].join('\n');
-                                },
-                                padding: [0, 10] // 根据需要调整padding来对齐文本
+                    labelLine: {
+                        normal: {
+                            length: 30,
+                            length2: 15,
+                            smooth: 0.2,
+                            lineStyle: {
+                                color: '#FFFFFF'
                             }
-                        },
-                        // tooltip: {
-                            //     trigger: 'item',
-                            //     formatter: function(param) {
-                            //         return `${param.name}: <br>外轮:${param.data.LA_quantity}<br>内轮:${param.data.LB_quantity}`;
-                            //     }
-                            // },
-                            labelLine: {
-                                normal: {
-                                    length: 30, // 调整指向线的起始部分长度
-                                    length2: 15, // 调整指向线从转折点到标签的部分长度
-                                    smooth: 0.2, // 可以尝试启用平滑
-                                    lineStyle: {
-                                        color: '#FFFFFF' // 设置线条颜色为白色
-                                    }
+                        }
+                    },
+                    itemStyle: {
+                        normal: {
+                            shadowBlur: 30,
+                            shadowColor: 'rgba(0, 0, 0, 0.4)'
+                        }
+                    },
+                    animationType: 'scale',
+                    animationEasing: 'elasticOut',
+                    animationDelay: function(idx) {
+                        return Math.random() * 200;
+                    }
+                },
+                {
+                    type: 'pie',
+                    radius: ['0%', '50%'],
+                    center: ['75%', '45%'],
+                    roseType: 'radius',
+                    color: function(params) {
+                        return dimensionsColors[params.dataIndex % dimensionsColors.length];
+                    },
+                    data: pieSeriesDataDimensions,
+                    label: {
+                        normal: {
+                            rich: {
+                                nameStyle: {
+                                    color: '#FFFFFF',
+                                    align: 'left',
+                                    fontSize: 13,
+                                    lineHeight: 12
+                                },
+                                valueStyle: {
+                                    color: '#FFFFFF',
+                                    align: 'left',
+                                    fontSize: 13,
+                                    lineHeight: 12
                                 }
                             },
-                            itemStyle: {
-                            normal: {
-                                shadowBlur: 30,
-                                shadowColor: 'rgba(0, 0, 0, 0.4)'
-                            }
-                        },
-                        animationType: 'scale',
-                        animationEasing: 'elasticOut',
-                        animationDelay: function(idx) {
-                            return Math.random() * 200;
+                            formatter: function(param) {
+                                const formatter = new Intl.NumberFormat('en-US');
+                                const weightFormatted = formatter.format(param.data.value);
+
+                                return [
+                                    '{nameStyle|' + param.name + '}',
+                                    '{valueStyle|重量: ' + weightFormatted + '}'
+                                ].join('\n');
+                            },
+                            padding: [0, 10]
                         }
+                    },
+                    labelLine: {
+                        normal: {
+                            length: 30,
+                            length2: 15,
+                            smooth: 0.2,
+                            lineStyle: {
+                                color: '#FFFFFF'
+                            }
+                        }
+                    },
+                    itemStyle: {
+                        normal: {
+                            shadowBlur: 30,
+                            shadowColor: 'rgba(0, 0, 0, 0.4)'
+                        }
+                    },
+                    animationType: 'scale',
+                    animationEasing: 'elasticOut',
+                    animationDelay: function(idx) {
+                        return Math.random() * 200;
                     }
-                ]
-            });
+                }
+            ]
+        });
+    }
 
-        }
+    function updateBarChart(monthlyInOutData, cumulativeInventoryData) {
+        var barChart = echarts.init(document.getElementById('bar_chart'));
 
-        // 页面加载完成后，自动加载数据
-        document.addEventListener('DOMContentLoaded', loadInitialChartData);
-        function generateRandomColor() {
-            const letters = '0123456789ABCDEF';
-            let color = '#';
-            for (let i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
+        const months = monthlyInOutData.map(item => item.month);
+        const inWeights = monthlyInOutData.map(item => item.in_weight);
+        const outWeights = monthlyInOutData.map(item => item.out_weight);
+        const cumulativeWeights = cumulativeInventoryData.map(item => item.cumulative_weight);
+
+        barChart.setOption({
+            title: {
+                text: '各月入库与出库重量及累计在库情况',
+                left: 'center',
+                textStyle: {
+                    color: '#FFFFFF' // 标题文字颜色
+                }
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                },
+                textStyle: {
+                    color: '#FFFFFF' // 提示文字颜色
+                }
+            },
+            legend: {
+                data: ['入库重量', '出库重量', '累计在库重量'],
+                bottom: 0,
+                textStyle: {
+                    color: '#FFFFFF' // 图例文字颜色
+                }
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '10%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: months,
+                axisLabel: {
+                    interval: 0, // 保证所有月份标签都显示
+                    rotate: 45,  // 旋转标签以防重叠
+                    color: '#FFFFFF' // X轴文字颜色
+                }
+            },
+            yAxis: {
+                type: 'value',
+                axisLabel: {
+                    color: '#FFFFFF' // Y轴文字颜色
+                }
+            },
+            series: [
+                {
+                    name: '入库重量',
+                    type: 'bar',
+                    data: inWeights,
+                    itemStyle: {
+                        color: '#00FF00' // 修改为适合蓝色背景的颜色
+                    },
+                    label: {
+                        show: true,
+                        position: 'top',
+                        color: '#FFFFFF' // 顶部文字颜色
+                    }
+                },
+                {
+                    name: '出库重量',
+                    type: 'bar',
+                    data: outWeights,
+                    itemStyle: {
+                        color: '#FFCC00' // 修改为适合蓝色背景的颜色
+                    },
+                    label: {
+                        show: true,
+                        position: 'top',
+                        color: '#FFFFFF' // 顶部文字颜色
+                    }
+                },
+                {
+                    name: '累计在库重量',
+                    type: 'line',
+                    data: cumulativeWeights,
+                    itemStyle: {
+                        color: '#FF0000' // 修改为适合蓝色背景的颜色
+                    },
+                    label: {
+                        show: true,
+                        position: 'top',
+                        color: '#FFFFFF' // 顶部文字颜色
+                    },
+                    lineStyle: {
+                        color: '#FF0000' // 修改为适合蓝色背景的颜色
+                    }
+                }
+            ]
+        });
+    }
+
+    function generateRandomColor() {
+        const letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
         }
-    </script>
+        return color;
+    }
+
+    // 页面加载完成后，自动加载数据
+    document.addEventListener('DOMContentLoaded', loadInitialChartData);
+</script>
 </body>
 </html>
