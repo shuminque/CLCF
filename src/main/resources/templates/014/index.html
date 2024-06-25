@@ -70,11 +70,13 @@
         const dimensionsColors = dimensionsData.map(() => generateRandomColor());
 
         const pieSeriesDataSteelMill = steelMillData.map(item => ({
-            value: item.weight,
+            value: 1,
+            weight: item.weight,
             name: item.steel_mill,
         }));
         const pieSeriesDataDimensions = dimensionsData.map(item => ({
-            value: item.weight,
+            value: 1,
+            weight: item.weight,
             name: item.dimensions,
         }));
 
@@ -103,7 +105,7 @@
                 trigger: 'item',
                 formatter: function(param) {
                     const formatter = new Intl.NumberFormat('en-US');
-                    const weightFormatted = formatter.format(param.data.value);
+                    const weightFormatted = formatter.format(param.data.weight);
                     return `${param.name}: ${weightFormatted}`;
                 }
             },
@@ -117,7 +119,7 @@
             series: [
                 {
                     type: 'pie',
-                    radius: ['0%', '50%'],
+                    radius: ['40%', '70%'],
                     center: ['25%', '45%'],
                     roseType: 'radius',
                     color: function(params) {
@@ -142,8 +144,7 @@
                             },
                             formatter: function(param) {
                                 const formatter = new Intl.NumberFormat('en-US');
-                                const weightFormatted = formatter.format(param.data.value);
-
+                                const weightFormatted = formatter.format(param.data.weight);
                                 return [
                                     '{nameStyle|' + param.name + '}',
                                     '{valueStyle|重量: ' + weightFormatted + '}'
@@ -176,7 +177,7 @@
                 },
                 {
                     type: 'pie',
-                    radius: ['0%', '50%'],
+                    radius: ['40%', '50%'],
                     center: ['75%', '45%'],
                     roseType: 'radius',
                     color: function(params) {
@@ -201,7 +202,7 @@
                             },
                             formatter: function(param) {
                                 const formatter = new Intl.NumberFormat('en-US');
-                                const weightFormatted = formatter.format(param.data.value);
+                                const weightFormatted = formatter.format(param.data.weight);
 
                                 return [
                                     '{nameStyle|' + param.name + '}',
