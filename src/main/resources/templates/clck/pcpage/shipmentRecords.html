@@ -234,6 +234,17 @@
             </div>
         </div>
         <div class="layui-form-item">
+            <label class="layui-form-label">购买方:</label>
+            <div class="layui-input-block">
+                <select name="purchaser"   lay-verify="required">
+                    <option value="" >请选择购买方</option>
+                    <option th:each="purchaser : ${purchasers}"
+                            th:value="${purchaser.purchaser}"
+                            th:text="${purchaser.purchaser}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
             <label class="layui-form-label">重量:</label>
             <div class="layui-input-block">
                 <input type="text" name="weight" id="weight" class="layui-input">
@@ -257,7 +268,15 @@
                 </select>
             </div>
         </div>
-
+        <div class="layui-form-item">
+            <label class="layui-form-label">到货点:</label>
+            <div class="layui-input-block">
+                <select name="deliveryPoint"  lay-verify="required">
+                    <option value="ZAB" >ZAB</option>
+                    <option value="SAB" >SAB</option>
+                </select>
+            </div>
+        </div>
         <div class="layui-form-item" style="text-align: center;">
             <button class="layui-btn layui-btn-normal" lay-submit lay-filter="editGradeSubmitBtnFilter">更新</button>
         </div>
@@ -377,6 +396,9 @@
             if (formData.placementArea !== '') {
                 req.placementArea = formData.placementArea;
             }
+            if (formData.deliveryPoint !== '') {
+                req.deliveryPoint = formData.deliveryPoint;
+            }
             if (formData.time !== '') {
                 var dates = formData.time.split(' - ');
                 req.startDate = dates[0];
@@ -431,7 +453,9 @@
                         'steelType': data.steelType,
                         'dimensions': data.dimensions,
                         'weight': data.weight,
-                        'placementArea': data.placementArea
+                        'placementArea': data.placementArea,
+                        'purchaser': data.purchaser,
+                        'deliveryPoint': data.deliveryPoint
                     });
                     layui.form.render();
                 }

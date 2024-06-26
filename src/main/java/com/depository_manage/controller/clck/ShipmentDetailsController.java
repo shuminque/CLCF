@@ -272,7 +272,6 @@ public class ShipmentDetailsController {
         List<Map<String, Object>> monthlyInOutWeight = shipmentDetailsService.getMonthlyInOutWeightByYear(year);
         return ResponseEntity.ok(monthlyInOutWeight);
     }
-    // Controller层
     @GetMapping("/monthlyCumulativeInventoryStatusByYear")
     public ResponseEntity<List<Map<String, Object>>> getMonthlyCumulativeInventoryStatusByYear(@RequestParam int year) {
         List<Map<String, Object>> monthlyInventoryStatus = shipmentDetailsService.getMonthlyCumulativeInventoryStatusByYear(year);
