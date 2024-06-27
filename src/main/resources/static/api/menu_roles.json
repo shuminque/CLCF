@@ -33,7 +33,7 @@
                     "icon": "fa fa-home",
                     "target": "_self",
                     "roles": [
-                        "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "onlyRead"
+                        "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
                     ]
                 }
             ]

@@ -14,13 +14,13 @@
 <body>
 <div class="t_container">
     <main class="t_main">
-        <header class="t_title">
-            <div>
-                <input type="date" id="cutoff-date">
-            </div>
-        </header>
+
         <div class="t_box">
+            <header class="t_title">
+                <input type="date" id="cutoff-date" style="border-radius: 15px;background-color: transparent;color: white;">
+            </header>
             <div id="chart_2" style="width: 100%; height: 60%;"></div>
+
             <div id="bar_chart" style="width: 100%; height: 40%;"></div>
         </div>
     </main>
@@ -85,7 +85,7 @@
                 {
                     text: '材料厂家在库情况',
                     left: '25%',
-                    top: '5%',
+                    top: '1%',
                     textAlign: 'center',
                     textStyle: {
                         color: '#FFFFFF' // 标题文字颜色
@@ -94,7 +94,7 @@
                 {
                     text: '棒材各规格在库情况',
                     left: '75%',
-                    top: '5%',
+                    top: '1%',
                     textAlign: 'center',
                     textStyle: {
                         color: '#FFFFFF' // 标题文字颜色
@@ -105,7 +105,7 @@
                 trigger: 'item',
                 formatter: function(param) {
                     const formatter = new Intl.NumberFormat('en-US');
-                    const weightFormatted = formatter.format(param.data.weight);
+                    const weightFormatted = formatter.format(Math.round(param.data.weight));
                     return `${param.name}: ${weightFormatted}`;
                 }
             },
@@ -119,7 +119,7 @@
             series: [
                 {
                     type: 'pie',
-                    radius: ['40%', '70%'],
+                    radius: ['40%', '55%'],
                     center: ['25%', '45%'],
                     roseType: 'radius',
                     color: function(params) {
@@ -144,7 +144,7 @@
                             },
                             formatter: function(param) {
                                 const formatter = new Intl.NumberFormat('en-US');
-                                const weightFormatted = formatter.format(param.data.weight);
+                                const weightFormatted = formatter.format(Math.round(param.data.weight));
                                 return [
                                     '{nameStyle|' + param.name + '}',
                                     '{valueStyle|重量: ' + weightFormatted + '}'
@@ -177,7 +177,7 @@
                 },
                 {
                     type: 'pie',
-                    radius: ['40%', '50%'],
+                    radius: ['40%', '55%'],
                     center: ['75%', '45%'],
                     roseType: 'radius',
                     color: function(params) {
@@ -202,8 +202,7 @@
                             },
                             formatter: function(param) {
                                 const formatter = new Intl.NumberFormat('en-US');
-                                const weightFormatted = formatter.format(param.data.weight);
-
+                                const weightFormatted = formatter.format(Math.round(param.data.weight));
                                 return [
                                     '{nameStyle|' + param.name + '}',
                                     '{valueStyle|重量: ' + weightFormatted + '}'
@@ -242,9 +241,10 @@
         var barChart = echarts.init(document.getElementById('bar_chart'));
 
         const months = monthlyInOutData.map(item => item.month);
-        const inWeights = monthlyInOutData.map(item => item.in_weight);
-        const outWeights = monthlyInOutData.map(item => item.out_weight);
-        const cumulativeWeights = cumulativeInventoryData.map(item => item.cumulative_weight);
+        const inWeights = monthlyInOutData.map(item => Math.round(item.in_weight));
+        const outWeights = monthlyInOutData.map(item => Math.round(item.out_weight));
+        const cumulativeWeights = cumulativeInventoryData.map(item => Math.round(item.cumulative_weight));
+
 
         barChart.setOption({
             title: {

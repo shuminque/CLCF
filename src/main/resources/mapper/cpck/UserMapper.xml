@@ -60,7 +60,7 @@
             AND u.entry_date = #{entryDate}
         </if>
         <if test="email != null and email != ''">
-            AND u.email LIKE CONCAT('%', #{email}, '%')
+            AND u.email LIKE CONCAT(#{email}, '%')
         </if>
         <if test="phone != null and phone != ''">
             AND u.phone LIKE CONCAT('%', #{phone}, '%')
@@ -86,7 +86,7 @@
     <select id="findUserByEmail" resultMap="userMap" parameterType="string">
         SELECT
         <include refid="allColumns" />
-        FROM user u WHERE  u.email LIKE CONCAT('%', #{email}, '%')
+        FROM user u WHERE  u.email LIKE CONCAT(#{email}, '%')
     </select>
 
     <!-- 根据条件参数查询数据列表 -->
@@ -116,7 +116,7 @@
             AND u.entry_date = #{entryDate}
         </if>
         <if test="email != null and email != ''">
-            AND u.email LIKE CONCAT('%', #{email}, '%')
+            AND u.email LIKE CONCAT(#{email}, '%')
         </if>
         <if test="phone != null and phone != ''">
             AND u.phone LIKE CONCAT('%', #{phone}, '%')
@@ -125,7 +125,7 @@
             LIMIT #{begin},#{size}
         </if>
     </select>
-    
+
     <!-- 根据条件参数查询数据列表 -->
     <select id="findUserByCondition" resultMap="userMap" parameterType="map">
         SELECT
@@ -153,7 +153,7 @@
             AND u.entry_date = #{entryDate}
         </if>
         <if test="email != null and email != ''">
-            AND u.email LIKE CONCAT('%', #{email}, '%')
+            AND u.email LIKE CONCAT(#{email}, '%')
         </if>
         <if test="phone != null and phone != ''">
             AND u.phone LIKE CONCAT('%', #{phone}, '%')
@@ -166,7 +166,7 @@
         <include refid="allColumns" />
         FROM user u WHERE u.id = #{id}
     </select>
-    
+
     <!-- 根据主键查询数据 -->
     <select id="findUserByIds" resultMap="userMap" parameterType="list">
         SELECT
@@ -176,7 +176,7 @@
             #{id}
         </foreach>
     </select>
-    
+
     <!-- 插入数据 -->
     <insert id="insertUser" parameterType="map">
         INSERT INTO user (
@@ -195,7 +195,7 @@
             #{phone}
         )
     </insert>
-    
+
     <!-- 批量插入数据 -->
     <insert id="insertUsers" parameterType="list">
         INSERT INTO user (
@@ -270,7 +270,7 @@
         </set>
         WHERE id = #{id}
     </update>
-    
+
     <!-- 批量修改数据 -->
     <update id="updateUsers" parameterType="list">
         <foreach collection="list" index="index" item="item" separator=";">
@@ -304,12 +304,12 @@
             WHERE id = #{item.id}
         </foreach>
     </update>
-    
+
     <!-- 根据主键删除数据 -->
     <delete id="deleteUserById" parameterType="integer">
         DELETE FROM user WHERE id = #{id}
     </delete>
-    
+
     <!-- 根据主键批量删除数据 -->
     <delete id="deleteUserByIds" parameterType="list">
         DELETE FROM user WHERE id IN
