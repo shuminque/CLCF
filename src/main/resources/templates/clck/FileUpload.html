@@ -64,20 +64,13 @@
             <div class="layui-input-inline">
                 <input type="text" id="invoiceNumber" name="invoiceNumber"  placeholder="请输入发票编号" class="layui-input" autocomplete="off">
             </div>
-            <label class="layui-form-label">到货点:</label>
-            <div class="layui-input-inline" style="width: 80px">
-                <select name="deliveryPoint" id="deliveryPoint" required lay-verify="required">
-                    <option value="ZAB" selected>ZAB</option>
-                    <option value="SAB" >SAB</option>
-                </select>
-            </div>
-            <label class="layui-form-label">客户:</label>
-            <div class="layui-input-inline">
-                <select name="customer" id="customer" required lay-verify="required">
-                    <option value="" selected>搜索客户</option>
-                    <option th:each="customer : ${customers}"
-                            th:value="${customer.name}"
-                            th:text="${customer.name}"></option>
+            <label class="layui-form-label">钢厂:</label>
+            <div class="layui-input-inline"  style="width: 140px">
+                <select name="steelType" id="steelType">
+                    <option value="" selected>搜索钢种</option>
+                    <option th:each="steel_type : ${steelTypes}"
+                            th:value="${steel_type.name}"
+                            th:text="${steel_type.name}"></option>
                 </select>
             </div>
             <label class="layui-form-label">钢材等级:</label>
@@ -89,13 +82,22 @@
                             th:text="${steel_grade.grade}"></option>
                 </select>
             </div>
-            <label class="layui-form-label">钢厂:</label>
+            <label class="layui-form-label">尺寸:</label>
             <div class="layui-input-inline"  style="width: 140px">
-                <select name="steelType" id="steelType">
-                    <option value="" selected>搜索钢种</option>
-                    <option th:each="steel_type : ${steelTypes}"
-                            th:value="${steel_type.name}"
-                            th:text="${steel_type.name}"></option>
+                <select name="steelSize" id="steelSize" lay-search>
+                    <option value="" selected>搜索尺寸</option>
+                    <option th:each="steel_size : ${steelSizes}"
+                            th:value="${steel_size.size}"
+                            th:text="${steel_size.size}"></option>
+                </select>
+            </div>
+            <label class="layui-form-label">客户:</label>
+            <div class="layui-input-inline">
+                <select name="customer" id="customer" required lay-verify="required">
+                    <option value="" selected>搜索客户</option>
+                    <option th:each="customer : ${customers}"
+                            th:value="${customer.name}"
+                            th:text="${customer.name}"></option>
                 </select>
             </div>
         </div>
@@ -120,13 +122,11 @@
                             th:selected="${purchaser.purchaser == '浙江旭日'}"></option>
                 </select>
             </div>
-            <label class="layui-form-label">尺寸:</label>
-            <div class="layui-input-inline"  style="width: 140px">
-                <select name="steelSize" id="steelSize" lay-search>
-                    <option value="" selected>搜索尺寸</option>
-                    <option th:each="steel_size : ${steelSizes}"
-                            th:value="${steel_size.size}"
-                            th:text="${steel_size.size}"></option>
+            <label class="layui-form-label">到货点:</label>
+            <div class="layui-input-inline" style="width: 80px">
+                <select name="deliveryPoint" id="deliveryPoint" required lay-verify="required">
+                    <option value="ZAB" selected>ZAB</option>
+                    <option value="SAB" >SAB</option>
                 </select>
             </div>
             <label class="layui-form-label">到港日期:</label>
