@@ -267,7 +267,8 @@
                             success: function(bearingInfo) {
                                 model1 = bearingInfo[0].model;
                                 console.log(model1);
-                                var model2 = model1.substring(0, 4);
+                                // var model2 = model1.substring(0, 4);
+                                var model2 = model1;
                                 // 计算数组总重量
                                 var totalWeight = res.reduce((sum, record) => sum + (record.weight || 0), 0);
                                 console.log("总重量：", totalWeight);

@@ -534,7 +534,8 @@
             latest_in_info
                 JOIN
             in_out_count ON latest_in_info.unique_identifier = in_out_count.unique_identifier
-        group by latest_in_info.dimensions;
+        group by latest_in_info.dimensions
+        order by latest_in_info.dimensions;
     </select>
     <!-- 柱形图进出 -->
     <select id="getMonthlyInOutWeightByYear" resultType="map">
