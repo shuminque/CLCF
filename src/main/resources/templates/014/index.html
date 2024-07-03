@@ -19,9 +19,9 @@
             <header class="t_title">
                 <input type="date" id="cutoff-date" style="border-radius: 15px;background-color: transparent;color: white;">
             </header>
-            <div id="chart_2" style="width: 100%; height: 60%;"></div>
+            <div id="chart_2" style="width: 100%; height: 100%;"></div>
 
-            <div id="bar_chart" style="width: 100%; height: 40%;"></div>
+<!--            <div id="bar_chart" style="width: 100%; height: 40%;"></div>-->
         </div>
     </main>
 </div>
@@ -83,8 +83,8 @@
         myChart.setOption({
             title: [
                 {
-                    text: '材料厂家在库情况',
-                    left: '25%',
+                    text: '钢厂在库情况',
+                    left: '30%',
                     top: '1%',
                     textAlign: 'center',
                     textStyle: {
@@ -92,7 +92,7 @@
                     }
                 },
                 {
-                    text: '棒材各规格在库情况',
+                    text: '棒材在库情况',
                     left: '75%',
                     top: '1%',
                     textAlign: 'center',
@@ -109,6 +109,26 @@
                     return `${param.name}: ${weightFormatted}`;
                 }
             },
+            legend: [
+                {
+                    orient: 'vertical',
+                    left: '0%',
+                    top: 'middle',
+                    textStyle: {
+                        color: '#FFFFFF'
+                    },
+                    data: pieSeriesDataSteelMill.map(item => item.name)
+                },
+                {
+                    orient: 'vertical',
+                    right: '0%',
+                    top: 'middle',
+                    textStyle: {
+                        color: '#FFFFFF'
+                    },
+                    data: pieSeriesDataDimensions.map(item => item.name)
+                }
+            ],
             grid: {
                 left: '5%',
                 right: '80%',
@@ -120,7 +140,8 @@
                 {
                     type: 'pie',
                     radius: ['40%', '55%'],
-                    center: ['25%', '45%'],
+                    // center: ['25%', '45%'],
+                    center: ['30%', '50%'],
                     roseType: 'radius',
                     color: function(params) {
                         return steelMillColors[params.dataIndex % steelMillColors.length];
@@ -132,8 +153,8 @@
                                 nameStyle: {
                                     color: '#FFFFFF',
                                     align: 'left',
-                                    fontSize: 13,
-                                    lineHeight: 12
+                                    fontSize: 14,
+                                    lineHeight: 15
                                 },
                                 valueStyle: {
                                     color: '#FFFFFF',
@@ -147,7 +168,7 @@
                                 const weightFormatted = formatter.format(Math.round(param.data.weight));
                                 return [
                                     '{nameStyle|' + param.name + '}',
-                                    '{valueStyle|重量: ' + weightFormatted + '}'
+                                    '{valueStyle|重量: ' + weightFormatted + 'kg'+'}'
                                 ].join('\n');
                             },
                             padding: [0, 10]
@@ -178,7 +199,8 @@
                 {
                     type: 'pie',
                     radius: ['40%', '55%'],
-                    center: ['75%', '45%'],
+                    // center: ['75%', '45%'],
+                    center: ['75%', '50%'],
                     roseType: 'radius',
                     color: function(params) {
                         return dimensionsColors[params.dataIndex % dimensionsColors.length];
@@ -190,8 +212,8 @@
                                 nameStyle: {
                                     color: '#FFFFFF',
                                     align: 'left',
-                                    fontSize: 13,
-                                    lineHeight: 12
+                                    fontSize: 14,
+                                    lineHeight: 15
                                 },
                                 valueStyle: {
                                     color: '#FFFFFF',
@@ -205,7 +227,7 @@
                                 const weightFormatted = formatter.format(Math.round(param.data.weight));
                                 return [
                                     '{nameStyle|' + param.name + '}',
-                                    '{valueStyle|重量: ' + weightFormatted + '}'
+                                    '{valueStyle|重量: ' + weightFormatted + 'kg'+'}'
                                 ].join('\n');
                             },
                             padding: [0, 10]
