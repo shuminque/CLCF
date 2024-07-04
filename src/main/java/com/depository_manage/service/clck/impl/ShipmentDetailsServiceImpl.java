@@ -1,13 +1,11 @@
 package com.depository_manage.service.clck.impl;
 
-import com.depository_manage.entity.BearingRecord;
 import com.depository_manage.entity.ShipmentDetails;
 import com.depository_manage.mapper.clck.ShipmentDetailsMapper;
 import com.depository_manage.service.clck.ShipmentDetailsService;
 import com.depository_manage.utils.ObjectFormatUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -267,5 +265,14 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
     @Override
     public List<Map<String, Object>> getMonthlyCumulativeInventoryStatusByYear(int year) {
         return shipmentDetailsMapper.getMonthlyCumulativeInventoryStatusByYear(year);
+    }
+
+    @Override
+    public List<Map<String, Object>> queryShipmentDetails(Map<String, Object> params) {
+        return shipmentDetailsMapper.queryShipmentDetails(params);
+    }
+    @Override
+    public void updateInvoiceApplication(String arrival_date, String steel_mill, String steel_grade, String dimensions, String invoice_application) {
+        shipmentDetailsMapper.updateInvoiceApplication(arrival_date, steel_mill, steel_grade, dimensions, invoice_application);
     }
 }

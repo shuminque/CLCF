@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>转移记录查询</title>
+  <link rel="stylesheet" href="/static/lib/layui-v2.8.17/css/layui.css" media="all">
+  <script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script></head>
+<body>
+
+<div class="container">
+      <form class="layui-form" id="searchForm">
+        <div class="layui-form-item">
+          <div class="layui-input-inline">
+            <input type="text" name="date" id="date" placeholder="请选择起止日期" autocomplete="off" class="layui-input">
+          </div>
+          <div class="layui-input-inline">
+            <select name="invoiceApplication">
+              <option value="" selected></option>
+<!--              <option value="空白(未结算)">空白(未结算)</option>-->
+              <option value="已核对开票、未结算">已核对开票、未结算</option>
+              <option value="已结算">已结算 </option>
+            </select>
+          </div>
+          <div class="layui-inline">
+            <button type="submit" class="layui-btn layui-btn-primary" lay-submit lay-filter="data-search-btn">
+              <i class="layui-icon"></i> 搜 索
+            </button>
+          </div>
+        </div>
+      </form>
+
+  <table id="recordsTable" lay-filter="recordsTableFilter" class="layui-table" ></table>
+</div>
+<script type="text/html" id="operationBar">
+  <a class="layui-btn layui-btn-xs" lay-event="edit">修改</a>
+</script>
+
+<script src="/static/js/http_code.jquery.com_jquery-3.6.0.min.js"></script>
+<script>
+  layui.use(['table', 'form', 'laydate'], function(){
+    var table = layui.table;
+    var form = layui.form;
+    var laydate = layui.laydate;
+// 获取当前日期并格式化为 YYYY-MM-DD
+    var currentDate = new Date();
+    var year = currentDate.getFullYear();
+    var month = ("0" + (currentDate.getMonth() + 1)).slice(-2); // 月份从0开始计算，需要加1
+    var day = ("0" + currentDate.getDate()).slice(-2);
+    var formattedDate = year + '-' + month + '-' + day;
+    // 初始化日期选择器
+    laydate.render({
+      elem: '#date'
+      ,range:true,
+      rangeLinked: true,
+      shortcuts: [
+        {
+          text: "上个月",
+          value: function(){
+            var value = [];
+            var date1 = new Date();
+            date1.setMonth(date1.getMonth() - 1);
+            date1.setDate(1);
+            date1.setHours(0, 0, 0, 0);
+            value.push(date1);
+            var date2 = new Date();
+            date2.setDate(1);
+            date2.setHours(0, 0, 0, 0);
+            date2 = date2.getTime() - 1;
+            value.push(new Date(date2));
+            return value;
+          }
+        },
+        {
+          text: "这个月",
+          value: function(){
+            var value = [];
+            var date1 = new Date();
+            date1.setDate(1);//1号
+            date1.setHours(0, 0, 0, 0);
+            value.push(date1);
+            var date2 = new Date();
+            date2.setMonth(date2.getMonth() + 1);
+            date2.setDate(0); // 设置为当前月的最后一天
+            date2.setHours(23, 59, 59, 999); // 设置为当天的最后一刻
+            value.push(date2);
+
+            return value;
+          }
+
+        },
+        {
+          text: "下个月",
+          value: function(){
+            var value = [];
+            var date1 = new Date();
+            date1.setMonth(date1.getMonth() + 1);
+            date1.setDate(1);
+            date1.setHours(0, 0, 0, 0);
+            value.push(date1);
+            var date2 = new Date();
+            date2.setMonth(date2.getMonth() + 2);
+            date2.setDate(1);
+            date2.setHours(0, 0, 0, 0);
+            date2 = date2.getTime() - 1;
+            value.push(new Date(date2));
+            return value;
+          }
+        }
+      ]
+    });
+
+    // 初始化表格
+    var recordTable = table.render({
+      elem: '#recordsTable',
+      url: '/shipment/query', // 数据接口
+      height: 600, // 设置表格高度
+      // page: true, // 开启分页
+      toolbar: ['filter', 'exports', 'print'],
+      cols: [ [ // 表头
+        {field: 'arrival_date', title: '到达日期'},
+        {field: 'steel_mill', title: '钢厂'},
+        {field: 'steel_grade', title: '钢等'},
+        {field: 'dimensions', title: '尺寸'},
+        {field: 'weight', title: '重量'},
+        {field: 'invoice_application', title: '结算状态'},
+        {title: '操作', toolbar: '#operationBar', fixed: 'right', align: 'center'}
+
+      ]],
+      done: function(res, curr, count) {
+        // 表格渲染完成后的回调
+      }
+    });
+    // 操作栏模板
+    table.on('tool(recordsTableFilter)', function(obj){
+      var data = obj.data; // 得到当前行数据
+      var layEvent = obj.event; // 得到对应的按钮事件
+
+      if(layEvent === 'edit'){ // 修改按钮事件
+        var selectHtml = '<div class="layui-input-inline">' +
+                '<select id="newInvoiceApplication">' +
+                '<option value="" ' + (data.invoice_application === '' ? 'selected' : '') + '></option>' +
+                '<option value="已核对开票、未结算" ' + (data.invoice_application === '已核对开票、未结算' ? 'selected' : '') + '>已核对开票、未结算</option>' +
+                '<option value="已结算" ' + (data.invoice_application === '已结算' ? 'selected' : '') + '>已结算</option>' +
+                '</select>' +
+                '</div>';
+        layer.open({
+          title: '修改' +data.arrival_date+'日'+ data.steel_mill +'/'+data.steel_grade+'/'+ data.dimensions +'的结算状态',
+          content: selectHtml,
+          btn: ['确认', '取消'],
+          yes: function(index, layero){
+            var newValue = layero.find('#newInvoiceApplication').val();
+
+            // 调用后台更新接口
+            $.ajax({
+              type: 'POST',
+              url: '/shipment/updateInvoice',
+              data: {
+                arrival_date: data.arrival_date,
+                steel_mill: data.steel_mill,
+                steel_grade: data.steel_grade,
+                dimensions: data.dimensions,
+                invoice_application: newValue
+              },
+              success: function(res) {
+                if (res.success) {
+                  layer.msg('更新成功');
+                  // 更新表格数据
+                  obj.update({
+                    invoice_application: newValue
+                  });
+                } else {
+                  layer.msg('更新失败');
+                }
+              },
+              error: function() {
+                layer.msg('请求失败');
+              }
+            });
+            layer.close(index);
+          }
+        });
+        form.render(); // 刷新选择框渲染
+      }
+    });
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      let date = new Date(dateStr);
+      let year = date.getFullYear();
+      let month = (date.getMonth() + 1).toString().padStart(2, '0');
+      let day = date.getDate().toString().padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+// 统一搜索表单提交事件
+    form.on('submit(data-search-btn)', function(data) {
+      var req = {};
+      var formData = data.field;
+      if (formData.invoiceApplication !== '') {
+        req.invoiceApplication = formData.invoiceApplication;
+      }
+      if (formData.date !== '') {
+        var dates = formData.date.split(' - ');
+        req.startDate = dates[0];
+        req.endDate = dates[1];
+      }
+      // 执行搜索重载
+      recordTable.reload({
+        url: '/shipment/query',
+        where: req,
+        page: {curr: 1}
+      });
+      return false;
+    });
+  });
+</script>
+
+</body>
+</html>

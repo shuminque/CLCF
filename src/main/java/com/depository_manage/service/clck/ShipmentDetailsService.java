@@ -1,6 +1,7 @@
 package com.depository_manage.service.clck;
 
 import com.depository_manage.entity.ShipmentDetails;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.Date;
 import java.util.List;
@@ -32,4 +33,8 @@ public interface ShipmentDetailsService {
     List<Map<String, Object>> getMonthlyInOutWeightByYear(int year);
 
     List<Map<String, Object>> getMonthlyCumulativeInventoryStatusByYear(int year);
+
+    List<Map<String, Object>> queryShipmentDetails(Map<String, Object> params);
+
+    void updateInvoiceApplication(String arrival_date, String steel_mill, String steel_grade, String dimensions, String invoice_application);
 }

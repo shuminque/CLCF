@@ -601,4 +601,30 @@
             month;
     </select>
 
+    <select id="queryShipmentDetails" resultType="map">
+        SELECT DISTINCT
+        arrival_date,
+        steel_mill,
+        steel_grade,
+        dimensions,
+        SUM(weight) AS weight,
+        invoice_application
+        FROM shipment_details
+        WHERE operation_type = '入库'
+        <if test="startDate != null">
+            AND arrival_date BETWEEN #{startDate} AND #{endDate}
+        </if>
+        <if test="invoiceApplication != null">
+            AND invoice_application = #{invoiceApplication}
+        </if>
+        GROUP BY arrival_date, steel_mill, steel_grade, dimensions, invoice_application
+    </select>
+    <update id="updateInvoiceApplication" parameterType="map">
+        UPDATE shipment_details
+        SET invoice_application = #{invoice_application}
+        WHERE arrival_date = #{arrival_date}
+          AND steel_mill = #{steel_mill}
+          AND steel_grade = #{steel_grade}
+          AND dimensions = #{dimensions}
+    </update>
 </mapper>

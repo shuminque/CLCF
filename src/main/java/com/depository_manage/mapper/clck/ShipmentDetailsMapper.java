@@ -48,4 +48,13 @@ public interface ShipmentDetailsMapper {
     List<Map<String, Object>> getMonthlyInOutWeightByYear(int year);
 
     List<Map<String, Object>> getMonthlyCumulativeInventoryStatusByYear(int year);
+
+    List<Map<String, Object>> queryShipmentDetails(Map<String, Object> params);
+    void updateInvoiceApplication(
+            @Param("arrival_date") String arrival_date,
+            @Param("steel_mill") String steel_mill,
+            @Param("steel_grade") String steel_grade,
+            @Param("dimensions") String dimensions,
+            @Param("invoice_application") String invoice_application
+    );
 }

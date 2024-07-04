@@ -106,6 +106,11 @@ public class PageController {
     public String transitManagement() {
         return "clck/pcpage/transit-management";
     }
+
+    @GetMapping("/invoicing-management")
+    public String invoicingManagement() {
+        return "clck/pcpage/invoicing-management";
+    }
     @GetMapping("/stockTake")
     public ModelAndView stockTake() {
         ModelAndView mv = new ModelAndView();

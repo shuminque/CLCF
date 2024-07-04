@@ -277,4 +277,44 @@ public class ShipmentDetailsController {
         List<Map<String, Object>> monthlyInventoryStatus = shipmentDetailsService.getMonthlyCumulativeInventoryStatusByYear(year);
         return ResponseEntity.ok(monthlyInventoryStatus);
     }
+    @GetMapping("/query")
+    public ResponseEntity<?> queryShipmentDetails(
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") String startDate,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") String endDate,
+            @RequestParam(required = false) String invoiceApplication) {
+
+        Map<String, Object> params = new HashMap<>();
+        if (startDate != null && endDate != null) {
+            params.put("startDate", startDate + " 00:00:00");
+            params.put("endDate", endDate + " 23:59:59");
+        }
+        if (invoiceApplication != null && !invoiceApplication.isEmpty()) {
+            params.put("invoiceApplication", invoiceApplication);
+        }
+
+        List<Map<String, Object>> result = shipmentDetailsService.queryShipmentDetails(params);
+        Map<String, Object> response = new HashMap<>();
+        response.put("code", 0);
+        response.put("msg", "");
+        response.put("count", result.size());
+        response.put("data", result);
+        return ResponseEntity.ok(response);
+    }
+    @PostMapping("/updateInvoice")
+    public Map<String, Object> updateInvoiceApplication(
+            @RequestParam String arrival_date,
+            @RequestParam String steel_mill,
+            @RequestParam String steel_grade,
+            @RequestParam String dimensions,
+            @RequestParam String invoice_application) {
+
+        Map<String, Object> response = new HashMap<>();
+        try {
+            shipmentDetailsService.updateInvoiceApplication(arrival_date, steel_mill, steel_grade, dimensions, invoice_application);
+            response.put("success", true);
+        } catch (Exception e) {
+            response.put("success", false);
+        }
+        return response;
+    }
 }

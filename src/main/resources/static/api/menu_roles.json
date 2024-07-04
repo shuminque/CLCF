@@ -137,6 +137,15 @@
                             "roles": [
                                 "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "onlyRead"
                             ]
+                        },
+                        {
+                            "title": "开票管理",
+                            "href": "/invoicing-management",
+                            "icon": "fa fa-th-list",
+                            "target": "_self",
+                            "roles": [
+                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
+                            ]
                         }
                     ]
                 },
