@@ -272,7 +272,7 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
         return shipmentDetailsMapper.queryShipmentDetails(params);
     }
     @Override
-    public void updateInvoiceApplication(String arrival_date, String steel_mill, String steel_grade, String dimensions, String invoice_application) {
-        shipmentDetailsMapper.updateInvoiceApplication(arrival_date, steel_mill, steel_grade, dimensions, invoice_application);
+    public void updateInvoiceApplication(String arrival_date, String steel_mill, String steel_grade, String dimensions, String trade_mode,String invoice_application) {
+        shipmentDetailsMapper.updateInvoiceApplication(arrival_date, steel_mill, steel_grade, dimensions, trade_mode, invoice_application);
     }
 }

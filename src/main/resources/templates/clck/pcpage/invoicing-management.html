@@ -21,6 +21,30 @@
               <option value="已结算">已结算 </option>
             </select>
           </div>
+          <div class="layui-input-inline">
+            <select name="steelMill">
+              <option value="" selected>选择钢厂</option>
+              <option th:each="steel_type : ${steelTypes}"
+                      th:value="${steel_type.name}"
+                      th:text="${steel_type.name}"></option>
+            </select>
+          </div>
+          <div class="layui-input-inline">
+            <select name="steelGrade">
+              <option value="" selected>选择钢材等级</option>
+              <option th:each="steel_grade : ${steelGrades}"
+                      th:value="${steel_grade.grade}"
+                      th:text="${steel_grade.grade}"></option>
+            </select>
+          </div>
+          <div class="layui-input-inline">
+            <select name="dimensions" id="dimensions" lay-search>
+              <option value="" selected>选择尺寸</option>
+              <option th:each="steel_size : ${steelSizes}"
+                      th:value="${steel_size.size}"
+                      th:text="${steel_size.size}"></option>
+            </select>
+          </div>
           <div class="layui-inline">
             <button type="submit" class="layui-btn layui-btn-primary" lay-submit lay-filter="data-search-btn">
               <i class="layui-icon"></i> 搜 索
@@ -121,6 +145,7 @@
         {field: 'steel_mill', title: '钢厂'},
         {field: 'steel_grade', title: '钢等'},
         {field: 'dimensions', title: '尺寸'},
+        {field: 'trade_mode', title: '尺寸'},
         {field: 'weight', title: '重量'},
         {field: 'invoice_application', title: '结算状态'},
         {title: '操作', toolbar: '#operationBar', fixed: 'right', align: 'center'}
@@ -159,6 +184,7 @@
                 steel_mill: data.steel_mill,
                 steel_grade: data.steel_grade,
                 dimensions: data.dimensions,
+                trade_mode: data.trade_mode,
                 invoice_application: newValue
               },
               success: function(res) {
@@ -194,6 +220,18 @@
     form.on('submit(data-search-btn)', function(data) {
       var req = {};
       var formData = data.field;
+      if (formData.steelMill !== '') {
+        req.steelMill = formData.steelMill;
+      }
+      if (formData.steelGrade !== '') {
+        req.steelGrade = formData.steelGrade;
+      }
+      if (formData.tradeMode !== '') {
+        req.tradeMode = formData.tradeMode;
+      }
+      if (formData.dimensions !== '') {
+        req.dimensions = formData.dimensions;
+      }
       if (formData.invoiceApplication !== '') {
         req.invoiceApplication = formData.invoiceApplication;
       }

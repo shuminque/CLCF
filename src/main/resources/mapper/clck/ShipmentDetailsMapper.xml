@@ -175,6 +175,9 @@
         <if test="purchaser != null and purchaser != ''">
             AND purchaser = #{purchaser}
         </if>
+        <if test="startDate != null and endDate != null">
+            AND DATE(arrival_date) BETWEEN #{startDate} AND #{endDate}
+        </if>
     </select>
 
     <!-- 更新操作 -->
@@ -607,6 +610,7 @@
         steel_mill,
         steel_grade,
         dimensions,
+        trade_mode,
         SUM(weight) AS weight,
         invoice_application
         FROM shipment_details
@@ -614,9 +618,18 @@
         <if test="startDate != null">
             AND arrival_date BETWEEN #{startDate} AND #{endDate}
         </if>
+        <if test="steelGrade != null and steelGrade != ''">
+            AND steel_grade = #{steelGrade}
+        </if>
+        <if test="dimensions != null and dimensions != ''">
+            AND dimensions = #{dimensions}
+        </if>
+        <if test="steelMill != null and steelMill != ''">
+            AND steel_mill = #{steelMill}
+        </if>
         <if test="invoiceApplication != null">
             <choose>
-                <when test="operationType == 'none'">
+                <when test="invoiceApplication == 'none'">
                     AND invoice_application IS NULL
                 </when>
                 <otherwise>
@@ -624,7 +637,7 @@
                 </otherwise>
             </choose>
         </if>
-        GROUP BY arrival_date, steel_mill, steel_grade, dimensions, invoice_application
+        GROUP BY arrival_date, steel_mill, steel_grade, dimensions, trade_mode,invoice_application
         order by arrival_date;
     </select>
     <update id="updateInvoiceApplication" parameterType="map">
@@ -634,5 +647,6 @@
           AND steel_mill = #{steel_mill}
           AND steel_grade = #{steel_grade}
           AND dimensions = #{dimensions}
+          AND trade_mode = #{trade_mode}
     </update>
 </mapper>

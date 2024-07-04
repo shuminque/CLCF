@@ -281,15 +281,10 @@ public class ShipmentDetailsController {
     public ResponseEntity<?> queryShipmentDetails(
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") String startDate,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") String endDate,
-            @RequestParam(required = false) String invoiceApplication) {
-
-        Map<String, Object> params = new HashMap<>();
+            @RequestParam Map<String, Object> params) {
         if (startDate != null && endDate != null) {
             params.put("startDate", startDate + " 00:00:00");
             params.put("endDate", endDate + " 23:59:59");
-        }
-        if (invoiceApplication != null && !invoiceApplication.isEmpty()) {
-            params.put("invoiceApplication", invoiceApplication);
         }
 
         List<Map<String, Object>> result = shipmentDetailsService.queryShipmentDetails(params);
@@ -306,11 +301,12 @@ public class ShipmentDetailsController {
             @RequestParam String steel_mill,
             @RequestParam String steel_grade,
             @RequestParam String dimensions,
+            @RequestParam String trade_mode,
             @RequestParam String invoice_application) {
 
         Map<String, Object> response = new HashMap<>();
         try {
-            shipmentDetailsService.updateInvoiceApplication(arrival_date, steel_mill, steel_grade, dimensions, invoice_application);
+            shipmentDetailsService.updateInvoiceApplication(arrival_date, steel_mill, steel_grade, dimensions,trade_mode, invoice_application);
             response.put("success", true);
         } catch (Exception e) {
             response.put("success", false);
