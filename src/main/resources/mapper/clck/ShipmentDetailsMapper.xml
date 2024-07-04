@@ -615,9 +615,17 @@
             AND arrival_date BETWEEN #{startDate} AND #{endDate}
         </if>
         <if test="invoiceApplication != null">
-            AND invoice_application = #{invoiceApplication}
+            <choose>
+                <when test="operationType == 'none'">
+                    AND invoice_application IS NULL
+                </when>
+                <otherwise>
+                    AND invoice_application = #{invoiceApplication}
+                </otherwise>
+            </choose>
         </if>
         GROUP BY arrival_date, steel_mill, steel_grade, dimensions, invoice_application
+        order by arrival_date;
     </select>
     <update id="updateInvoiceApplication" parameterType="map">
         UPDATE shipment_details
