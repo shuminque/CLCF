@@ -55,7 +55,7 @@ public interface ShipmentDetailsMapper {
             @Param("steel_mill") String steel_mill,
             @Param("steel_grade") String steel_grade,
             @Param("dimensions") String dimensions,
-            @Param("dimensions") String trade_mode,
+            @Param("trade_mode") String trade_mode,
             @Param("invoice_application") String invoice_application
     );
 }
