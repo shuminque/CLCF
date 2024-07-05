@@ -680,17 +680,17 @@
                 layer.close(index);
             });
         });
-        // function addCustomExportButton() {
-        //     if ($('#customExportButton').length === 0) {
-        //         var customExportButton = $('<button class="layui-btn layui-btn-primary layui-btn-sm" id="customExportButton"><i class="layui-icon layui-icon-export"></i> 分类导出</button>');
-        //         $('.layui-table-tool-temp').append(customExportButton);
-        //
-        //         // 绑定自定义导出按钮点击事件
-        //         $('#customExportButton').on('click', function() {
-        //             customExport();
-        //         });
-        //     }
-        // }
+        function addCustomExportButton() {
+            if ($('#customExportButton').length === 0) {
+                var customExportButton = $('<button class="layui-btn layui-btn-primary layui-btn-sm" id="customExportButton"><i class="layui-icon layui-icon-export"></i> 分类导出</button>');
+                $('.layui-table-tool-temp').append(customExportButton);
+
+                // 绑定自定义导出按钮点击事件
+                $('#customExportButton').on('click', function() {
+                    customExport();
+                });
+            }
+        }
         // 高级搜索开关逻辑
         $('#advancedSearchToggle').click(function () {
             $('#advancedSearchForm').slideToggle();
