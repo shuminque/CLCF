@@ -79,7 +79,8 @@
             weight: item.weight,
             name: item.dimensions,
         }));
-
+        const totalWeightSteelMill = steelMillData.reduce((sum, item) => sum + item.weight, 0);
+        const totalWeightDimensions = dimensionsData.reduce((sum, item) => sum + item.weight, 0);
         myChart.setOption({
             title: [
                 {
@@ -92,12 +93,31 @@
                     }
                 },
                 {
+                    text: '合计重量: ' + totalWeightSteelMill+'kg',
+                    left: '30%',
+                    top: '5%', // 根据需要调整这个值来定位文本
+                    textAlign: 'center',
+                    textStyle: {
+                        color: '#FFFFFF',
+                        fontSize: '12px' // 可以调整字体大小
+                    }
+                },
+                {
                     text: '棒材在库情况',
                     left: '75%',
                     top: '1%',
                     textAlign: 'center',
                     textStyle: {
                         color: '#FFFFFF' // 标题文字颜色
+                    }
+                }, {
+                    text: '合计重量: ' + totalWeightDimensions+'kg',
+                    left: '75%',
+                    top: '5%', // 根据需要调整这个值来定位文本
+                    textAlign: 'center',
+                    textStyle: {
+                        color: '#FFFFFF',
+                        fontSize: '12px' // 可以调整字体大小
                     }
                 }
             ],
