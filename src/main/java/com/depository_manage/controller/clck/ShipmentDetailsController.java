@@ -39,6 +39,12 @@ public class ShipmentDetailsController {
             params.put("startDate", dates[0] + " 00:00:00");
             params.put("endDate", dates[1] + " 23:59:59");
         }
+        String dateRange2 = (String) params.get("time2");
+        if (dateRange != null && dateRange.contains(" - ")) {
+            String[] dates2 = dateRange.split(" - ");
+            params.put("startDate2", dates2[0] + " 00:00:00");
+            params.put("endDate2", dates2[1] + " 23:59:59");
+        }
         int begin = (page - 1) * size;
         params.put("begin", begin);
         params.put("size", size);

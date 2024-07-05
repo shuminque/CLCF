@@ -93,13 +93,13 @@
                     }
                 },
                 {
-                    text: '合计重量: ' + totalWeightSteelMill+'kg',
+                    text: '合计重量: ' + Math.round(totalWeightSteelMill)+'kg',
                     left: '30%',
                     top: '5%', // 根据需要调整这个值来定位文本
                     textAlign: 'center',
                     textStyle: {
                         color: '#FFFFFF',
-                        fontSize: '12px' // 可以调整字体大小
+                        fontSize: 12 // 调整字体大小
                     }
                 },
                 {
@@ -111,13 +111,13 @@
                         color: '#FFFFFF' // 标题文字颜色
                     }
                 }, {
-                    text: '合计重量: ' + totalWeightDimensions+'kg',
+                    text: '合计重量: ' + Math.round(totalWeightDimensions)+'kg',
                     left: '75%',
                     top: '5%', // 根据需要调整这个值来定位文本
                     textAlign: 'center',
                     textStyle: {
                         color: '#FFFFFF',
-                        fontSize: '12px' // 可以调整字体大小
+                        fontSize: 12 // 调整字体大
                     }
                 }
             ],

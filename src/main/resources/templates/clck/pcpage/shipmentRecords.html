@@ -11,6 +11,8 @@
     <script src="/static/js/http_cdnjs.cloudflare.com_ajax_libs_bootstrap-3-typeahead_4.0.2_bootstrap3-typeahead.js"></script>
     <script type="text/javascript" src="/static/js/jquery.qrcode.js" charset="utf-8"></script>
     <script type="text/javascript" src="/static/js/http_unpkg.com_html5-qrcode.js" charset="utf-8"></script>
+    <script src="/static/js/http_cdnjs.cloudflare.com_ajax_libs_xlsx_0.17.3_xlsx.full.min.js"></script>
+
     <style>
         #printArea div {
             display: inline-block;
@@ -51,9 +53,6 @@
     <form class="layui-form" id="searchForm">
         <div class="layui-form-item">
             <div class="layui-input-inline">
-                <input type="text" name="time" id="date" placeholder="请选择起止日期" autocomplete="off" class="layui-input">
-            </div>
-            <div class="layui-input-inline">
                 <select name="operationType">
                     <option value="" selected>选择操作类型</option>
                     <option value="入库">入库</option>
@@ -62,6 +61,12 @@
                     <option value="返库">返库 </option>
                     <option value="none">无操作</option>
                 </select>
+            </div>
+            <div class="layui-input-inline">
+                <input type="text" name="time" id="date" placeholder="请选择到货日期" autocomplete="off" class="layui-input">
+            </div>
+            <div class="layui-input-inline">
+                <input type="text" name="time2" id="date3" placeholder="请选择操作日期" autocomplete="off" class="layui-input">
             </div>
             <div class="layui-input-inline">
                 <select name="steelMill">
@@ -323,7 +328,11 @@
             , range: true,
             rangeLinked: true
         });
-
+        laydate.render({
+            elem: '#date3'
+            , range: true,
+            rangeLinked: true
+        });
         // 渲染表格
         var recordTable = table.render({
             elem: '#recordTable',
@@ -357,10 +366,13 @@
                     {field: 'deliveryPoint', title: '到货地址', minWidth: 150},
                     {field: 'arrivalPortDate', title: '到港日期', templet: function(d){
                             return formatDate(d.arrivalDate);
-                        },minWidth: 150},
+                        },minWidth: 150, hide: true},
                     {field: 'arrivalDate', title: '到达日期', templet: function(d){
                             return formatDate(d.arrivalDate);
                         },minWidth: 150},
+                    {field: 'time', title: '操作日期', templet: function(d){
+                            return formatDate(d.time);
+                        },minWidth: 150}
                 ]
             ],
             limits: [200, 500, 1000, 20000],
@@ -387,9 +399,131 @@
                         weightCell.getElementsByClassName('layui-table-cell')[0].innerText = totalWeight.toFixed(2).toString();
                     }
                 }
+                addCustomExportButton(); // 确保在每次表格加载完成后添加按钮
             }
         });
-
+        function customExport() {
+            var data = table.cache['recordTable']; // 从表格缓存中获取当前表格的数据
+            // 按指定字段排序
+            data.sort((a, b) => {
+                return  (a.tradeMode || "").localeCompare(b.tradeMode || "") ||
+                    (a.customer || "").localeCompare(b.customer || "") ||
+                    (a.steelMill || "").localeCompare(b.steelMill || "") ||
+                    (a.steelGrade || "").localeCompare(b.steelGrade || "") ||
+                    (a.dimensions || "").localeCompare(b.dimensions || "")
+            });
+            // 分组并添加合计行
+            var groupedData = [];
+            var currentGroup = [];
+            var currentGroupTotal = 0;
+            for (var i = 0; i < data.length; i++) {
+                if (i > 0 &&
+                    (   data[i].tradeMode !== data[i - 1].tradeMode ||
+                        data[i].customer !== data[i - 1].customer ||
+                        data[i].steelMill !== data[i - 1].steelMill ||
+                        data[i].steelGrade !== data[i - 1].steelGrade ||
+                        data[i].dimensions !== data[i - 1].dimensions)) {
+                    // 当前组结束，添加合计行
+                    groupedData = groupedData.concat(currentGroup);
+                    groupedData.push({
+                        operationType: '合计',
+                        invoiceApplication: '',
+                        uniqueIdentifier: '',
+                        furnaceNumber: '',
+                        steelMill: '',
+                        steelGrade: '',
+                        dimensions: '',
+                        tradeMode: '',
+                        bundleCount: '',
+                        weight: currentGroupTotal,
+                        customer: '',
+                        placementArea: '',
+                        supplierBatchNumber: '',
+                        purchaser: '',
+                        deliveryPoint: '',
+                        arrivalPortDate: '',
+                        arrivalDate: '',
+                        time: ''
+                    });
+                    // 重置当前组
+                    currentGroup = [];
+                    currentGroupTotal = 0;
+                }
+                // 添加当前记录到当前组
+                currentGroup.push(data[i]);
+                currentGroupTotal += parseInt(data[i].weight);
+            }
+            // 添加最后一组及其合计行
+            groupedData = groupedData.concat(currentGroup);
+            groupedData.push({
+                operationType: '合计',
+                invoiceApplication: '',
+                uniqueIdentifier: '',
+                furnaceNumber: '',
+                steelMill: '',
+                steelGrade: '',
+                dimensions: '',
+                tradeMode: '',
+                bundleCount: '',
+                weight: currentGroupTotal,
+                customer: '',
+                placementArea: '',
+                supplierBatchNumber: '',
+                purchaser: '',
+                deliveryPoint: '',
+                arrivalPortDate: '',
+                arrivalDate: '',
+                time: ''
+            });
+            // 生成导出文件
+            exportTable(groupedData);
+        }
+        function exportTable(data) {
+            // 移除不需要导出的字段
+            data = data.map(row => {
+                return {
+                    operationType: row.operationType,
+                    invoiceApplication: row.invoiceApplication,
+                    uniqueIdentifier: row.uniqueIdentifier,
+                    furnaceNumber: row.furnaceNumber,
+                    steelMill: row.steelMill,
+                    steelGrade: row.steelGrade,
+                    dimensions: row.dimensions,
+                    tradeMode: row.tradeMode,
+                    bundleCount: row.bundleCount,
+                    weight: row.weight,
+                    customer: row.customer,
+                    placementArea: row.placementArea,
+                    supplierBatchNumber: row.supplierBatchNumber,
+                    purchaser: row.purchaser,
+                    deliveryPoint: row.deliveryPoint,
+                    arrivalPortDate: row.arrivalPortDate,
+                    arrivalDate: row.arrivalDate,
+                    time: row.time
+                };
+            });
+            var ws = XLSX.utils.json_to_sheet(data, {
+                header: [
+                    "operationType", "invoiceApplication", "uniqueIdentifier",
+                    "furnaceNumber", "steelMill", "steelGrade", "dimensions", "tradeMode",
+                    "bundleCount", "weight", "customer", "placementArea", "supplierBatchNumber",
+                    "purchaser", "deliveryPoint", "arrivalPortDate", "arrivalDate", "time"
+                ]
+            });
+            // 添加标题行
+            var headers = [
+                "操作类型", "结算状态", "材料ID",
+                "炉号","钢厂", "钢材等级", "尺寸", "贸易方式",
+                "支数", "重量", "客户", "库位", "供应商生产批号",
+                "购买方", "到货地址", "到港日期", "到达日期","操作日期"
+            ];
+            XLSX.utils.sheet_add_aoa(ws, [headers], { origin: "A1" });
+            // 创建工作簿并添加工作表
+            var wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "进出记录");
+            // 导出 Excel 文件
+            XLSX.writeFile(wb, "进出分类汇总.xlsx");
+        }
         // 统一搜索表单提交事件
         form.on('submit(data-search-btn)', function(data) {
             var req = {};
@@ -434,6 +568,11 @@
                 var dates = formData.time.split(' - ');
                 req.startDate = dates[0];
                 req.endDate = dates[1];
+            }
+            if (formData.time2 !== '') {
+                var dates2 = formData.time2.split(' - ');
+                req.startDate2 = dates2[0];
+                req.endDate2 = dates2[1];
             }
             // 执行搜索重载
             recordTable.reload({
@@ -541,6 +680,17 @@
                 layer.close(index);
             });
         });
+        // function addCustomExportButton() {
+        //     if ($('#customExportButton').length === 0) {
+        //         var customExportButton = $('<button class="layui-btn layui-btn-primary layui-btn-sm" id="customExportButton"><i class="layui-icon layui-icon-export"></i> 分类导出</button>');
+        //         $('.layui-table-tool-temp').append(customExportButton);
+        //
+        //         // 绑定自定义导出按钮点击事件
+        //         $('#customExportButton').on('click', function() {
+        //             customExport();
+        //         });
+        //     }
+        // }
         // 高级搜索开关逻辑
         $('#advancedSearchToggle').click(function () {
             $('#advancedSearchForm').slideToggle();
@@ -565,6 +715,7 @@
             layer.close(index);
         });
     }
+
     // 打印二维码的函数
     function printQRCode(id) {
         console.log(id);
