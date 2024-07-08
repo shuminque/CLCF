@@ -57,7 +57,7 @@
                 <input type="text" name="time" id="date" placeholder="请选择到货日期" autocomplete="off" class="layui-input">
             </div>
             <div class="layui-input-inline">
-                <select name="operationType">
+                <select name="operationType" id="operationType">
                     <option value="" selected>选择操作类型</option>
                     <option value="入库">入库</option>
                     <option value="出库">出库 </option>
@@ -430,7 +430,7 @@
                         data[i].dimensions !== data[i - 1].dimensions)) {
                     // 当前组结束，添加合计行
                     groupedData.push({
-                        operationType: '合计',
+                        operationType: data[i-1].operationType+'合计',
                         invoiceApplication: '',
                         uniqueIdentifier: '',
                         furnaceNumber: '',
@@ -457,7 +457,7 @@
             }
             // 添加最后一组及其合计行
             groupedData.push({
-                operationType: '合计',
+                operationType: data[data.length-1].operationType+'合计',
                 invoiceApplication: '',
                 uniqueIdentifier: '',
                 furnaceNumber: '',
@@ -493,7 +493,7 @@
                     weight: row.weight,
                 };
             });
-
+            var operationType = $('#operationType').val().replace(/\s+/g, '').replace(/-/g, '_'); // 去除空格并替换日期中 的 '-' 为 '_'
             var ws = XLSX.utils.json_to_sheet(data, {
                 header: [
                     "operationType",
@@ -518,9 +518,9 @@
             XLSX.utils.sheet_add_aoa(ws, [headers], { origin: "A1" });
             // 创建工作簿并添加工作表
             var wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "进出记录");
+            XLSX.utils.book_append_sheet(wb, ws, "记录汇总");
             // 导出 Excel 文件，文件名包含日期
-            XLSX.writeFile(wb, dateValue + "_进出分类汇总.xlsx");
+            XLSX.writeFile(wb, dateValue + operationType+"_记录分类汇总.xlsx");
         }
 
         // 统一搜索表单提交事件
