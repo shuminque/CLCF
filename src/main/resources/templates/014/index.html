@@ -14,14 +14,15 @@
 <body>
 <div class="t_container">
     <main class="t_main">
-
         <div class="t_box">
             <header class="t_title">
                 <input type="date" id="cutoff-date" style="border-radius: 15px;background-color: transparent;color: white;">
             </header>
-            <div id="chart_2" style="width: 100%; height: 50%;"></div>
-            <div id="pipe_chart" style="width: 100%; height: 50%;"></div>
+            <div id="chart_2" style="width: 100%; height: 100%;"></div>
 <!--            <div id="bar_chart" style="width: 100%; height: 30%;"></div>-->
+        </div>
+        <div class="t_box">
+            <div id="pipe_chart" style="width: 100%; height: 100%;"></div>
         </div>
     </main>
 </div>
@@ -67,10 +68,8 @@
 
     function echart_2(steelMillData, dimensionsData) {
         var myChart = echarts.init(document.getElementById('chart_2'));
-
         const steelMillColors = steelMillData.map(() => generateRandomColor());
         const dimensionsColors = dimensionsData.map(() => generateRandomColor());
-
         const pieSeriesDataSteelMill = steelMillData.map(item => ({
             value: 1,
             weight: item.weight,
@@ -97,7 +96,7 @@
                 {
                     text: '合计重量: ' + Math.round(totalWeightSteelMill)+'kg',
                     left: '30%',
-                    top: '10%', // 根据需要调整这个值来定位文本
+                    top: '5%', // 根据需要调整这个值来定位文本
                     textAlign: 'center',
                     textStyle: {
                         color: '#FFFFFF',
@@ -115,7 +114,7 @@
                 }, {
                     text: '合计重量: ' + Math.round(totalWeightDimensions)+'kg',
                     left: '75%',
-                    top: '10%', // 根据需要调整这个值来定位文本
+                    top: '5%', // 根据需要调整这个值来定位文本
                     textAlign: 'center',
                     textStyle: {
                         color: '#FFFFFF',
@@ -296,7 +295,7 @@
             title: [
                 {
                     text: '管材在库情况',
-                    left: '50%',
+                    left: '30%',
                     top: '1%',
                     textAlign: 'center',
                     textStyle: {
@@ -305,8 +304,8 @@
                 },
                 {
                     text: '合计重量: ' + Math.round(totalWeightPipes)+'kg',
-                    left: '50%',
-                    top: '10%', // 根据需要调整这个值来定位文本
+                    left: '30%',
+                    top: '5%', // 根据需要调整这个值来定位文本
                     textAlign: 'center',
                     textStyle: {
                         color: '#FFFFFF',
@@ -335,7 +334,7 @@
                 {
                     type: 'pie',
                     radius: ['40%', '55%'],
-                    center: ['50%', '50%'],
+                    center: ['30%', '50%'],
                     roseType: 'radius',
                     color: function(params) {
                         return pipeColors[params.dataIndex % pipeColors.length];
