@@ -52,7 +52,7 @@ a{
     justify-content: center; /* 在t_box内部也垂直居中 */
     float: left;
     position: relative;
-    margin-top: 0px;
+    margin-top: 6px;
 }
 .t_title{
     text-align: center;
