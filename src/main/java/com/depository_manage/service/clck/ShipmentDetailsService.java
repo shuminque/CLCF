@@ -29,6 +29,7 @@ public interface ShipmentDetailsService {
     List<Map<String, Object>> getclstatus(Date cutoffDate);
 
     List<Map<String, Object>> getClstatusByDimensions(Date cutoffDate);
+    List<Map<String, Object>> getPipeByDimensions(Date cutoffDate);
 
     List<Map<String, Object>> getMonthlyInOutWeightByYear(int year);
 

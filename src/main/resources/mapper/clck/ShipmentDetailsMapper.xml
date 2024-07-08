@@ -501,7 +501,7 @@
         in_out_count ON latest_in_info.unique_identifier = in_out_count.unique_identifier
         group by latest_in_info.steel_mill;
     </select>
-    <!-- 饼图尺寸 -->
+    <!-- 饼图棒材尺寸 -->
     <select id="getClstatusByDimensions" resultType="map">
         WITH in_out_count AS (
             SELECT
@@ -543,6 +543,53 @@
             latest_in_info
                 JOIN
             in_out_count ON latest_in_info.unique_identifier = in_out_count.unique_identifier
+        WHERE latest_in_info.dimensions NOT LIKE '%*%'
+        group by latest_in_info.dimensions
+        order by latest_in_info.dimensions;
+    </select>
+    <!-- 饼图管材尺寸 -->
+    <select id="getPipeByDimensions" resultType="map">
+        WITH in_out_count AS (
+            SELECT
+                unique_identifier,
+                SUM(CASE WHEN operation_type in ('入库','返库') THEN 1 ELSE 0 END) AS in_count,
+                SUM(CASE WHEN operation_type = '出库' THEN 1 ELSE 0 END) AS out_count
+            FROM
+                shipment_details
+            WHERE
+            time &lt;= #{date}
+        GROUP BY
+            unique_identifier
+        HAVING
+            in_count > out_count
+            ),
+            latest_in_info AS (
+        SELECT
+            sd.*
+        FROM
+            shipment_details sd
+            JOIN (
+            SELECT
+            unique_identifier,
+            MAX(id) AS latest_id
+            FROM
+            shipment_details
+            WHERE
+            (operation_type = '入库' OR operation_type = '转库' OR operation_type = '返库')
+            AND time &lt;= #{date}
+            GROUP BY
+            unique_identifier
+            ) sub ON sd.id = sub.latest_id
+            )
+        SELECT  distinct
+            latest_in_info.dimensions,
+            sum(latest_in_info.weight) as weight,
+            sum(latest_in_info.bundle_count) as bundle_count
+        FROM
+            latest_in_info
+                JOIN
+            in_out_count ON latest_in_info.unique_identifier = in_out_count.unique_identifier
+        WHERE latest_in_info.dimensions LIKE '%*%'
         group by latest_in_info.dimensions
         order by latest_in_info.dimensions;
     </select>

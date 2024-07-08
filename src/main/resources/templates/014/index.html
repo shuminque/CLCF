@@ -19,9 +19,9 @@
             <header class="t_title">
                 <input type="date" id="cutoff-date" style="border-radius: 15px;background-color: transparent;color: white;">
             </header>
-            <div id="chart_2" style="width: 100%; height: 100%;"></div>
-
-<!--            <div id="bar_chart" style="width: 100%; height: 40%;"></div>-->
+            <div id="chart_2" style="width: 100%; height: 50%;"></div>
+            <div id="pipe_chart" style="width: 100%; height: 50%;"></div>
+<!--            <div id="bar_chart" style="width: 100%; height: 30%;"></div>-->
         </div>
     </main>
 </div>
@@ -41,23 +41,25 @@
         document.getElementById('cutoff-date').value = today; // 设置日期选择器为今天
         updateChartData(); // 使用今天的日期加载图表数据
     }
-
     // 获取并更新图表数据的函数，根据指定的截止日期
     function fetchChartDataAndUpdateEchart(cutoffDate) {
         const year = cutoffDate.split('-')[0];
         let url1 = `/shipment/clstatus_steel_mill?cutoffDate=${cutoffDate}`;
         let url2 = `/shipment/clstatus_dimensions?cutoffDate=${cutoffDate}`;
+        let url5 = `/shipment/pipe_dimensions?cutoffDate=${cutoffDate}`;
         let url3 = `/shipment/monthlyInOutWeightByYear?year=${year}`;
         let url4 = `/shipment/monthlyCumulativeInventoryStatusByYear?year=${year}`;
 
         Promise.all([
             fetch(url1).then(response => response.json()),
             fetch(url2).then(response => response.json()),
+            fetch(url5).then(response => response.json()),
             fetch(url3).then(response => response.json()),
             fetch(url4).then(response => response.json())
         ])
-            .then(([steelMillData, dimensionsData, monthlyInOutData, cumulativeInventoryData]) => {
+            .then(([steelMillData, dimensionsData,pipeDimensionsData, monthlyInOutData, cumulativeInventoryData]) => {
                 echart_2(steelMillData, dimensionsData);
+                updatePipeChart(pipeDimensionsData); // 使用获取的数据更新图表
                 updateBarChart(monthlyInOutData, cumulativeInventoryData); // 使用获取的数据更新图表
             })
             .catch(error => console.error('Error fetching chart data:', error));
@@ -95,7 +97,7 @@
                 {
                     text: '合计重量: ' + Math.round(totalWeightSteelMill)+'kg',
                     left: '30%',
-                    top: '5%', // 根据需要调整这个值来定位文本
+                    top: '10%', // 根据需要调整这个值来定位文本
                     textAlign: 'center',
                     textStyle: {
                         color: '#FFFFFF',
@@ -113,7 +115,7 @@
                 }, {
                     text: '合计重量: ' + Math.round(totalWeightDimensions)+'kg',
                     left: '75%',
-                    top: '5%', // 根据需要调整这个值来定位文本
+                    top: '10%', // 根据需要调整这个值来定位文本
                     textAlign: 'center',
                     textStyle: {
                         color: '#FFFFFF',
@@ -278,15 +280,125 @@
             ]
         });
     }
+    function updatePipeChart(pipeDimensionsData) {
+        var pipeChart = echarts.init(document.getElementById('pipe_chart'));
 
+        const pipeColors = pipeDimensionsData.map(() => generateRandomColor());
+
+        const pieSeriesDataPipes = pipeDimensionsData.map(item => ({
+            value: 1,
+            weight: item.weight,
+            name: item.dimensions,
+        }));
+        const totalWeightPipes = pipeDimensionsData.reduce((sum, item) => sum + item.weight, 0);
+
+        pipeChart.setOption({
+            title: [
+                {
+                    text: '管材在库情况',
+                    left: '50%',
+                    top: '1%',
+                    textAlign: 'center',
+                    textStyle: {
+                        color: '#FFFFFF' // 标题文字颜色
+                    }
+                },
+                {
+                    text: '合计重量: ' + Math.round(totalWeightPipes)+'kg',
+                    left: '50%',
+                    top: '10%', // 根据需要调整这个值来定位文本
+                    textAlign: 'center',
+                    textStyle: {
+                        color: '#FFFFFF',
+                        fontSize: 12 // 调整字体大小
+                    }
+                }
+            ],
+            tooltip: {
+                trigger: 'item',
+                formatter: function(param) {
+                    const formatter = new Intl.NumberFormat('en-US');
+                    const weightFormatted = formatter.format(Math.round(param.data.weight));
+                    return `${param.name}: ${weightFormatted}`;
+                }
+            },
+            legend: {
+                orient: 'vertical',
+                left: '0%',
+                top: 'middle',
+                textStyle: {
+                    color: '#FFFFFF'
+                },
+                data: pieSeriesDataPipes.map(item => item.name)
+            },
+            series: [
+                {
+                    type: 'pie',
+                    radius: ['40%', '55%'],
+                    center: ['50%', '50%'],
+                    roseType: 'radius',
+                    color: function(params) {
+                        return pipeColors[params.dataIndex % pipeColors.length];
+                    },
+                    data: pieSeriesDataPipes,
+                    label: {
+                        normal: {
+                            rich: {
+                                nameStyle: {
+                                    color: '#FFFFFF',
+                                    align: 'left',
+                                    fontSize: 14,
+                                    lineHeight: 15
+                                },
+                                valueStyle: {
+                                    color: '#FFFFFF',
+                                    align: 'left',
+                                    fontSize: 13,
+                                    lineHeight: 12
+                                }
+                            },
+                            formatter: function(param) {
+                                const formatter = new Intl.NumberFormat('en-US');
+                                const weightFormatted = formatter.format(Math.round(param.data.weight));
+                                return [
+                                    '{nameStyle|' + param.name + '}',
+                                    '{valueStyle|重量: ' + weightFormatted + 'kg'+'}'
+                                ].join('\n');
+                            },
+                            padding: [0, 10]
+                        }
+                    },
+                    labelLine: {
+                        normal: {
+                            length: 30,
+                            length2: 15,
+                            smooth: 0.2,
+                            lineStyle: {
+                                color: '#FFFFFF'
+                            }
+                        }
+                    },
+                    itemStyle: {
+                        normal: {
+                            shadowBlur: 30,
+                            shadowColor: 'rgba(0, 0, 0, 0.4)'
+                        }
+                    },
+                    animationType: 'scale',
+                    animationEasing: 'elasticOut',
+                    animationDelay: function(idx) {
+                        return Math.random() * 200;
+                    }
+                }
+            ]
+        });
+    }
     function updateBarChart(monthlyInOutData, cumulativeInventoryData) {
         var barChart = echarts.init(document.getElementById('bar_chart'));
-
         const months = monthlyInOutData.map(item => item.month);
         const inWeights = monthlyInOutData.map(item => Math.round(item.in_weight));
         const outWeights = monthlyInOutData.map(item => Math.round(item.out_weight));
         const cumulativeWeights = cumulativeInventoryData.map(item => Math.round(item.cumulative_weight));
-
 
         barChart.setOption({
             title: {
