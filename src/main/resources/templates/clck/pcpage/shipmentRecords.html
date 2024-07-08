@@ -407,7 +407,8 @@
             var data = table.cache['recordTable']; // 从表格缓存中获取当前表格的数据
             // 按指定字段排序
             data.sort((a, b) => {
-                return  (a.tradeMode || "").localeCompare(b.tradeMode || "") ||
+                return                      (a.operationType || "").localeCompare(b.operationType || "") ||
+                    (a.tradeMode || "").localeCompare(b.tradeMode || "") ||
                     (a.customer || "").localeCompare(b.customer || "") ||
                     (a.steelMill || "").localeCompare(b.steelMill || "") ||
                     (a.steelGrade || "").localeCompare(b.steelGrade || "") ||
@@ -431,13 +432,13 @@
                         invoiceApplication: '',
                         uniqueIdentifier: '',
                         furnaceNumber: '',
-                        steelMill: '',
-                        steelGrade: '',
-                        dimensions: '',
-                        tradeMode: '',
+                        steelMill: currentGroup[0].steelMill,
+                        steelGrade: currentGroup[0].steelGrade,
+                        dimensions: currentGroup[0].dimensions,
+                        tradeMode: currentGroup[0].tradeMode,
                         bundleCount: '',
                         weight: currentGroupTotal,
-                        customer: '',
+                        customer: currentGroup[0].customer,
                         placementArea: '',
                         supplierBatchNumber: '',
                         purchaser: '',
@@ -461,13 +462,13 @@
                 invoiceApplication: '',
                 uniqueIdentifier: '',
                 furnaceNumber: '',
-                steelMill: '',
-                steelGrade: '',
-                dimensions: '',
-                tradeMode: '',
+                steelMill: currentGroup[0]?.steelMill || '',
+                steelGrade: currentGroup[0]?.steelGrade || '',
+                dimensions: currentGroup[0]?.dimensions || '',
+                tradeMode: currentGroup[0]?.tradeMode || '',
                 bundleCount: '',
                 weight: currentGroupTotal,
-                customer: '',
+                customer: currentGroup[0]?.customer || '',
                 placementArea: '',
                 supplierBatchNumber: '',
                 purchaser: '',
@@ -484,39 +485,47 @@
             data = data.map(row => {
                 return {
                     operationType: row.operationType,
-                    invoiceApplication: row.invoiceApplication,
+                    // invoiceApplication: row.invoiceApplication,
                     uniqueIdentifier: row.uniqueIdentifier,
-                    furnaceNumber: row.furnaceNumber,
+                    // furnaceNumber: row.furnaceNumber,
                     steelMill: row.steelMill,
                     steelGrade: row.steelGrade,
                     dimensions: row.dimensions,
                     tradeMode: row.tradeMode,
-                    bundleCount: row.bundleCount,
+                    // bundleCount: row.bundleCount,
                     weight: row.weight,
                     customer: row.customer,
-                    placementArea: row.placementArea,
-                    supplierBatchNumber: row.supplierBatchNumber,
-                    purchaser: row.purchaser,
-                    deliveryPoint: row.deliveryPoint,
-                    arrivalPortDate: row.arrivalPortDate,
-                    arrivalDate: row.arrivalDate,
-                    time: row.time
+                    // placementArea: row.placementArea,
+                    // supplierBatchNumber: row.supplierBatchNumber,
+                    // purchaser: row.purchaser,
+                    // deliveryPoint: row.deliveryPoint,
+                    // arrivalPortDate: row.arrivalPortDate,
+                    // arrivalDate: row.arrivalDate,
+                    // time: row.time
                 };
             });
             var ws = XLSX.utils.json_to_sheet(data, {
                 header: [
-                    "operationType", "invoiceApplication", "uniqueIdentifier",
-                    "furnaceNumber", "steelMill", "steelGrade", "dimensions", "tradeMode",
-                    "bundleCount", "weight", "customer", "placementArea", "supplierBatchNumber",
-                    "purchaser", "deliveryPoint", "arrivalPortDate", "arrivalDate", "time"
+                    "operationType",
+                    // "invoiceApplication",
+                    "uniqueIdentifier",
+                    // "furnaceNumber",
+                    "steelMill", "steelGrade", "dimensions", "tradeMode",
+                    // "bundleCount",
+                    "weight", "customer",
+                    // "placementArea", "supplierBatchNumber", "purchaser", "deliveryPoint", "arrivalPortDate", "arrivalDate", "time"
                 ]
             });
             // 添加标题行
             var headers = [
-                "操作类型", "结算状态", "材料ID",
-                "炉号","钢厂", "钢材等级", "尺寸", "贸易方式",
-                "支数", "重量", "客户", "库位", "供应商生产批号",
-                "购买方", "到货地址", "到港日期", "到达日期","操作日期"
+                "操作类型",
+                // "结算状态",
+                "材料ID",
+                // "炉号",
+                "钢厂", "钢材等级", "尺寸", "贸易方式",
+                // "支数",
+                "重量", "客户",
+                // "库位", "供应商生产批号", "购买方", "到货地址", "到港日期", "到达日期","操作日期"
             ];
             XLSX.utils.sheet_add_aoa(ws, [headers], { origin: "A1" });
             // 创建工作簿并添加工作表
