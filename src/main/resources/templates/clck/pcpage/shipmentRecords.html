@@ -407,38 +407,40 @@
             var data = table.cache['recordTable']; // 从表格缓存中获取当前表格的数据
             // 按指定字段排序
             data.sort((a, b) => {
-                return                      (a.operationType || "").localeCompare(b.operationType || "") ||
+                return (a.operationType || "").localeCompare(b.operationType || "") ||
                     (a.tradeMode || "").localeCompare(b.tradeMode || "") ||
                     (a.customer || "").localeCompare(b.customer || "") ||
                     (a.steelMill || "").localeCompare(b.steelMill || "") ||
                     (a.steelGrade || "").localeCompare(b.steelGrade || "") ||
                     (a.dimensions || "").localeCompare(b.dimensions || "")
             });
+
+            // 获取日期输入框的值
+            var dateValue = $('#date3').val().replace(/\s+/g, '').replace(/-/g, '_'); // 去除空格并替换日期中的 '-' 为 '_'
+
             // 分组并添加合计行
             var groupedData = [];
-            var currentGroup = [];
             var currentGroupTotal = 0;
             for (var i = 0; i < data.length; i++) {
                 if (i > 0 &&
-                    (   data[i].tradeMode !== data[i - 1].tradeMode ||
+                    (data[i].tradeMode !== data[i - 1].tradeMode ||
                         data[i].customer !== data[i - 1].customer ||
                         data[i].steelMill !== data[i - 1].steelMill ||
                         data[i].steelGrade !== data[i - 1].steelGrade ||
                         data[i].dimensions !== data[i - 1].dimensions)) {
                     // 当前组结束，添加合计行
-                    groupedData = groupedData.concat(currentGroup);
                     groupedData.push({
                         operationType: '合计',
                         invoiceApplication: '',
                         uniqueIdentifier: '',
                         furnaceNumber: '',
-                        steelMill: currentGroup[0].steelMill,
-                        steelGrade: currentGroup[0].steelGrade,
-                        dimensions: currentGroup[0].dimensions,
-                        tradeMode: currentGroup[0].tradeMode,
+                        steelMill: data[i-1].steelMill,
+                        steelGrade: data[i-1].steelGrade,
+                        dimensions: data[i-1].dimensions,
+                        tradeMode: data[i-1].tradeMode,
                         bundleCount: '',
                         weight: currentGroupTotal,
-                        customer: currentGroup[0].customer,
+                        customer: data[i-1].customer,
                         placementArea: '',
                         supplierBatchNumber: '',
                         purchaser: '',
@@ -447,28 +449,25 @@
                         arrivalDate: '',
                         time: ''
                     });
-                    // 重置当前组
-                    currentGroup = [];
+                    // 重置当前组总计
                     currentGroupTotal = 0;
                 }
-                // 添加当前记录到当前组
-                currentGroup.push(data[i]);
-                currentGroupTotal += parseInt(data[i].weight);
+                // 计算当前记录的重量总计
+                currentGroupTotal += parseFloat(data[i].weight);
             }
             // 添加最后一组及其合计行
-            groupedData = groupedData.concat(currentGroup);
             groupedData.push({
                 operationType: '合计',
                 invoiceApplication: '',
                 uniqueIdentifier: '',
                 furnaceNumber: '',
-                steelMill: currentGroup[0]?.steelMill || '',
-                steelGrade: currentGroup[0]?.steelGrade || '',
-                dimensions: currentGroup[0]?.dimensions || '',
-                tradeMode: currentGroup[0]?.tradeMode || '',
+                steelMill: data[data.length-1].steelMill,
+                steelGrade: data[data.length-1].steelGrade,
+                dimensions: data[data.length-1].dimensions,
+                tradeMode: data[data.length-1].tradeMode,
                 bundleCount: '',
                 weight: currentGroupTotal,
-                customer: currentGroup[0]?.customer || '',
+                customer: data[data.length-1].customer,
                 placementArea: '',
                 supplierBatchNumber: '',
                 purchaser: '',
@@ -478,62 +477,52 @@
                 time: ''
             });
             // 生成导出文件
-            exportTable(groupedData);
+            exportTable(groupedData, dateValue);
         }
-        function exportTable(data) {
+
+        function exportTable(data, dateValue) {
             // 移除不需要导出的字段
             data = data.map(row => {
                 return {
                     operationType: row.operationType,
-                    // invoiceApplication: row.invoiceApplication,
-                    uniqueIdentifier: row.uniqueIdentifier,
-                    // furnaceNumber: row.furnaceNumber,
+                    tradeMode: row.tradeMode,
+                    customer: row.customer,
                     steelMill: row.steelMill,
                     steelGrade: row.steelGrade,
                     dimensions: row.dimensions,
-                    tradeMode: row.tradeMode,
-                    // bundleCount: row.bundleCount,
                     weight: row.weight,
-                    customer: row.customer,
-                    // placementArea: row.placementArea,
-                    // supplierBatchNumber: row.supplierBatchNumber,
-                    // purchaser: row.purchaser,
-                    // deliveryPoint: row.deliveryPoint,
-                    // arrivalPortDate: row.arrivalPortDate,
-                    // arrivalDate: row.arrivalDate,
-                    // time: row.time
                 };
             });
+
             var ws = XLSX.utils.json_to_sheet(data, {
                 header: [
                     "operationType",
-                    // "invoiceApplication",
-                    "uniqueIdentifier",
-                    // "furnaceNumber",
-                    "steelMill", "steelGrade", "dimensions", "tradeMode",
-                    // "bundleCount",
-                    "weight", "customer",
-                    // "placementArea", "supplierBatchNumber", "purchaser", "deliveryPoint", "arrivalPortDate", "arrivalDate", "time"
+                    "tradeMode",
+                    "customer",
+                    "steelMill",
+                    "steelGrade",
+                    "dimensions",
+                    "weight"
                 ]
             });
             // 添加标题行
             var headers = [
                 "操作类型",
-                // "结算状态",
-                "材料ID",
-                // "炉号",
-                "钢厂", "钢材等级", "尺寸", "贸易方式",
-                // "支数",
-                "重量", "客户",
-                // "库位", "供应商生产批号", "购买方", "到货地址", "到港日期", "到达日期","操作日期"
+                "贸易方式",
+                "客户",
+                "钢厂",
+                "钢材等级",
+                "尺寸",
+                "重量"
             ];
             XLSX.utils.sheet_add_aoa(ws, [headers], { origin: "A1" });
             // 创建工作簿并添加工作表
             var wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "进出记录");
-            // 导出 Excel 文件
-            XLSX.writeFile(wb, "进出分类汇总.xlsx");
+            // 导出 Excel 文件，文件名包含日期
+            XLSX.writeFile(wb, dateValue + "_进出分类汇总.xlsx");
         }
+
         // 统一搜索表单提交事件
         form.on('submit(data-search-btn)', function(data) {
             var req = {};
