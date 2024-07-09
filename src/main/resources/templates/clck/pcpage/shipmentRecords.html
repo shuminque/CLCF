@@ -520,7 +520,7 @@
             var wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "记录汇总");
             // 导出 Excel 文件，文件名包含日期
-            XLSX.writeFile(wb, dateValue + operationType+"_记录分类汇总.xlsx");
+            XLSX.writeFile(wb, dateValue + operationType+"_汇总.xlsx");
         }
 
         // 统一搜索表单提交事件
