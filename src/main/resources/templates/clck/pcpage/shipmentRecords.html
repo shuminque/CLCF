@@ -740,18 +740,18 @@
                         supplierBatchNumber: record.supplierBatchNumber,
                         uniqueIdentifier: record.uniqueIdentifier
                     }).join('|'),
-                    width: 185,
-                    height: 185,
+                    width: 140,
+                    height: 140,
                     correctLevel: 3
                 });
                 const textDiv = document.createElement('div');
                 textDiv.innerHTML = `
-                <strong>日期:</strong> ${formatDate(record.arrivalDate)}<br>
+                <strong>日期:</strong> ${formatDate(record.arrivalDate)}<strong><span> </span>重量:</strong> ${record.weight}<span>kg</span><br>
                 <strong>钢厂:</strong> ${record.steelMill}<strong>材料ID:</strong> ${record.uniqueIdentifier}<br>
-                <strong>钢材等级:</strong> ${record.steelGrade}<br>
+                <strong>钢材等级:</strong> ${record.steelGrade}<strong>购买方:</strong> ${record.purchaser}<br>
                 <strong>炉号:</strong> ${record.furnaceNumber}<br>
                 <strong>尺寸:</strong> ${record.dimensions}<br>
-                <strong>重量:</strong> ${record.weight}<span>（kg）</span><strong>购买方:</strong> ${record.purchaser}<br>
+                <strong>钢厂生产批号:</strong> ${record.supplierBatchNumber}<br>
                 <strong>贸易方式:</strong> ${record.tradeMode}
             `;
                 printArea.appendChild(qrDiv);
