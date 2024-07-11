@@ -347,7 +347,7 @@
             cols: [
                 [ // 表头
                     {type: 'checkbox'}, // 添加多选框
-                    {title: '操作', toolbar: '#actionBar', minWidth: 80},
+                    {title: '操作', toolbar: '#actionBar', minWidth: 140},
                     {field: 'id', title: 'id', hide: true},
                     {field: 'invoiceNumber', title: '发票编号', hide: true},
                     {field: 'invoiceApplication', title: '结算状态', minWidth: 120},
@@ -613,7 +613,7 @@
                     layui.form.val('editGradeFormFilter', {
                         'id': data.id,
                         'operationType': data.operationType,
-                        'time': formatDate(data.time),
+                        'time': data.time ? formatDate(data.time) : formatDate(new Date()), // 使用当前时间
                         'steelMill': data.steelMill,
                         'customer': data.customer,
                         'steelGrade': data.steelGrade,
@@ -762,7 +762,7 @@
                 console.error('Error fetching record:', error);
             });
     }
-    function formatDate(dateStr) {
+    function    formatDate(dateStr) {
         if (!dateStr) return '';
         let date = new Date(dateStr);
         let year = date.getFullYear();
