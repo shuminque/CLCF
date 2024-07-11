@@ -82,6 +82,15 @@
                             "roles": [
                                 "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
                             ]
+                        },
+                        {
+                            "title": "选择出库",
+                            "href": "/shipment-records-out",
+                            "icon": "fa fa-arrow-up",
+                            "target": "_self",
+                            "roles": [
+                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
+                            ]
                         }
                     ]
                 },
