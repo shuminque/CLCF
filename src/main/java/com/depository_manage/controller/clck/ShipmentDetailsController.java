@@ -279,6 +279,12 @@ public class ShipmentDetailsController {
         List<Map<String, Object>> inventoryStatus = shipmentDetailsService.getPipeByDimensions(cutoffDate);
         return ResponseEntity.ok(inventoryStatus);
     }
+    @GetMapping("/forg_dimensions")
+    public ResponseEntity<List<Map<String, Object>>> getForgByDimensions(
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date cutoffDate) {
+        List<Map<String, Object>> inventoryStatus = shipmentDetailsService.getForgByDimensions(cutoffDate);
+        return ResponseEntity.ok(inventoryStatus);
+    }
     @GetMapping("/monthlyInOutWeightByYear")
     public ResponseEntity<List<Map<String, Object>>> getMonthlyInOutWeightByYear(@RequestParam int year) {
         List<Map<String, Object>> monthlyInOutWeight = shipmentDetailsService.getMonthlyInOutWeightByYear(year);

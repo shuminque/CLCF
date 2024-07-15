@@ -48,6 +48,7 @@
         let url1 = `/shipment/clstatus_steel_mill?cutoffDate=${cutoffDate}`;
         let url2 = `/shipment/clstatus_dimensions?cutoffDate=${cutoffDate}`;
         let url5 = `/shipment/pipe_dimensions?cutoffDate=${cutoffDate}`;
+        let url6 = `/shipment/forg_dimensions?cutoffDate=${cutoffDate}`;
         let url3 = `/shipment/monthlyInOutWeightByYear?year=${year}`;
         let url4 = `/shipment/monthlyCumulativeInventoryStatusByYear?year=${year}`;
 
@@ -55,12 +56,13 @@
             fetch(url1).then(response => response.json()),
             fetch(url2).then(response => response.json()),
             fetch(url5).then(response => response.json()),
+            fetch(url6).then(response => response.json()),
             fetch(url3).then(response => response.json()),
             fetch(url4).then(response => response.json())
         ])
-            .then(([steelMillData, dimensionsData,pipeDimensionsData, monthlyInOutData, cumulativeInventoryData]) => {
+            .then(([steelMillData, dimensionsData,pipeDimensionsData,forgDimensionsData, monthlyInOutData, cumulativeInventoryData]) => {
                 echart_2(steelMillData, dimensionsData);
-                updatePipeChart(pipeDimensionsData); // 使用获取的数据更新图表
+                updatePipeChart(pipeDimensionsData,forgDimensionsData); // 使用获取的数据更新图表
                 updateBarChart(monthlyInOutData, cumulativeInventoryData); // 使用获取的数据更新图表
             })
             .catch(error => console.error('Error fetching chart data:', error));
@@ -80,8 +82,15 @@
             weight: item.weight,
             name: item.dimensions,
         }));
-        const totalWeightSteelMill = steelMillData.reduce((sum, item) => sum + item.weight, 0);
+        let totalWeightSteelMill = 0;
+        let totalWeightSteelMillForg = 0;
+        steelMillData.forEach(item => {
+            if (item.steel_mill.includes('锻造')) {
+                totalWeightSteelMillForg += item.weight;
+            }else             totalWeightSteelMill += item.weight;
+        });
         const totalWeightDimensions = dimensionsData.reduce((sum, item) => sum + item.weight, 0);
+        const formatter = new Intl.NumberFormat('en-US');
         myChart.setOption({
             title: [
                 {
@@ -94,9 +103,19 @@
                     }
                 },
                 {
-                    text: '合计重量: ' + Math.round(totalWeightSteelMill)+'kg',
+                    text: '合计重量: ' + formatter.format(Math.round(totalWeightSteelMill))+'kg',
                     left: '30%',
                     top: '5%', // 根据需要调整这个值来定位文本
+                    textAlign: 'center',
+                    textStyle: {
+                        color: '#FFFFFF',
+                        fontSize: 12 // 调整字体大小
+                    }
+                },
+                {
+                    text: '合计个数: ' + formatter.format(Math.round(totalWeightSteelMillForg)) + '个',
+                    left: '30%',
+                    top: '9%', // 根据需要调整这个值来定位文本
                     textAlign: 'center',
                     textStyle: {
                         color: '#FFFFFF',
@@ -112,7 +131,7 @@
                         color: '#FFFFFF' // 标题文字颜色
                     }
                 }, {
-                    text: '合计重量: ' + Math.round(totalWeightDimensions)+'kg',
+                    text: '合计重量: ' + formatter.format(Math.round(totalWeightDimensions))+'kg',
                     left: '75%',
                     top: '5%', // 根据需要调整这个值来定位文本
                     textAlign: 'center',
@@ -187,10 +206,17 @@
                             formatter: function(param) {
                                 const formatter = new Intl.NumberFormat('en-US');
                                 const weightFormatted = formatter.format(Math.round(param.data.weight));
-                                return [
-                                    '{nameStyle|' + param.name + '}',
-                                    '{valueStyle|重量: ' + weightFormatted + 'kg'+'}'
-                                ].join('\n');
+                                if (param.name.includes('锻造')) {
+                                    return [
+                                        '{nameStyle|' + param.name + '}',
+                                        '{valueStyle|个数: ' + weightFormatted + '个' + '}'
+                                    ].join('\n');
+                                } else {
+                                    return [
+                                        '{nameStyle|' + param.name + '}',
+                                        '{valueStyle|重量: ' + weightFormatted + 'kg' + '}'
+                                    ].join('\n');
+                                }
                             },
                             padding: [0, 10]
                         }
@@ -279,18 +305,24 @@
             ]
         });
     }
-    function updatePipeChart(pipeDimensionsData) {
+    function updatePipeChart(pipeDimensionsData,forgDimensionsData) {
         var pipeChart = echarts.init(document.getElementById('pipe_chart'));
-
         const pipeColors = pipeDimensionsData.map(() => generateRandomColor());
+        const forgColors = forgDimensionsData.map(() => generateRandomColor());
 
         const pieSeriesDataPipes = pipeDimensionsData.map(item => ({
             value: 1,
             weight: item.weight,
             name: item.dimensions,
         }));
+        const pieSeriesDataForgs = forgDimensionsData.map(item => ({
+            value: 1,
+            weight: item.weight,
+            name: item.dimensions,
+        }));
         const totalWeightPipes = pipeDimensionsData.reduce((sum, item) => sum + item.weight, 0);
-
+        const totalWeightForgs = forgDimensionsData.reduce((sum, item) => sum + item.weight, 0);
+        const formatter = new Intl.NumberFormat('en-US');
         pipeChart.setOption({
             title: [
                 {
@@ -303,8 +335,27 @@
                     }
                 },
                 {
-                    text: '合计重量: ' + Math.round(totalWeightPipes)+'kg',
+                    text: '合计重量: ' + formatter.format(Math.round(totalWeightPipes))+'kg',
                     left: '30%',
+                    top: '5%', // 根据需要调整这个值来定位文本
+                    textAlign: 'center',
+                    textStyle: {
+                        color: '#FFFFFF',
+                        fontSize: 12 // 调整字体大小
+                    }
+                },
+                {
+                    text: '锻造材在库情况',
+                    left: '75%',
+                    top: '1%',
+                    textAlign: 'center',
+                    textStyle: {
+                        color: '#FFFFFF' // 标题文字颜色
+                    }
+                },
+                {
+                    text: '合计个数: ' + formatter.format(Math.round(totalWeightForgs))+'个',
+                    left: '75%',
                     top: '5%', // 根据需要调整这个值来定位文本
                     textAlign: 'center',
                     textStyle: {
@@ -321,15 +372,25 @@
                     return `${param.name}: ${weightFormatted}`;
                 }
             },
-            legend: {
-                orient: 'vertical',
-                left: '0%',
-                top: 'middle',
-                textStyle: {
-                    color: '#FFFFFF'
-                },
-                data: pieSeriesDataPipes.map(item => item.name)
-            },
+            legend: [
+                {
+                    orient: 'vertical',
+                    left: '0%',
+                    top: 'middle',
+                    textStyle: {
+                        color: '#FFFFFF'
+                    },
+                    data: pieSeriesDataPipes.map(item => item.name)
+                },{
+                    orient: 'vertical',
+                    right: '0%',
+                    top: 'middle',
+                    textStyle: {
+                        color: '#FFFFFF'
+                    },
+                    data: pieSeriesDataForgs.map(item => item.name)
+                }
+            ],
             series: [
                 {
                     type: 'pie',
@@ -362,6 +423,64 @@
                                 return [
                                     '{nameStyle|' + param.name + '}',
                                     '{valueStyle|重量: ' + weightFormatted + 'kg'+'}'
+                                ].join('\n');
+                            },
+                            padding: [0, 10]
+                        }
+                    },
+                    labelLine: {
+                        normal: {
+                            length: 30,
+                            length2: 15,
+                            smooth: 0.2,
+                            lineStyle: {
+                                color: '#FFFFFF'
+                            }
+                        }
+                    },
+                    itemStyle: {
+                        normal: {
+                            shadowBlur: 30,
+                            shadowColor: 'rgba(0, 0, 0, 0.4)'
+                        }
+                    },
+                    animationType: 'scale',
+                    animationEasing: 'elasticOut',
+                    animationDelay: function(idx) {
+                        return Math.random() * 200;
+                    }
+                },
+                {
+                    type: 'pie',
+                    radius: ['40%', '55%'],
+                    center: ['70%', '50%'],
+                    roseType: 'radius',
+                    color: function(params) {
+                        return pipeColors[params.dataIndex % pipeColors.length];
+                    },
+                    data: pieSeriesDataForgs,
+                    label: {
+                        normal: {
+                            rich: {
+                                nameStyle: {
+                                    color: '#FFFFFF',
+                                    align: 'left',
+                                    fontSize: 14,
+                                    lineHeight: 15
+                                },
+                                valueStyle: {
+                                    color: '#FFFFFF',
+                                    align: 'left',
+                                    fontSize: 13,
+                                    lineHeight: 12
+                                }
+                            },
+                            formatter: function(param) {
+                                const formatter = new Intl.NumberFormat('en-US');
+                                const weightFormatted = formatter.format(Math.round(param.data.weight));
+                                return [
+                                    '{nameStyle|' + param.name + '}',
+                                    '{valueStyle|个数: ' + weightFormatted + '个'+'}'
                                 ].join('\n');
                             },
                             padding: [0, 10]

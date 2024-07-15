@@ -260,6 +260,12 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
     public List<Map<String, Object>> getPipeByDimensions(Date cutoffDate) {
         return shipmentDetailsMapper.getPipeByDimensions(cutoffDate);
     }
+
+    @Override
+    public List<Map<String, Object>> getForgByDimensions(Date cutoffDate) {
+        return shipmentDetailsMapper.getForgByDimensions(cutoffDate);
+    }
+
     @Override
     public List<Map<String, Object>> getMonthlyInOutWeightByYear(int year) {
         return shipmentDetailsMapper.getMonthlyInOutWeightByYear(year);

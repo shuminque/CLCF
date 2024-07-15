@@ -45,7 +45,7 @@ public interface ShipmentDetailsMapper {
     List<Map<String, Object>> getclstatus(@Param("date") Date cutoffDate);
     List<Map<String, Object>> getClstatusByDimensions(@Param("date") Date cutoffDate);
     List<Map<String, Object>> getPipeByDimensions(@Param("date") Date cutoffDate);
-
+    List<Map<String, Object>> getForgByDimensions(@Param("date") Date cutoffDate);
     List<Map<String, Object>> getMonthlyInOutWeightByYear(int year);
 
     List<Map<String, Object>> getMonthlyCumulativeInventoryStatusByYear(int year);
