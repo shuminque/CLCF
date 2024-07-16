@@ -546,7 +546,7 @@
             in_out_count ON latest_in_info.unique_identifier = in_out_count.unique_identifier
         WHERE latest_in_info.dimensions NOT LIKE '%*%' and latest_in_info.dimensions NOT LIKE '%锻造材%'
         group by latest_in_info.dimensions
-        order by latest_in_info.dimensions;
+        order by weight desc;
     </select>
     <!-- 饼图管材尺寸 -->
     <select id="getPipeByDimensions" resultType="map">
