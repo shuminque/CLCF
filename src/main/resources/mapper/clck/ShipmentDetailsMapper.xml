@@ -500,7 +500,7 @@
         JOIN
         in_out_count ON latest_in_info.unique_identifier = in_out_count.unique_identifier
         group by latest_in_info.steel_mill
-        order by weight desc;
+        order by weight asc;
     </select>
     <!-- 饼图棒材尺寸 -->
     <select id="getClstatusByDimensions" resultType="map">
@@ -546,7 +546,7 @@
             in_out_count ON latest_in_info.unique_identifier = in_out_count.unique_identifier
         WHERE latest_in_info.dimensions NOT LIKE '%*%' and latest_in_info.dimensions NOT LIKE '%锻造材%'
         group by latest_in_info.dimensions
-        order by weight desc;
+        order by weight asc;
     </select>
     <!-- 饼图管材尺寸 -->
     <select id="getPipeByDimensions" resultType="map">
@@ -592,7 +592,7 @@
             in_out_count ON latest_in_info.unique_identifier = in_out_count.unique_identifier
         WHERE latest_in_info.dimensions LIKE '%*%' and latest_in_info.dimensions NOT LIKE '%锻造材%'
         group by latest_in_info.dimensions
-        order by latest_in_info.dimensions;
+        order by weight asc;
     </select>
     <!-- 饼图锻造材尺寸 -->
     <select id="getForgByDimensions" resultType="map">
@@ -639,8 +639,7 @@
         WHERE latest_in_info.dimensions  LIKE '%锻造材%'
         GROUP BY
             REPLACE(latest_in_info.dimensions, '锻造材', '')
-        ORDER BY
-            REPLACE(latest_in_info.dimensions, '锻造材', '');
+        order by weight asc;
     </select>
     <!-- 柱形图进出 -->
     <select id="getMonthlyInOutWeightByYear" resultType="map">
