@@ -159,14 +159,18 @@
                 } else if (userDepositoryId === 1) {
                     if(userAuthority === '仅查看'){
                         role = "onlyRead"
+                    } else if(userAuthority === '操作员'){
+                        role = "operate"
                     }else{
                         role = userAuthority === '审核人' ? "SAB_sh" : "SAB_cg";
                     }
                 } else {
                     if(userAuthority === '仅查看'){
                         role = "onlyRead"
+                    } else if(userAuthority === '操作员'){
+                        role = "operate"
                     }else{
-                    role = userAuthority === '审核人' ? "ZAB_sh" : "ZAB_cg";
+                        role = userAuthority === '审核人' ? "ZAB_sh" : "ZAB_cg";
                     }
                 }
                 console.log(role);

@@ -15,7 +15,7 @@
             "icon": "fa fa-tachometer",
             "target": "_self",
             "roles": [
-                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "onlyRead"
+                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "onlyRead", "operate"
             ],
             "child": [
                 {
@@ -24,7 +24,7 @@
                     "icon": "fa fa-home",
                     "target": "_self",
                     "roles": [
-                        "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "onlyRead"
+                        "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "onlyRead", "operate"
                     ]
                 },
                 {
@@ -44,7 +44,7 @@
             "href": "",
             "target": "_self",
             "roles": [
-                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "onlyRead"
+                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "onlyRead", "operate"
             ],
             "child": [
                 {
@@ -52,7 +52,7 @@
                     "icon": "fa fa-book",
                     "target": "_self",
                     "roles": [
-                        "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
+                        "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "operate"
                     ],
                     "child": [
 
@@ -62,7 +62,7 @@
                             "icon": "fa fa-arrow-up",
                             "target": "_self",
                             "roles": [
-                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
+                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "operate"
                             ]
                         },
                         {
@@ -71,7 +71,7 @@
                             "icon": "fa fa-arrow-up",
                             "target": "_self",
                             "roles": [
-                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
+                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "operate"
                             ]
                         },
                         {
@@ -80,7 +80,7 @@
                             "icon": "fa fa-arrow-up",
                             "target": "_self",
                             "roles": [
-                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
+                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "operate"
                             ]
                         },
                         {
@@ -89,7 +89,7 @@
                             "icon": "fa fa-arrow-up",
                             "target": "_self",
                             "roles": [
-                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
+                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "operate"
                             ]
                         }
                     ]
@@ -99,7 +99,7 @@
                     "icon": "fa fa-server",
                     "target": "_self",
                     "roles": [
-                        "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "onlyRead"
+                        "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "onlyRead", "operate"
                     ],
                     "child": [
                         {
@@ -108,7 +108,7 @@
                             "icon": "fa fa-th-list",
                             "target": "_self",
                             "roles": [
-                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "onlyRead"
+                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "onlyRead", "operate"
                             ]
                         },
                         {
@@ -117,7 +117,7 @@
                             "icon": "fa fa-th-list",
                             "target": "_self",
                             "roles": [
-                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "onlyRead"
+                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "onlyRead", "operate"
                             ]
                         },
                         {
@@ -126,7 +126,7 @@
                             "icon": "fa fa-th-list",
                             "target": "_self",
                             "roles": [
-                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "onlyRead"
+                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "onlyRead", "operate"
                             ]
                         },
                         {
