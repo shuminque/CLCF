@@ -383,7 +383,9 @@
             latest_in_info.placement_area,
             in_out_count.in_count,
             in_out_count.out_count,
-            latest_in_info.time
+            latest_in_info.time,
+            latest_in_info.arrival_date,
+            latest_in_info.arrival_port_date
             FROM
             latest_in_info
             JOIN

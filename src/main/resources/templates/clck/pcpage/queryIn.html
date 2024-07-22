@@ -172,6 +172,9 @@
                 {field: 'arrivalDate', title: '到达日期', templet: function(d){
                         return formatDate(d.arrivalDate);
                     }},
+                {field: 'time', title: '入库日期', templet: function(d){
+                        return formatDate(d.time);
+                    }},
             ]],
             limits: [10000, 20000, 50000],
             limit: 10000,
