@@ -70,7 +70,13 @@ public class PageController {
         addCommonObjects(mv, null);
         return mv;
     }
-
+    @GetMapping("/freeUpload")
+    public ModelAndView freeUpload() {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("clck/FreeFileLoda");
+        addCommonObjects(mv, null);
+        return mv;
+    }
     @GetMapping("/shipmentRecords")
     public ModelAndView shipmentRecords(Map<String, Object> params) {
         ModelAndView mv = new ModelAndView();

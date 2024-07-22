@@ -35,6 +35,15 @@
                     "roles": [
                         "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
                     ]
+                },
+                {
+                    "title": "直接导入",
+                    "href": "/freeUpload",
+                    "icon": "fa fa-home",
+                    "target": "_self",
+                    "roles": [
+                        "ALL"
+                    ]
                 }
             ]
         },

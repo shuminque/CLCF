@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Excel File and Display Data</title>
+    <link rel="stylesheet" href="/static/lib/layui-v2.8.17/css/layui.css" media="all">
+    <script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/js/http_unpkg.com_html5-qrcode.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/js/jquery-2.1.0.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/js/jquery.qrcode.js" charset="utf-8"></script>
+    <style>
+        @media print {
+            body * {
+                visibility: hidden; /* Hide all content in body during print, except for elements that are explicitly visible */
+            }
+            #qrcodeDisplayArea, #qrcodeDisplayArea * {
+                visibility: visible; /* Make QR codes visible */
+            }
+            #qrcodeDisplayArea {
+                position: absolute;
+                left: 0;
+                top: 0;
+            }
+            .container {
+                page-break-inside: avoid; /* 避免二维码跨页 */
+            }
+        }
+        #qrcodeDisplayArea div {
+            display: inline-block;
+            margin: 10px; /* Add space around each QR code */
+            padding: 1px; /* Optional: Adds padding around the QR code for better visibility */
+            border: 1px solid #ccc; /* Optional: Adds a border around each QR code */
+            background-color: #f9f9f9; /* Optional: Sets a background color for each QR code area */
+        }
+        table {
+            margin-top: 20px;
+        }
+        .layui-form-item {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .layui-form-item > div {
+            flex: 1 1 200px; /* 使每个输入框的最小宽度为200px */
+            margin: 2px;
+        }
+        .layui-form-item label {
+            flex: 0 0 60px; /* 固定标签的宽度 */
+            text-align: left; /* 标签左对齐 */
+        }
+        .layui-form-item .layui-input-inline {
+            flex: 1;
+        }
+    </style>
+</head>
+<body class="layui-layout-body">
+<div class="layui-container">
+    <!-- Form for additional fields -->
+    <form class="layui-form" action="javascript:uploadFile()">
+        <div class="layui-form-item">
+            <label class="layui-form-label">发票编号:</label>
+            <div class="layui-input-inline">
+                <input type="text" id="invoiceNumber" name="invoiceNumber"  placeholder="请输入发票编号" class="layui-input" autocomplete="off">
+            </div>
+            <label class="layui-form-label">钢厂:</label>
+            <div class="layui-input-inline"  style="width: 140px">
+                <select name="steelType" id="steelType">
+                    <option value="" selected>搜索钢种</option>
+                    <option th:each="steel_type : ${steelTypes}"
+                            th:value="${steel_type.name}"
+                            th:text="${steel_type.name}"></option>
+                </select>
+            </div>
+            <label class="layui-form-label">钢材等级:</label>
+            <div class="layui-input-inline"  style="width: 120px">
+                <select name="steelGrade" id="steelGrade"  >
+                    <option value="" selected>选择钢等</option>
+                    <option th:each="steel_grade : ${steelGrades}"
+                            th:value="${steel_grade.grade}"
+                            th:text="${steel_grade.grade}"></option>
+                </select>
+            </div>
+            <label class="layui-form-label">尺寸:</label>
+            <div class="layui-input-inline"  style="width: 140px">
+                <select name="steelSize" id="steelSize" lay-search>
+                    <option value="" selected>搜索尺寸</option>
+                    <option th:each="steel_size : ${steelSizes}"
+                            th:value="${steel_size.size}"
+                            th:text="${steel_size.size}"></option>
+                </select>
+            </div>
+            <label class="layui-form-label">客户:</label>
+            <div class="layui-input-inline">
+                <select name="customer" id="customer"  >
+                    <option value="" selected>搜索客户</option>
+                    <option th:each="customer : ${customers}"
+                            th:value="${customer.name}"
+                            th:text="${customer.name}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">贸易方式:</label>
+            <div class="layui-input-inline">
+                <select name="tradeMode" id="tradeMode"  >
+                    <option value="">选择方式</option>
+                    <option th:each="trade_mode : ${tradeModes}"
+                            th:value="${trade_mode.mode}"
+                            th:text="${trade_mode.mode}"
+                            th:selected="${trade_mode.mode == '一般贸易'}"></option>
+                </select>
+            </div>
+            <label class="layui-form-label">购买方:</label>
+            <div class="layui-input-inline" style="width: 140px">
+                <select name="tradeMode" id="purchaser"  >
+                    <option value="" >请选择购买方</option>
+                    <option th:each="purchaser : ${purchasers}"
+                            th:value="${purchaser.purchaser}"
+                            th:text="${purchaser.purchaser}"
+                            th:selected="${purchaser.purchaser == '浙江旭日'}"></option>
+                </select>
+            </div>
+            <label class="layui-form-label">到货点:</label>
+            <div class="layui-input-inline" style="width: 80px">
+                <select name="deliveryPoint" id="deliveryPoint"  >
+                    <option value="ZAB" selected>ZAB</option>
+                    <option value="SAB" >SAB</option>
+                </select>
+            </div>
+            <label class="layui-form-label">到港日期:</label>
+            <div class="layui-input-inline" style="width: 130px">
+                <input id="arrivalPortDate" name="arrivalPortDate" placeholder="请输入到港日期" required lay-verify="required" class="layui-input" autocomplete="off">
+            </div>
+            <label class="layui-form-label">到达日期:</label>
+            <div class="layui-input-inline" style="width: 130px">
+                <input id="arrivalDate" name="arrivalDate"  placeholder="请输入到达日期" required lay-verify="required" class="layui-input" autocomplete="off">
+            </div>
+        </div>
+        <div style="display: flex; justify-content: center; align-items: center;  flex-direction: column;">
+            <h3 style="margin: 10px 0;">选择文件进行导入</h3>
+            <input type="file" id="excelFile" accept=".xlsx, .xls">
+        </div>
+        <br><br>
+        <div class="layui-form-item">
+            <div class="layui-input-block" style="display: flex; justify-content: end">
+                <button type="submit" class="layui-btn" lay-submit>生成二维码</button>
+                <button type="button" class="layui-btn layui-btn-primary" onclick="printQRCode()">打印二维码</button>
+            </div>
+        </div>
+    </form>
+    <table class="layui-hide" id="recordTable"></table> <!-- Layui Table Container -->
+    <div id="qrcodeDisplayArea"></div> <!-- Area to display QR codes -->
+</div>
+<script>
+    layui.use(['form', 'laydate'], function() {
+        var form = layui.form,
+            laydate = layui.laydate;
+        form.render();
+
+        laydate.render({
+            elem: '#arrivalPortDate',
+            type: 'date',
+            value: new Date() // 设置默认值为当前日期
+        });
+        laydate.render({
+            elem: '#arrivalDate',
+            type: 'date',
+            value: new Date() // 设置默认值为当前日期
+        });
+    });
+    function uploadFile() {
+        const fileInput = document.getElementById('excelFile');
+        const file = fileInput.files[0];
+        const formData = new FormData();
+        formData.append("file", file);
+        if (!file) {
+            layer.alert("请选择导入文件！");
+            return; // 停止函数执行
+        }
+        // 添加表单字段
+        formData.append("invoiceNumber", document.getElementById('invoiceNumber').value);
+        formData.append("customer", document.getElementById('customer').value);
+        formData.append("tradeMode", document.getElementById('tradeMode').value);
+        formData.append("deliveryPoint", document.getElementById('deliveryPoint').value);
+        formData.append("purchaser", document.getElementById('purchaser').value);
+        formData.append("arrivalPortDate", document.getElementById('arrivalPortDate').value);
+        formData.append("arrivalDate", document.getElementById('arrivalDate').value);
+        formData.append("steelGrade", document.getElementById('steelGrade').value);
+        formData.append("steelType", document.getElementById('steelType').value);
+        formData.append("steelSize", document.getElementById('steelSize').value);
+        fetch('/upload/freeUpod', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                displayData(data);
+                generateQRCode(data);
+                document.getElementById('excelFile').value = '';
+            })
+            .catch(error => {
+                layer.alert("导入文件格式不匹配，请重新选择文件")
+                console.error('Error:', error);
+            });
+    }
+    function displayData(shipments) {
+        layui.use('table', function() {
+            var table = layui.table;
+            table.render({
+                elem: '#recordTable',
+                data: shipments, // 使用返回的数据直接渲染表格
+                cellMinWidth: 150, // Set minimum cell width
+                height: 600, // 设置表格高度
+                cols: [ [
+                    {field: 'id', title: 'id',hide:true},
+                    {field: 'uniqueIdentifier', title: 'Uid'},
+                    {field: 'invoiceNumber', title: '发票编号'},
+                    {field: 'customer', title: '客户'},
+                    {field: 'tradeMode', title: '贸易方式'},
+                    {field: 'deliveryPoint', title: '到货点'},
+                    {field: 'arrivalPortDate', title: '到港日期',templet: function(d) {
+                            return formatDate(d.arrivalPortDate);
+                        }},
+                    {field: 'arrivalDate', title: '到达日期',templet: function(d) {
+                            return formatDate(d.arrivalDate);
+                        }},
+                    {field: 'dimensions', title: '尺寸'},
+                    {field: 'weight', title: '重量'},
+                    {field: 'steelMill', title: '钢厂'},
+                    {field: 'furnaceNumber', title: '炉号'},
+                    {field: 'invoiceApplication', title: '发票申请'},
+                    {field: 'operationType', title: '操作类型'},
+                    {field: 'supplierBatchNumber', title: '供应商生产批号'},
+                    {field: 'bundleCount', title: '支数'},
+                    {field: 'placementArea', title: '放置区域'},
+                    {field: 'purchaser', title: '购买方'},
+                ]]
+            });
+        });
+    }
+    function formatDate(dateStr) {
+        if (!dateStr) return '';
+        let date = new Date(dateStr);
+        let year = date.getFullYear();
+        let month = (date.getMonth() + 1).toString().padStart(2, '0');
+        let day = date.getDate().toString().padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+    function generateQRCode(shipments) {
+        const qrcodeDisplayArea = document.getElementById('qrcodeDisplayArea');
+        qrcodeDisplayArea.innerHTML = '';
+
+        shipments.forEach((shipment, index) => {
+            let containerDiv = document.createElement('div');
+            containerDiv.className = 'container';
+            containerDiv.style.display = 'flex';
+            containerDiv.style.flexDirection = 'column'; // 垂直排列
+            containerDiv.style.alignItems = 'center';
+            containerDiv.style.marginBottom = '10px';
+            let qrDiv = document.createElement('div');
+            let textDiv = document.createElement('div');
+            textDiv.style.marginLeft = '5px';
+            textDiv.style.fontSize = '13px';
+            textDiv.innerHTML = `
+                             <strong>日期:</strong> ${formatDate(shipment.arrivalDate)}<strong><span> </span>重量:</strong> ${shipment.weight}<span>kg</span><br>
+                             <strong>钢厂:</strong> ${shipment.steelMill}<strong><span> </span>材料ID:</strong> ${shipment.uniqueIdentifier}<br>
+                             <strong>钢等:</strong> ${shipment.steelGrade}<strong>购买方:</strong> ${shipment.purchaser}<br>
+                             <strong>炉号:</strong> ${shipment.furnaceNumber}<br>
+                             <strong>尺寸:</strong> ${shipment.dimensions}<br>
+                             <strong>钢厂生产批号:</strong> ${shipment.supplierBatchNumber}<br>
+                             <strong>贸易方式:</strong> ${shipment.tradeMode}
+            `;
+            $(qrDiv).qrcode({
+                text: Object.values({
+                    arrivalDate:formatDate(shipment.arrivalDate),
+                    steelMill: shipment.steelMill,
+                    steelGrade: shipment.steelGrade,
+                    furnaceNumber: shipment.furnaceNumber,
+                    weight: shipment.weight,
+                    bundleCount: shipment.bundleCount,
+                    purchaser: shipment.purchaser,
+                    tradeMode: shipment.tradeMode,
+                    customer: shipment.customer,
+                    deliveryPoint: shipment.deliveryPoint,
+                    supplierBatchNumber: shipment.supplierBatchNumber,
+                    uniqueIdentifier:shipment.uniqueIdentifier
+                }).join('|'),
+                width: 140,
+                height: 140,
+                correctLevel: 3
+            });
+            containerDiv.appendChild(qrDiv);
+            containerDiv.appendChild(textDiv);
+            qrcodeDisplayArea.appendChild(containerDiv);
+            if ((index) % 2 === 0) {
+                let spacerDiv = document.createElement('div');
+                spacerDiv.style.height = '340px'; // 设置留空的高度
+                qrcodeDisplayArea.appendChild(spacerDiv);
+            }
+        });
+    }
+
+    function printQRCode() {
+        window.print();
+    }
+</script>
+</body>
+</html>
