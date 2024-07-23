@@ -63,6 +63,7 @@
                     <option value="出库">出库 </option>
                     <option value="转库">转库 </option>
                     <option value="返库">返库 </option>
+                    <option value="退货">退货 </option>
                     <option value="none">无操作</option>
                 </select>
             </div>
@@ -156,6 +157,7 @@
 </div>
 <script type="text/html" id="actionBar">
     <a class="layui-btn layui-btn-xs" lay-event="outK">出库</a>
+    <a class="layui-btn layui-btn-xs" lay-event="retH">退货</a>
 </script>
 <script>
     var userReviewGroupId;var userAuthority;var userDepositoryId;var userDepository;var depositoryId;let pp;
@@ -333,14 +335,37 @@
         table.on('tool(recordTableFilter)', function(obj) {
             var data = obj.data;
             var layEvent = obj.event;
-
             if (layEvent === 'outK') {
                 console.log(data.uniqueIdentifier);
                 const uniqueIdentifier = data.uniqueIdentifier;
                 const date = new Date().toISOString().split('T')[0];
                 stockOut({ uniqueIdentifier, date });
+            } else if(layEvent ==='retH'){
+                console.log(data.uniqueIdentifier);
+                const uniqueIdentifier = data.uniqueIdentifier;
+                const idd = data.id;
+                const date = new Date().toISOString().split('T')[0];
+                tuiHuo({ uniqueIdentifier, date,idd });
             }
         });
+        function tuiHuo(data) {
+            // 发送 AJAX 请求来更新数据
+            $.ajax({
+                url: '/shipment/update/' + data.idd, // 更新API URL
+                type: 'PUT', // 使用 PUT 方法更新
+                contentType: 'application/json', // 发送数据的格式
+                data: JSON.stringify({ operationType: '退货' }), // 将合并后的数据转换为 JSON 字符串
+                success: function(response) {
+                    layer.msg('退货操作完成！', {icon: 1, time: 3000});
+                    table.reload('recordTable'); // 重新加载表格数据
+                },
+                error: function(xhr, status, error) {
+                    // 处理请求失败的情况
+                    layer.msg('更新失败！', {icon: 2, time: 3000});
+                }
+            });
+            return false; // 阻止表单跳转
+        }
         function stockOut(data) {
             fetch('/shipment/stockOut', {
                 method: 'POST',

@@ -203,7 +203,6 @@ public class FileUploadController {
             shipment.setPlacementArea(getCellValueAsString(row.getCell(8)));
             filledFieldsCount++;
         }
-
         if (getCellValueAsDouble(row.getCell(9)) != null) {
             shipment.setWeight(getCellValueAsDouble(row.getCell(9)));
             filledFieldsCount++;
@@ -221,12 +220,6 @@ public class FileUploadController {
             filledFieldsCount++;
         }
 
-
-        if (getCellValueAsString(row.getCell(15)) != null) {
-            shipment.setSupplierBatchNumber(getCellValueAsString(row.getCell(15)));
-            filledFieldsCount++;
-        }
-
         if (getCellValueAsString(row.getCell(14)) != null) {
             String cellValue = getCellValueAsString(row.getCell(14));
             try {
@@ -237,6 +230,12 @@ public class FileUploadController {
                 e.printStackTrace();
             }
         }
+        if (getCellValueAsString(row.getCell(15)) != null) {
+            shipment.setSupplierBatchNumber(getCellValueAsString(row.getCell(15)));
+            filledFieldsCount++;
+        }
+
+
 
 //        if (getCellValueAsString(row.getCell(13)) != null) {
 //            shipment.setInvoiceApplication(getCellValueAsString(row.getCell(13)));
