@@ -340,12 +340,16 @@
                 const uniqueIdentifier = data.uniqueIdentifier;
                 const date = new Date().toISOString().split('T')[0];
                 stockOut({ uniqueIdentifier, date });
-            } else if(layEvent ==='retH'){
+            } else if (layEvent === 'retH' && data.operationType === '入库') {
                 console.log(data.uniqueIdentifier);
                 const uniqueIdentifier = data.uniqueIdentifier;
                 const idd = data.id;
                 const date = new Date().toISOString().split('T')[0];
                 tuiHuo({ uniqueIdentifier, date,idd });
+            } else {
+                // Handle cases where operationType is not "入库", if needed
+                console.log('Operation not allowed for this record.');
+                layer.msg('操作失败，请检查', {icon: 2, time: 3000});
             }
         });
         function tuiHuo(data) {
