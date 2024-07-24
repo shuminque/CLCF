@@ -213,7 +213,6 @@
         WHERE id = #{id}
     </update>
 
-
     <!-- 删除操作 -->
     <delete id="deleteShipmentDetail" parameterType="int">
         DELETE FROM shipment_details WHERE id = #{id}
@@ -366,6 +365,8 @@
             </if>
             )
             SELECT
+            latest_in_info.id,
+            latest_in_info.operation_type,
             latest_in_info.supplier_batch_number,
             latest_in_info.unique_identifier,
             latest_in_info.invoice_number,

@@ -54,21 +54,16 @@
         <div class="layui-form-item">
 
             <div class="layui-input-inline">
-                <input type="text" name="time" id="date" placeholder="请选择到货日期" autocomplete="off" class="layui-input">
+                <input type="text" name="time" id="date" placeholder="请选择日期" autocomplete="off" class="layui-input">
             </div>
             <div class="layui-input-inline">
-                <select name="operationType" id="operationType">
-                    <option value="" selected>选择操作类型</option>
-                    <option value="入库">入库</option>
-                    <option value="出库">出库 </option>
-                    <option value="转库">转库 </option>
-                    <option value="返库">返库 </option>
-                    <option value="退货">退货 </option>
-                    <option value="none">无操作</option>
+                <select class="input area-select" name="placementArea" id="areaSelect">
+                    <option value="" selected>选择库位</option>
+                    <option value="empty">空库位</option>
+                    <option th:each="placement_area : ${areas}"
+                            th:value="${placement_area.area}"
+                            th:text="${placement_area.area}"></option>
                 </select>
-            </div>
-            <div class="layui-input-inline">
-                <input type="text" name="time2" id="date3" placeholder="请选择操作日期" autocomplete="off" class="layui-input">
             </div>
             <div class="layui-input-inline">
                 <select name="steelMill">
@@ -131,15 +126,7 @@
                 <div class="layui-input-inline">
                     <input type="text" name="supplierBatchNumber" placeholder="搜索批号" class="layui-input">
                 </div>
-                <div class="layui-input-inline">
-                    <select class="input area-select" name="placementArea" id="areaSelect">
-                        <option value="" selected>选择库位</option>
-                        <option value="empty">空库位</option>
-                        <option th:each="placement_area : ${areas}"
-                                th:value="${placement_area.area}"
-                                th:text="${placement_area.area}"></option>
-                    </select>
-                </div>
+
                 <div class="layui-input-inline">
                     <input type="text" name="uniqueIdentifier" placeholder="搜索材料ID" class="layui-input">
                 </div>
@@ -195,23 +182,26 @@
         var form = layui.form;
         var laydate=layui.laydate;
 
+        // 初始化日期范围选择器
         laydate.render({
-            elem: '#date'
-            , range: true,
-            rangeLinked: true
+            elem: '#date',
+            value: new Date() // 设置默认值为当前日期
         });
-        laydate.render({
-            elem: '#date3'
-            , range: true,
-            rangeLinked: true
-        });
+
         // 渲染表格
         var recordTable = table.render({
             elem: '#recordTable',
-            url: '/shipment',
-            request: {
-                pageName:'page',
-                limitName:'size'
+            url: '/shipment/getStockStatusBeforeCutoffDate',
+            parseData: function(res) { // 将原始数据格式适配成 layui 表格组件所期望的格式
+                var filteredData = res.filter(function(record) {
+                    return record.weight > 0;
+                });
+                return {
+                    "code": 0, // 解析接口状态
+                    "msg": "", // 解析提示文本
+                    "count": filteredData.length, // Parse data length
+                    "data": filteredData // Parse data list
+                };
             },
             height: 600, // 设置表格高度
             toolbar: ['filter', 'exports', 'print'],
@@ -220,9 +210,8 @@
                     // {type: 'checkbox'}, // 添加多选框
                     {title: '操作', toolbar: '#actionBar', minWidth: 80},
                     {field: 'id', title: 'id', hide: true},
+                    {field: 'operationType', title: '操作类型', totalRowText: '合计', hide: true},
                     {field: 'invoiceNumber', title: '发票编号', hide: true},
-                    {field: 'invoiceApplication', title: '结算状态', minWidth: 120},
-                    {field: 'operationType', title: '操作类型', totalRowText: '合计', minWidth: 120},
                     {field: 'uniqueIdentifier', title: '材料ID', minWidth: 120},
                     {field: 'furnaceNumber', title: '炉号', minWidth: 100},
                     {field: 'steelMill', title: '钢厂', minWidth: 100},
@@ -242,7 +231,7 @@
                     {field: 'arrivalDate', title: '到达日期', templet: function(d){
                             return formatDate(d.arrivalDate);
                         },minWidth: 150},
-                    {field: 'time', title: '操作日期', templet: function(d){
+                    {field: 'time', title: '入库日期', templet: function(d){
                             return formatDate(d.time);
                         },minWidth: 150}
                 ]
@@ -319,14 +308,10 @@
                 req.startDate = dates[0];
                 req.endDate = dates[1];
             }
-            if (formData.time2 !== '') {
-                var dates2 = formData.time2.split(' - ');
-                req.startDate2 = dates2[0];
-                req.endDate2 = dates2[1];
-            }
+            req.cutoffDate = formData.time;
             // 执行搜索重载
             recordTable.reload({
-                url: '/shipment',
+                url: '/shipment/getStockStatusBeforeCutoffDate',
                 where: req,
                 page: {curr: 1}
             });
@@ -380,7 +365,7 @@
             }).then(response => {
                 if (response.ok) {
                     console.log("出库成功", data);
-                    layer.alert('出库操作成功');
+                    layer.msg('出库操作成功！', {icon: 1, time: 3000});
                 }else {
                     layer.alert('该产品无库存，出库操作无效');
                 }
