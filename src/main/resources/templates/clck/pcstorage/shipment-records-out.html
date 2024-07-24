@@ -356,7 +356,8 @@
             return false; // 阻止表单跳转
         }
         function stockOut(data) {
-            fetch('/shipment/stockOut', {
+            layer.confirm('确定要出库这条记录吗？', function(index) {
+                fetch('/shipment/stockOut', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -366,6 +367,7 @@
                 if (response.ok) {
                     console.log("出库成功", data);
                     layer.msg('出库操作成功！', {icon: 1, time: 3000});
+                    table.reload('recordTable'); // 重新加载表格数据
                 }else {
                     layer.alert('该产品无库存，出库操作无效');
                 }
@@ -374,6 +376,7 @@
                     console.error('出库操作失败:', error);
                     layer.alert(`出库操作失败: ${error.message}`);
                 });
+            });
         }
         // 高级搜索开关逻辑
         $('#advancedSearchToggle').click(function () {
