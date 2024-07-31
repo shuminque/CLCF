@@ -147,6 +147,7 @@
             <div class="layui-input-block" style="display: flex; justify-content: end">
                 <button type="submit" class="layui-btn" lay-submit>生成二维码</button>
                 <button type="button" class="layui-btn layui-btn-primary" onclick="printQRCode()">打印二维码</button>
+                <button type="button" class="layui-btn layui-btn-normal" onclick="exportQRCode()">导出二维码</button>
             </div>
         </div>
     </form>
@@ -306,6 +307,48 @@
     function printQRCode() {
         window.print();
     }
+    function exportQRCode() {
+        const qrcodeDisplayArea = document.getElementById('qrcodeDisplayArea');
+        const containers = Array.from(qrcodeDisplayArea.getElementsByClassName('container'));
+
+        // 保存当前 spacerDiv 的位置
+        const spacerIndices = [];
+        const spacers = qrcodeDisplayArea.querySelectorAll('div[style*="height: 340px"]');
+        spacers.forEach(spacer => {
+            spacerIndices.push(Array.prototype.indexOf.call(qrcodeDisplayArea.children, spacer));
+            spacer.remove();
+        });
+
+        // 修改 qrcodeDisplayArea 的排列方式为横向
+        qrcodeDisplayArea.style.display = 'flex';
+        qrcodeDisplayArea.style.flexWrap = 'wrap';
+        qrcodeDisplayArea.style.justifyContent = 'flex-start';
+
+        // 打印 QR 码
+        window.print();
+
+        // 恢复原始布局以便正常显示
+        qrcodeDisplayArea.style.display = 'block';
+        qrcodeDisplayArea.style.flexWrap = 'nowrap';
+        qrcodeDisplayArea.style.justifyContent = 'initial';
+
+        // 恢复容器的原始排列方式
+        containers.forEach(container => {
+            container.style.flexDirection = 'column'; // 恢复为垂直排列
+            container.style.marginBottom = '10px'; // 恢复底部的 margin
+            container.style.marginRight = '0'; // 移除右边距
+        });
+
+        // 按照每隔一个 QR 码添加一个 spacerDiv 元素的逻辑重新添加它们
+        containers.forEach((container, index) => {
+            if (index % 2 === 0) {
+                let spacerDiv = document.createElement('div');
+                spacerDiv.style.height = '340px'; // 设置留空的高度
+                qrcodeDisplayArea.insertBefore(spacerDiv, container.nextSibling);
+            }
+        });
+    }
+
 </script>
 </body>
 </html>
