@@ -145,14 +145,28 @@
         {field: 'steel_mill', title: '钢厂'},
         {field: 'steel_grade', title: '钢等'},
         {field: 'dimensions', title: '尺寸'},
-        {field: 'trade_mode', title: '尺寸'},
+        {field: 'trade_mode', title: '交易类型',totalRowText: '总重量:'},
         {field: 'weight', title: '重量'},
         {field: 'invoice_application', title: '结算状态'},
         {title: '操作', toolbar: '#operationBar', fixed: 'right', align: 'center'}
 
       ]],
+      totalRow: true, // 开启合计行
+      limits: [1000, 5000, 10000],
+      limit: 500,
       done: function(res, curr, count) {
         // 表格渲染完成后的回调
+        var totalWeight = 0;
+        res.data.forEach(function(item) {
+          totalWeight += parseFloat(item.weight);
+        });
+        var totalRow = document.getElementsByClassName('layui-table-total')[0];
+        if (totalRow) {
+          var weightCell = totalRow.querySelector('td[data-field="weight"]');
+          if (weightCell) {
+            weightCell.getElementsByClassName('layui-table-cell')[0].innerText = totalWeight.toFixed(2).toString();
+          }
+        }
       }
     });
     // 操作栏模板
