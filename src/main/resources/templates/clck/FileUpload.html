@@ -25,6 +25,9 @@
             .container {
                 page-break-inside: avoid; /* 避免二维码跨页 */
             }
+            .layui-btn-normal {
+                display: none; /* Hide the export button during print */
+            }
         }
         #qrcodeDisplayArea div {
             display: inline-block;
@@ -147,7 +150,7 @@
             <div class="layui-input-block" style="display: flex; justify-content: center">
                 <button type="submit" class="layui-btn" lay-submit>生成二维码</button>
                 <button type="button" class="layui-btn layui-btn-primary" onclick="printQRCode()">打印二维码</button>
-<!--                <button type="button" class="layui-btn layui-btn-normal" onclick="exportQRCode()">导出</button>-->
+                <button type="button" class="layui-btn layui-btn-normal" onclick="exportQRCode()">导出</button>
             </div>
         </div>
     </form>
