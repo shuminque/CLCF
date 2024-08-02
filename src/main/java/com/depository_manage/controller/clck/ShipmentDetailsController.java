@@ -149,6 +149,7 @@ public class ShipmentDetailsController {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             Date date = dateFormat.parse(dateString);
             shipment.setTime(date);
+            shipment.setArrivalDate(date);
             LocalDate today = LocalDate.now();
             int counter = dailyCounterService.findAndUpdateCounterByDate(today); // 查询并更新序号
             String index = String.valueOf(counter);
