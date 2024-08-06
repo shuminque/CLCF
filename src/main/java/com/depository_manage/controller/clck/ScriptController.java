@@ -1,12 +1,22 @@
 package com.depository_manage.controller.clck;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
@@ -14,46 +24,42 @@ import java.util.stream.Collectors;
 public class ScriptController {
 
     @PostMapping("/run-aa")
-    public ResponseEntity<String> runScript() {
+    public ResponseEntity<List<byte[]>> runScript() {
         try {
-            // 获取类路径中的Python脚本，并解码路径
+            // 假设Python脚本会将生成的图片文件名输出到控制台
             String scriptPath = getClass().getClassLoader().getResource("scripts/aa.py").getPath();
 
-            // 在Windows系统上，路径可能会多一个前导斜杠，需要去掉它
             if (scriptPath.startsWith("/")) {
                 scriptPath = scriptPath.substring(1);
             }
 
-            // 解码路径，防止空格等特殊字符影响路径解析
-
-            // 打印路径以检查是否正确
-            System.out.println("Script Path: " + scriptPath);
-
-            // 使用ProcessBuilder运行Python脚本
             ProcessBuilder processBuilder = new ProcessBuilder("python", scriptPath);
-
-            // 设置环境变量，如果需要
             processBuilder.environment().put("PYTHONUNBUFFERED", "1");
 
-            // 启动进程
             Process process = processBuilder.start();
-
-            // 读取脚本的输出
-            String result = new BufferedReader(new InputStreamReader(process.getInputStream()))
-                    .lines().collect(Collectors.joining("\n"));
-            String error = new BufferedReader(new InputStreamReader(process.getErrorStream()))
-                    .lines().collect(Collectors.joining("\n"));
-
             int exitCode = process.waitFor();
 
             if (exitCode == 0) {
-                return ResponseEntity.ok(result);
+                // 假设图片生成路径是 C:\Users\Q\Desktop\看板图\ 下
+                String imageDir = "C:\\Users\\Q\\Desktop\\看板图\\20240806";
+                File dir = new File(imageDir);
+                if (!dir.exists() || !dir.isDirectory()) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+                }
+
+                List<byte[]> images = new ArrayList<>();
+                for (File file : dir.listFiles()) {
+                    byte[] imageBytes = Files.readAllBytes(file.toPath());
+                    images.add(imageBytes);
+                }
+
+                return ResponseEntity.ok(images);
             } else {
-                return ResponseEntity.status(500).body("脚本执行失败:\n" + error);
+                return ResponseEntity.status(500).body(null);
             }
         } catch (Exception e) {
-            e.printStackTrace(); // 输出完整的异常堆栈跟踪
-            return ResponseEntity.status(500).body("脚本执行异常: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(null);
         }
     }
 }
