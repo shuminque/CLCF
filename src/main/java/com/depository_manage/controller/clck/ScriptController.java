@@ -15,8 +15,6 @@ import java.io.InputStreamReader;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,9 +41,7 @@ public class ScriptController {
 
             if (exitCode == 0) {
                 // 假设图片生成路径是 C:\Users\Q\Desktop\看板图\ 下
-                String userHomeDir = System.getProperty("user.home");
-                String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-                String imageDir = "C:\\Users\\Administrator\\Desktop\\看板图\\" + currentDate;
+                String imageDir = "C:\\Users\\Administrator\\Desktop\\看板图\\20240806";
                 File dir = new File(imageDir);
                 if (!dir.exists() || !dir.isDirectory()) {
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
