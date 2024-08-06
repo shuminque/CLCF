@@ -45,7 +45,7 @@ public class ScriptController {
                 // 假设图片生成路径是 C:\Users\Q\Desktop\看板图\ 下
                 String userHomeDir = System.getProperty("user.home");
                 String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-                String imageDir = userHomeDir + "\\Desktop\\看板图\\" + currentDate;
+                String imageDir = "C:\\Users\\Administrator\\Desktop\\看板图\\" + currentDate;
                 File dir = new File(imageDir);
                 if (!dir.exists() || !dir.isDirectory()) {
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
