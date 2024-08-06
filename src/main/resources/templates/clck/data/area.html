@@ -20,6 +20,7 @@
 <body>
 <div class="container">
     <button id="addSteelTypeBtn" class="layui-btn">添加库位</button>
+    <button id="runPythonScriptBtn" class="layui-btn layui-btn-warm">运行aa.py</button>
     <div style="display: flex; align-items: flex-start;">
         <div>
             <h3 data-area="A" class="area-title">A区: 二车间北面雨棚区域</h3>
@@ -246,7 +247,23 @@
                 layer.close(index);
             });
         }
+        $('#runPythonScriptBtn').click(function() {
+            $.ajax({
+                url: '/script/run-aa',  // 更新为新的后端API URL
+                type: 'POST',
+                success: function(response) {
+                    layer.msg('脚本运行成功！', {icon: 1, time: 2000});
+                    console.log(response);  // 在控制台打印脚本输出
+                },
+                error: function(xhr, status, error) {
+                    layer.msg('脚本运行失败！', {icon: 2, time: 2000});
+                    console.error(error);  // 在控制台打印错误信息
+                }
+            });
+        });
+
     });
+
 </script>
 </body>
 </html>
