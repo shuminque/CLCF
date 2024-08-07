@@ -28,26 +28,17 @@ public class ScriptController {
     @PostMapping("/run-aa")
     public ResponseEntity<List<String>> runScript() {
         try {
-            // 指定Python脚本的绝对路径
-            String scriptPath = "D:\\clck\\aa.py";
+            // 指定批处理文件的绝对路径
+            String batchFilePath = "D:\\clck\\看板更新.bat";
 
             // 打印路径用于调试
-            System.out.println("Running script at: " + scriptPath);
+            System.out.println("Running batch file at: " + batchFilePath);
 
-            // 使用ProcessBuilder来运行Python脚本
-            ProcessBuilder processBuilder = new ProcessBuilder("python", scriptPath);
+            // 使用ProcessBuilder来运行批处理文件
+            ProcessBuilder processBuilder = new ProcessBuilder(batchFilePath);
             processBuilder.environment().put("PYTHONUNBUFFERED", "1");
 
             Process process = processBuilder.start();
-            int exitCode = process.waitFor();
-
-            if (exitCode != 0) {
-                BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-                String errorMessage = errorReader.lines().collect(Collectors.joining("\n"));
-                System.err.println("Python script error: " + errorMessage);
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-            }
-
 
             // 假设图片生成路径是 C:\\Users\\Q\\Desktop\\看板图\\20240806 下
             // 动态生成路径
