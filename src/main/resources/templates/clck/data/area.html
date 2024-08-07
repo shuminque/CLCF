@@ -248,6 +248,11 @@
             });
         }
         $('#runPythonScriptBtn').click(function() {
+            $(this).prop('disabled', true);
+            // 10秒后启用按钮
+            setTimeout(() => {
+                $('#runPythonScriptBtn').prop('disabled', false);
+            }, 10000); // 10000 毫秒 = 10 秒
             $.ajax({
                 url: '/script/run-aa',
                 type: 'POST',
