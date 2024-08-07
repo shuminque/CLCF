@@ -28,19 +28,14 @@ public class ScriptController {
     @PostMapping("/run-aa")
     public ResponseEntity<List<String>> runScript() {
         try {
-            // 将Python脚本从JAR中提取到临时目录
-            InputStream scriptStream = getClass().getClassLoader().getResourceAsStream("scripts/aa.py");
-            if (scriptStream == null) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-            }
+            // 指定Python脚本的绝对路径
+            String scriptPath = "D:\\clck\\aa.py";
 
-            // 创建一个临时文件用于保存脚本
-            Path tempScript = Files.createTempFile("aa", ".py");
-            Files.copy(scriptStream, tempScript, StandardCopyOption.REPLACE_EXISTING);
-            scriptStream.close();
+            // 打印路径用于调试
+            System.out.println("Running script at: " + scriptPath);
 
-            // 使用临时文件路径来运行Python脚本
-            ProcessBuilder processBuilder = new ProcessBuilder("python", tempScript.toAbsolutePath().toString());
+            // 使用ProcessBuilder来运行Python脚本
+            ProcessBuilder processBuilder = new ProcessBuilder("python", scriptPath);
             processBuilder.environment().put("PYTHONUNBUFFERED", "1");
 
             Process process = processBuilder.start();
@@ -52,6 +47,7 @@ public class ScriptController {
                 System.err.println("Python script error: " + errorMessage);
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
             }
+
 
             // 假设图片生成路径是 C:\\Users\\Q\\Desktop\\看板图\\20240806 下
             // 动态生成路径
@@ -69,7 +65,6 @@ public class ScriptController {
                 String base64Image = Base64.getEncoder().encodeToString(imageBytes);
                 images.add(base64Image);
             }
-            Files.delete(tempScript);
 
             return ResponseEntity.ok(images);
         } catch (Exception e) {
