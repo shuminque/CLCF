@@ -205,6 +205,11 @@ public class PageController {
         ModelAndView mv = new ModelAndView();
         mv.setViewName("clck/data/area");return mv;
     }
+    @GetMapping("/kanban-management")
+    public ModelAndView KanbanManagement() {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("clck/pcpage/kanban-management");return mv;
+    }
     @GetMapping("/s1")
     public String s1() {
         return "pages/qr/saoma1";

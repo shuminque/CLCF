@@ -20,7 +20,6 @@
 <body>
 <div class="container">
     <button id="addSteelTypeBtn" class="layui-btn">添加库位</button>
-    <button id="runPythonScriptBtn" class="layui-btn layui-btn-warm">获取区域图</button>
     <div style="display: flex; align-items: flex-start;">
         <div>
             <h3 data-area="A" class="area-title">A区: 二车间北面雨棚区域</h3>
@@ -247,47 +246,6 @@
                 layer.close(index);
             });
         }
-        $('#runPythonScriptBtn').click(function() {
-            $(this).prop('disabled', true);
-            // 10秒后启用按钮
-            setTimeout(() => {
-                $('#runPythonScriptBtn').prop('disabled', false);
-            }, 10000); // 10000 毫秒 = 10 秒
-            $.ajax({
-                url: '/script/run-aa',
-                type: 'POST',
-                success: function(response) {
-                    console.log(response[0]); // 任务正在处理中，请稍后刷新查看图片
-                    // 每隔5秒轮询一次，检查图片是否生成
-                    let intervalId = setInterval(function() {
-                        $.ajax({
-                            url: '/script/get-images',
-                            type: 'POST',
-                            success: function(images) {
-                                if (images.length > 0) {
-                                    // 清除轮询
-                                    clearInterval(intervalId);
-                                    // 显示图片
-                                    images.forEach(function(base64Image) {
-                                        const img = document.createElement('img');
-                                        img.src = 'data:image/png;base64,' + base64Image;
-                                        img.style.display = "block";
-                                        img.style.margin = "10px";
-                                        document.body.appendChild(img); // 在页面上显示图片
-                                    });
-                                }
-                            },
-                            error: function(xhr, status, error) {
-                                console.error("获取图片失败:", error);
-                            }
-                        });
-                    }, 2000); // 每隔2秒检查一次
-                },
-                error: function(xhr, status, error) {
-                    console.error("脚本运行失败:", error);
-                }
-            });
-        });
 
     });
 

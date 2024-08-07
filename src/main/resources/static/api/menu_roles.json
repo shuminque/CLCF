@@ -139,6 +139,15 @@
                             ]
                         },
                         {
+                            "title": "看板管理",
+                            "href": "/kanban-management",
+                            "icon": "fa fa-th-list",
+                            "target": "_self",
+                            "roles": [
+                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "onlyRead", "operate"
+                            ]
+                        },
+                        {
                             "title": "材料-产品关联",
                             "href": "/material-products",
                             "icon": "fa fa-th-list",

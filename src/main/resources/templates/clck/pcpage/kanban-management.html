@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>看板管理</title>
+  <!-- LayUI CSS -->
+  <link rel="stylesheet" href="/static/lib/layui-v2.8.17/css/layui.css" media="all">
+  <!-- jQuery 库 -->
+  <script src="/static/js/http_ajax.googleapis.com_ajax_libs_jquery_3.5.1_jquery.js"></script>
+  <script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script>
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .container {
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <button id="runPythonScriptBtn" class="layui-btn layui-btn-warm">获取区域图</button>
+  <div style="display: flex; align-items: flex-start;">
+    <div>
+      <h3 data-area="A" class="area-title">A区: 二车间北面雨棚区域</h3>
+      <h3 data-area="B" class="area-title">B区: 二车间棒材领料区</h3>
+      <h3 data-area="C" class="area-title">C区: 二车间南面棒材仓库</h3>
+    </div>
+    <div style="margin-left: 20px;">
+      <h3 data-area="D" class="area-title">D区: 二车间南面锻件仓库</h3>
+      <h3 data-area="E" class="area-title">E区: 一车间管材领料区</h3>
+      <h3 data-area="F" class="area-title">F区: 一车间管材仓库</h3>
+    </div>
+    <div style="margin-left: 20px;">
+      <h3 data-area="通道" class="area-title">通道区: 二车间</h3>
+    </div>
+  </div>
+  <br>
+</div>
+
+<script>
+  layui.use(['table', 'form', 'layer', 'jquery'], function(){
+    var table = layui.table;
+    var form = layui.form;
+    var layer = layui.layer;
+    var $ = layui.jquery;
+
+
+    $('#runPythonScriptBtn').click(function() {
+      $(this).prop('disabled', true);
+      // 10秒后启用按钮
+      setTimeout(() => {
+        $('#runPythonScriptBtn').prop('disabled', false);
+      }, 10000); // 10000 毫秒 = 10 秒
+      $.ajax({
+        url: '/script/run-aa',
+        type: 'POST',
+        success: function(response) {
+          console.log(response[0]); // 任务正在处理中，请稍后刷新查看图片
+          // 每隔5秒轮询一次，检查图片是否生成
+          let intervalId = setInterval(function() {
+            $.ajax({
+              url: '/script/get-images',
+              type: 'POST',
+              success: function(images) {
+                if (images.length > 0) {
+                  // 清除轮询
+                  clearInterval(intervalId);
+                  // 显示图片
+                  images.forEach(function(base64Image) {
+                    const img = document.createElement('img');
+                    img.src = 'data:image/png;base64,' + base64Image;
+                    img.style.display = "block";
+                    img.style.margin = "10px";
+                    document.body.appendChild(img); // 在页面上显示图片
+                  });
+                }
+              },
+              error: function(xhr, status, error) {
+                console.error("获取图片失败:", error);
+              }
+            });
+          }, 2000); // 每隔2秒检查一次
+        },
+        error: function(xhr, status, error) {
+          console.error("脚本运行失败:", error);
+        }
+      });
+    });
+
+  });
+
+</script>
+</body>
+</html>
