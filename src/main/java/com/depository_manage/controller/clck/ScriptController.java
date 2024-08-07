@@ -23,7 +23,6 @@ public class ScriptController {
         try {
             // 先运行批处理文件，确保图片生成
             executeBatchFile();
-
             // 然后读取生成的图片
             return getImages();
         } catch (Exception e) {
@@ -34,14 +33,15 @@ public class ScriptController {
 
     private void executeBatchFile() {
         try {
+            // 指定批处理文件的绝对路径
             String batchFilePath = "D:\\clck\\看板更新.bat";
+            // 同步运行批处理文件，确保图片生成
+            ProcessBuilder processBuilder = new ProcessBuilder(batchFilePath);
+            processBuilder.directory(new File("D:\\clck"));  // 设置工作目录
+            Process process = processBuilder.start();
 
-            // 使用 Runtime.getRuntime().exec 来执行批处理文件
-            String command = "cmd /c start " + batchFilePath;
-            Process process = Runtime.getRuntime().exec(command);
-
-            // 如果需要等待批处理文件执行完毕，可以调用 waitFor
             int exitCode = process.waitFor(); // 等待批处理文件执行完毕
+
             if (exitCode == 0) {
                 System.out.println("Batch file executed successfully.");
             } else {
