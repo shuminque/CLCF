@@ -247,30 +247,18 @@
                 layer.close(index);
             });
         }
+
+
         $('#runPythonScriptBtn').click(function() {
             $.ajax({
                 url: '/script/run-aa',
                 type: 'POST',
                 success: function(images) {
-                    // 假设 images 是一个包含多个图片的字节数组
-                    images.forEach(function(imageBytes, index) {
-                        // 将Base64字符串转化为Uint8Array
-                        const byteCharacters = atob(imageBytes);
-                        const byteNumbers = new Array(byteCharacters.length);
-                        for (let i = 0; i < byteCharacters.length; i++) {
-                            byteNumbers[i] = byteCharacters.charCodeAt(i);
-                        }
-                        const byteArray = new Uint8Array(byteNumbers);
-
-                        // 创建Blob对象
-                        var blob = new Blob([byteArray], { type: 'image/png' });
-
-                        // 将Blob对象转化为URL
-                        var url = window.URL.createObjectURL(blob);
-
-                        // 创建img元素并设置src属性
-                        var img = document.createElement('img');
-                        img.src = url;
+                    images.forEach(function(base64Image) {
+                        const img = document.createElement('img');
+                        img.src = 'data:image/png;base64,' + base64Image;
+                        img.style.display = "block";
+                        img.style.margin = "10px";
                         document.body.appendChild(img); // 在页面上显示图片
                     });
                 },
@@ -279,6 +267,7 @@
                 }
             });
         });
+
 
 
 
