@@ -34,14 +34,14 @@ public class ScriptController {
 
     private void executeBatchFile() {
         try {
-            // 指定批处理文件的绝对路径
             String batchFilePath = "D:\\clck\\看板更新.bat";
 
-            // 同步运行批处理文件，确保图片生成
-            ProcessBuilder processBuilder = new ProcessBuilder(batchFilePath);
-            Process process = processBuilder.start();
-            int exitCode = process.waitFor(); // 等待批处理文件执行完毕
+            // 使用 Runtime.getRuntime().exec 来执行批处理文件
+            String command = "cmd /c start " + batchFilePath;
+            Process process = Runtime.getRuntime().exec(command);
 
+            // 如果需要等待批处理文件执行完毕，可以调用 waitFor
+            int exitCode = process.waitFor(); // 等待批处理文件执行完毕
             if (exitCode == 0) {
                 System.out.println("Batch file executed successfully.");
             } else {
