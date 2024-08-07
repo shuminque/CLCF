@@ -39,7 +39,14 @@ public class ScriptController {
             processBuilder.environment().put("PYTHONUNBUFFERED", "1");
 
             Process process = processBuilder.start();
+            int exitCode = process.waitFor();
 
+            if (exitCode != 0) {
+                BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+                String errorMessage = errorReader.lines().collect(Collectors.joining("\n"));
+                System.err.println("Python script error: " + errorMessage);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            }
             // 假设图片生成路径是 C:\\Users\\Q\\Desktop\\看板图\\20240806 下
             // 动态生成路径
             String userHomeDir = System.getProperty("user.home");
