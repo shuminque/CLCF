@@ -251,20 +251,41 @@
             $.ajax({
                 url: '/script/run-aa',
                 type: 'POST',
-                success: function(images) {
-                    images.forEach(function(base64Image) {
-                        const img = document.createElement('img');
-                        img.src = 'data:image/png;base64,' + base64Image;
-                        img.style.display = "block";
-                        img.style.margin = "10px";
-                        document.body.appendChild(img); // 在页面上显示图片
-                    });
+                success: function(response) {
+                    console.log(response[0]); // 任务正在处理中，请稍后刷新查看图片
+
+                    // 每隔5秒轮询一次，检查图片是否生成
+                    let intervalId = setInterval(function() {
+                        $.ajax({
+                            url: '/script/get-images',
+                            type: 'POST',
+                            success: function(images) {
+                                if (images.length > 0) {
+                                    // 清除轮询
+                                    clearInterval(intervalId);
+
+                                    // 显示图片
+                                    images.forEach(function(base64Image) {
+                                        const img = document.createElement('img');
+                                        img.src = 'data:image/png;base64,' + base64Image;
+                                        img.style.display = "block";
+                                        img.style.margin = "10px";
+                                        document.body.appendChild(img); // 在页面上显示图片
+                                    });
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                console.error("获取图片失败:", error);
+                            }
+                        });
+                    }, 5000); // 每隔5秒检查一次
                 },
                 error: function(xhr, status, error) {
                     console.error("脚本运行失败:", error);
                 }
             });
         });
+
     });
 
 </script>
