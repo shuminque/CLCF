@@ -13,22 +13,19 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @RestController
 @RequestMapping("/script")
 public class ScriptController {
 
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
-
     @PostMapping("/run-aa")
     public ResponseEntity<List<String>> runScript() {
         try {
-            // 立即返回任务接受确认
-            executorService.submit(this::executeBatchFile);
-            return new ResponseEntity<>(HttpStatus.OK);
-            // 返回信息提示任务正在处理中
+            // 先运行批处理文件，确保图片生成
+            executeBatchFile();
+
+            // 然后读取生成的图片
+            return getImages();
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
@@ -43,12 +40,12 @@ public class ScriptController {
             // 同步运行批处理文件，确保图片生成
             ProcessBuilder processBuilder = new ProcessBuilder(batchFilePath);
             Process process = processBuilder.start();
-            process.waitFor(); // 等待批处理文件执行完毕
+            int exitCode = process.waitFor(); // 等待批处理文件执行完毕
 
-            if (process.exitValue() == 0) {
+            if (exitCode == 0) {
                 System.out.println("Batch file executed successfully.");
             } else {
-                System.err.println("Failed to execute batch file, exit code: " + process.exitValue());
+                System.err.println("Failed to execute batch file, exit code: " + exitCode);
             }
         } catch (Exception e) {
             e.printStackTrace();
