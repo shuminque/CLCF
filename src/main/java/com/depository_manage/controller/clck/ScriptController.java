@@ -42,7 +42,6 @@ public class ScriptController {
 
             // 同步运行批处理文件，确保图片生成
             ProcessBuilder processBuilder = new ProcessBuilder(batchFilePath);
-            processBuilder.environment().put("PYTHONUNBUFFERED", "1");
             Process process = processBuilder.start();
             process.waitFor(); // 等待批处理文件执行完毕
 
