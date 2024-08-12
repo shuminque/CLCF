@@ -240,6 +240,7 @@
                             "target": "_self",
                             "roles": ["SAB_cg","SAB_sh","ZAB_cg","ZAB_sh","ALL"]
                         },
+
                         {
                             "title": "厂区信息",
                             "href": "/depository_add",
