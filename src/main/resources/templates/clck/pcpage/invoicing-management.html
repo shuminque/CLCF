@@ -232,6 +232,7 @@
         layer.msg('请选择要打印的行');
         return;
       }
+
       // 计算总重量和未税合计
       var totalWeight = 0;
       var totalUntaxedAmount = 0;
@@ -240,42 +241,93 @@
         totalWeight += parseFloat(item.weight);
         totalUntaxedAmount += parseFloat(item.weight) * parseFloat(item.unit_price);
       });
-      // 生成需要打印的HTML内容
-      var printContent = '<table class="layui-table">';
-      printContent += '<thead><tr>';
-      printContent += '<th>到达日期</th><th>钢厂</th><th>钢等</th><th>尺寸</th><th>交易类型</th><th>重量</th><th>未税单价</th><th>未税金额</th>';
-      printContent += '</tr></thead><tbody>';
+
+      var leftPositions = ['10%', '30%', '50%', '70%', '90%'];
+      var positions = ['10%', '20%', '30%', '40%', '50%'];
+
+      var printContent = `
+    <h1 style="
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    ">
+      钢材结算清单
+    </h1>
+  `;
+
+      // 添加五个水印，top 和 left 随机从 positions 中选取
+      for (var i = 0; i < 5; i++) {
+        var topPosition = positions[i];
+        var leftPosition = leftPositions[i]; // 使用固定的 left 位置
+        printContent += `
+      <div style="
+        position: absolute;
+        top: ${topPosition};
+        left: ${leftPosition};
+        width: 60px;
+        height: 60px;
+        background-image: url(/static/images/xuri-logo.ico);
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 60px;
+        opacity: 0.3;
+      "></div>
+    `;
+      }
+
+      printContent += `
+    <table class="layui-table" style="border: 1px solid black;"> <!-- 加深边框颜色 -->
+      <thead>
+        <tr style="border: 1px solid black;"> <!-- 加深边框颜色 -->
+          <th style="border: 1px solid black;">到达日期</th>
+          <th style="border: 1px solid black;">钢厂</th>
+          <th style="border: 1px solid black;">钢等</th>
+          <th style="border: 1px solid black;">尺寸</th>
+          <th style="border: 1px solid black;">交易类型</th>
+          <th style="border: 1px solid black;">重量</th>
+          <th style="border: 1px solid black;">未税单价</th>
+          <th style="border: 1px solid black;">未税金额</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
 
       data.forEach(function(item) {
-        printContent += '<tr>';
-        printContent += '<td>' + item.arrival_date + '</td>';
-        printContent += '<td>' + item.steel_mill + '</td>';
-        printContent += '<td>' + item.steel_grade + '</td>';
-        printContent += '<td>' + item.dimensions + '</td>';
-        printContent += '<td>' + item.trade_mode + '</td>';
-        printContent += '<td>' + parseFloat(item.weight).toFixed(2) + '</td>';
-        printContent += '<td>' + parseFloat(item.unit_price).toFixed(2) + '</td>';
-        printContent += '<td>' + (parseFloat(item.weight) * parseFloat(item.unit_price)).toFixed(2) + '</td>';
-        printContent += '</tr>';
+        printContent += `
+      <tr style="border: 1px solid black;"> <!-- 加深边框颜色 -->
+        <td style="border: 1px solid black;">${item.arrival_date}</td>
+        <td style="border: 1px solid black;">${item.steel_mill}</td>
+        <td style="border: 1px solid black;">${item.steel_grade}</td>
+        <td style="border: 1px solid black;">${item.dimensions}</td>
+        <td style="border: 1px solid black;">${item.trade_mode}</td>
+        <td style="border: 1px solid black;">${parseFloat(item.weight).toFixed(1)}</td>
+        <td style="border: 1px solid black;">${parseFloat(item.unit_price).toFixed(1)}</td>
+        <td style="border: 1px solid black;">${(parseFloat(item.weight) * parseFloat(item.unit_price)).toFixed(1)}</td>
+      </tr>
+    `;
       });
-      // 添加合计行
-      printContent += '<tr>';
-      printContent += '<td colspan="5" style="text-align: right;">总重量:</td>';
-      printContent += '<td>' + totalWeight.toFixed(2) + '</td>';
-      printContent += '<td colspan="1" style="text-align: right;">未税合计:</td>';
-      printContent += '<td>' + totalUntaxedAmount.toFixed(2) + '</td>';
-      printContent += '</tr>';
 
-      printContent += '</tbody></table>';
+      // 添加合计行
+      printContent += `
+      <tr style="border: 1px solid black;"> <!-- 加深边框颜色 -->
+        <td colspan="5" style="text-align: right; border: 1px solid black;">总重量:</td>
+        <td style="border: 1px solid black;">${totalWeight.toFixed(2)}</td>
+        <td colspan="1" style="text-align: right; border: 1px solid black;">未税合计:</td>
+        <td style="border: 1px solid black;">${totalUntaxedAmount.toFixed(2)}</td>
+      </tr>
+    </tbody>
+    </table>
+  `;
+
       // 打印内容
       var printWindow = window.open('', '', 'height=800,width=1000');
       printWindow.document.write('<html><head><title>打印</title>');
       printWindow.document.write('<link rel="stylesheet" href="/static/lib/layui-v2.8.17/css/layui.css" media="all">');
-      printWindow.document.write('</head><body >');
+      printWindow.document.write('</head><body>');
       printWindow.document.write(printContent);
       printWindow.document.write('</body></html>');
       printWindow.document.close();
-
       // // 监听打印事件
       // printWindow.onbeforeprint = function() {
       //   // 更新选中行的结算状态为“已结算”
@@ -333,7 +385,7 @@
             // 监听结算状态的变化
             layero.find('#newInvoiceApplication').on('change', function() {
               var selectedValue = $(this).val();
-              if (selectedValue === '已核对开票、未结算') {
+              if (selectedValue === '已核对开票、未结算'|| selectedValue === '已结算') {
                 layero.find('#priceInputDiv').show(); // 显示单价输入框
               } else {
                 layero.find('#priceInputDiv').hide(); // 隐藏单价输入框
@@ -341,7 +393,7 @@
             });
 
             // 如果初始状态为已核对开票、未结算，则显示单价输入框
-            if (data.invoice_application === '已核对开票、未结算') {
+            if (data.invoice_application === '已核对开票、未结算' || data.invoice_application === '已结算') {
               layero.find('#priceInputDiv').show();
             }
           },
