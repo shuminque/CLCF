@@ -174,7 +174,7 @@
         {field: 'steel_grade', title: '钢等'},
         {field: 'dimensions', title: '尺寸'},
         {field: 'trade_mode', title: '交易类型',totalRowText: '总重量:'},
-        {field: 'weight', title: '重量'},
+        {field: 'weight', title: '重量(Kg)'},
         {field: 'invoice_application', title: '结算状态'},
         {field: 'unit_price', title: '未税单价', templet: function(d) {
             return parseFloat(d.unit_price).toFixed(5); // 确保显示三位小数
@@ -203,7 +203,7 @@
             var untaxedAmountCell = totalRow.querySelector('td[data-field="untaxed_amount"]');
 
             if (weightCell) {
-              weightCell.getElementsByClassName('layui-table-cell')[0].innerText = totalWeight.toFixed(2).toString();
+              weightCell.getElementsByClassName('layui-table-cell')[0].innerText = totalWeight.toFixed(0).toString();
             }
             if (untaxedAmountCell) {
               untaxedAmountCell.getElementsByClassName('layui-table-cell')[0].innerText = totalUntaxedAmount.toFixed(5).toString();
@@ -301,7 +301,7 @@
         <td style="border: 1px solid black;">${item.steel_grade}</td>
         <td style="border: 1px solid black;">${item.dimensions}</td>
         <td style="border: 1px solid black;">${item.trade_mode}</td>
-        <td style="border: 1px solid black;">${parseFloat(item.weight).toFixed(2)}</td>
+        <td style="border: 1px solid black;">${parseFloat(item.weight).toFixed(0)}</td>
         <td style="border: 1px solid black;">${parseFloat(item.unit_price).toFixed(5)}</td>
         <td style="border: 1px solid black;">${(parseFloat(item.weight) * parseFloat(item.unit_price)).toFixed(5)}</td>
       </tr>
@@ -312,7 +312,7 @@
       printContent += `
       <tr style="border: 1px solid black;"> <!-- 加深边框颜色 -->
         <td colspan="5" style="text-align: right; border: 1px solid black;">总重量:</td>
-        <td style="border: 1px solid black;">${totalWeight.toFixed(2)}</td>
+        <td style="border: 1px solid black;">${totalWeight.toFixed(0)}</td>
         <td colspan="1" style="text-align: right; border: 1px solid black;">未税合计:</td>
         <td style="border: 1px solid black;">${totalUntaxedAmount.toFixed(5)}</td>
       </tr>
@@ -468,7 +468,7 @@
                     elem: layero.find('#detailTableContainer'),
                     cols: [ [
                       {field: 'unique_identifier', title: '标识符'},
-                      {field: 'weight', title: '重量', templet: function(d) { return parseFloat(d.weight).toFixed(2); }},
+                      {field: 'weight', title: '重量', templet: function(d) { return parseFloat(d.weight).toFixed(0); }},
                       {field: 'invoice_application', title: '结算状态'},
                       {
                         field: 'unit_price',
