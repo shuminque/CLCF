@@ -2,6 +2,7 @@ package com.depository_manage.entity;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
@@ -27,5 +28,7 @@ public class ShipmentDetails {
     private String placementArea;
     private String purchaser;
     private Date time;
+    private BigDecimal unitPrice; // 新增的字段
+
     // Getters and Setters
 }

@@ -15,7 +15,7 @@
           </div>
           <div class="layui-input-inline">
             <select name="invoiceApplication">
-              <option value="" selected></option>
+              <option value="" selected>选择结算状态</option>
               <option value="none">空白(未结算)</option>
               <option value="已核对开票、未结算">已核对开票、未结算</option>
               <option value="已结算">已结算 </option>
@@ -56,6 +56,7 @@
   <table id="recordsTable" lay-filter="recordsTableFilter" class="layui-table" ></table>
 </div>
 <script type="text/html" id="operationBar">
+  <a class="layui-btn layui-btn-xs layui-btn-normal" lay-event="detail">详细</a>
   <a class="layui-btn layui-btn-xs" lay-event="edit">修改</a>
 </script>
 
@@ -132,15 +133,42 @@
         }
       ]
     });
-
+    // 获取税率信息
+    var taxRate = 0; // 保存税率的变量
+    function getTaxInfo(callback) {
+      // 获取当前日期，格式化为 YYYY-MM-DD
+      var currentDate = new Date();
+      var formattedDate = currentDate.getFullYear() + '-' +
+              ("0" + (currentDate.getMonth() + 1)).slice(-2);
+      $.ajax({
+        type: 'GET',
+        url: '/taxs/',
+        data: { date: formattedDate },
+        success: function(res) {
+          if (res && res.length > 0) {
+            var tax = res[0]; // 假设返回的列表中第一个是最新的税率
+            taxRate = tax.rate; // 保存税率信息
+            callback('单价(税率:' + tax.rate*100 + '%)');
+          } else {
+            callback('单价（税率信息未找到）');
+          }
+        },
+        error: function() {
+          callback('单价（税率信息获取失败）');
+        }
+      });
+    }
+    var recordTable;
     // 初始化表格
-    var recordTable = table.render({
+    getTaxInfo(function(unitPriceTitle) {
+    recordTable = table.render({
       elem: '#recordsTable',
       url: '/shipment/query', // 数据接口
       height: 600, // 设置表格高度
       // page: true, // 开启分页
       toolbar: ['filter', 'exports', 'print'],
       cols: [ [ // 表头
+        {type: 'checkbox'},  // 添加复选框列
         {field: 'arrival_date', title: '到达日期'},
         {field: 'steel_mill', title: '钢厂'},
         {field: 'steel_grade', title: '钢等'},
@@ -148,27 +176,139 @@
         {field: 'trade_mode', title: '交易类型',totalRowText: '总重量:'},
         {field: 'weight', title: '重量'},
         {field: 'invoice_application', title: '结算状态'},
-        {title: '操作', toolbar: '#operationBar', fixed: 'right', align: 'center'}
-
+        {field: 'unit_price', title: '未税单价', templet: function(d) {
+            return parseFloat(d.unit_price).toFixed(2); // 确保显示三位小数
+          },totalRowText: '未税合计:'},
+        {field: 'untaxed_amount', title: '未税金额', templet: function(d) {
+            return (parseFloat(d.weight) * parseFloat(d.unit_price)).toFixed(2); // 计算未税金额并保留两位小数
+          }},
+        {title: '操作', toolbar: '#operationBar', fixed: 'right', align: 'center'},
       ]],
       totalRow: true, // 开启合计行
       limits: [1000, 5000, 10000],
       limit: 500,
-      done: function(res, curr, count) {
-        // 表格渲染完成后的回调
-        var totalWeight = 0;
-        res.data.forEach(function(item) {
-          totalWeight += parseFloat(item.weight);
-        });
-        var totalRow = document.getElementsByClassName('layui-table-total')[0];
-        if (totalRow) {
-          var weightCell = totalRow.querySelector('td[data-field="weight"]');
-          if (weightCell) {
-            weightCell.getElementsByClassName('layui-table-cell')[0].innerText = totalWeight.toFixed(2).toString();
+        done: function(res, curr, count) {
+          // 表格渲染完成后的回调
+          var totalWeight = 0;
+          var totalUntaxedAmount = 0; // 未税合计
+
+          res.data.forEach(function(item) {
+            totalWeight += parseFloat(item.weight);
+            totalUntaxedAmount += parseFloat(item.weight) * parseFloat(item.unit_price); // 计算未税金额合计
+          });
+
+          var totalRow = document.getElementsByClassName('layui-table-total')[0];
+          if (totalRow) {
+            var weightCell = totalRow.querySelector('td[data-field="weight"]');
+            var untaxedAmountCell = totalRow.querySelector('td[data-field="untaxed_amount"]');
+
+            if (weightCell) {
+              weightCell.getElementsByClassName('layui-table-cell')[0].innerText = totalWeight.toFixed(2).toString();
+            }
+            if (untaxedAmountCell) {
+              untaxedAmountCell.getElementsByClassName('layui-table-cell')[0].innerText = totalUntaxedAmount.toFixed(2).toString();
+            }
           }
+          addCustomPrintButton(); // 添加自定义按钮
         }
-      }
     });
+    });
+    // 添加自定义按钮
+    function addCustomPrintButton() {
+      if ($('#customPrintButton').length === 0) {
+        var customPrintButton = $('<button class="layui-btn layui-btn-primary layui-btn-sm" id="customPrintButton" style="display: flex; align-items: center;"><i class="layui-icon layui-icon-print" style="margin-right: 5px;"></i> 选中打印</button>');
+        $('.layui-table-tool-temp').prepend(customPrintButton);
+
+        // 绑定自定义打印按钮点击事件
+        $('#customPrintButton').on('click', function() {
+          printSelectedRows();
+        });
+      }
+    }
+    function printSelectedRows() {
+      var checkStatus = table.checkStatus('recordsTable'); // 获取选中的行
+      var data = checkStatus.data; // 获取选中的数据
+      if (data.length === 0) {
+        layer.msg('请选择要打印的行');
+        return;
+      }
+      // 计算总重量和未税合计
+      var totalWeight = 0;
+      var totalUntaxedAmount = 0;
+
+      data.forEach(function(item) {
+        totalWeight += parseFloat(item.weight);
+        totalUntaxedAmount += parseFloat(item.weight) * parseFloat(item.unit_price);
+      });
+      // 生成需要打印的HTML内容
+      var printContent = '<table class="layui-table">';
+      printContent += '<thead><tr>';
+      printContent += '<th>到达日期</th><th>钢厂</th><th>钢等</th><th>尺寸</th><th>交易类型</th><th>重量</th><th>未税单价</th><th>未税金额</th>';
+      printContent += '</tr></thead><tbody>';
+
+      data.forEach(function(item) {
+        printContent += '<tr>';
+        printContent += '<td>' + item.arrival_date + '</td>';
+        printContent += '<td>' + item.steel_mill + '</td>';
+        printContent += '<td>' + item.steel_grade + '</td>';
+        printContent += '<td>' + item.dimensions + '</td>';
+        printContent += '<td>' + item.trade_mode + '</td>';
+        printContent += '<td>' + parseFloat(item.weight).toFixed(2) + '</td>';
+        printContent += '<td>' + parseFloat(item.unit_price).toFixed(2) + '</td>';
+        printContent += '<td>' + (parseFloat(item.weight) * parseFloat(item.unit_price)).toFixed(2) + '</td>';
+        printContent += '</tr>';
+      });
+      // 添加合计行
+      printContent += '<tr>';
+      printContent += '<td colspan="5" style="text-align: right;">总重量:</td>';
+      printContent += '<td>' + totalWeight.toFixed(2) + '</td>';
+      printContent += '<td colspan="1" style="text-align: right;">未税合计:</td>';
+      printContent += '<td>' + totalUntaxedAmount.toFixed(2) + '</td>';
+      printContent += '</tr>';
+
+      printContent += '</tbody></table>';
+      // 打印内容
+      var printWindow = window.open('', '', 'height=800,width=1000');
+      printWindow.document.write('<html><head><title>打印</title>');
+      printWindow.document.write('<link rel="stylesheet" href="/static/lib/layui-v2.8.17/css/layui.css" media="all">');
+      printWindow.document.write('</head><body >');
+      printWindow.document.write(printContent);
+      printWindow.document.write('</body></html>');
+      printWindow.document.close();
+
+      // // 监听打印事件
+      // printWindow.onbeforeprint = function() {
+      //   // 更新选中行的结算状态为“已结算”
+      //   data.forEach(function(item) {
+      //     var requestData = {
+      //       arrival_date: item.arrival_date,
+      //       steel_mill: item.steel_mill,
+      //       steel_grade: item.steel_grade,
+      //       dimensions: item.dimensions,
+      //       trade_mode: item.trade_mode,
+      //       invoice_application: '已结算',
+      //       original_unit_price: item.unit_price
+      //     };
+      //     $.ajax({
+      //       type: 'POST',
+      //       url: '/shipment/updateInvoice',
+      //       data: requestData,
+      //       success: function(res) {
+      //         if (res.success) {
+      //           layer.msg('结算状态更新成功');
+      //         } else {
+      //           layer.msg('结算状态更新失败');
+      //         }
+      //       },
+      //       error: function() {
+      //         layer.msg('请求失败');
+      //       }
+      //     });
+      //   });
+      // };
+      printWindow.print();
+    }
+
     // 操作栏模板
     table.on('tool(recordsTableFilter)', function(obj){
       var data = obj.data; // 得到当前行数据
@@ -181,32 +321,59 @@
                 '<option value="已核对开票、未结算" ' + (data.invoice_application === '已核对开票、未结算' ? 'selected' : '') + '>已核对开票、未结算</option>' +
                 '<option value="已结算" ' + (data.invoice_application === '已结算' ? 'selected' : '') + '>已结算</option>' +
                 '</select>' +
+                '</div>' +
+                '<div class="layui-input-inline" id="priceInputDiv" style="display:none;">' +
+                '<input type="number" id="newUnitPrice" placeholder="请输入未税单价" class="layui-input" min="0" step="0.001">' +
                 '</div>';
         layer.open({
           title: '修改' +data.arrival_date+'日'+ data.steel_mill +'/'+data.steel_grade+'/'+ data.dimensions +'的结算状态',
           content: selectHtml,
           btn: ['确认', '取消'],
+          success: function(layero, index) {
+            // 监听结算状态的变化
+            layero.find('#newInvoiceApplication').on('change', function() {
+              var selectedValue = $(this).val();
+              if (selectedValue === '已核对开票、未结算') {
+                layero.find('#priceInputDiv').show(); // 显示单价输入框
+              } else {
+                layero.find('#priceInputDiv').hide(); // 隐藏单价输入框
+              }
+            });
+
+            // 如果初始状态为已核对开票、未结算，则显示单价输入框
+            if (data.invoice_application === '已核对开票、未结算') {
+              layero.find('#priceInputDiv').show();
+            }
+          },
           yes: function(index, layero){
             var newValue = layero.find('#newInvoiceApplication').val();
+            var newPrice = layero.find('#newUnitPrice').val();
+            var taxMultiplier = 1 + taxRate; // 根据税率计算含税单价
+            console.log(taxMultiplier)
+            // 构造请求数据
+            var requestData = {
+              arrival_date: data.arrival_date,
+              steel_mill: data.steel_mill,
+              steel_grade: data.steel_grade,
+              dimensions: data.dimensions,
+              trade_mode: data.trade_mode,
+              invoice_application: newValue,
+              original_unit_price: data.unit_price,  // 原单价
+              new_unit_price: newPrice ? parseFloat(newPrice).toFixed(2) : data.unit_price // 新单价
 
+            };
             // 调用后台更新接口
             $.ajax({
               type: 'POST',
               url: '/shipment/updateInvoice',
-              data: {
-                arrival_date: data.arrival_date,
-                steel_mill: data.steel_mill,
-                steel_grade: data.steel_grade,
-                dimensions: data.dimensions,
-                trade_mode: data.trade_mode,
-                invoice_application: newValue
-              },
+              data: requestData,
               success: function(res) {
                 if (res.success) {
                   layer.msg('更新成功');
                   // 更新表格数据
                   obj.update({
-                    invoice_application: newValue
+                    invoice_application: newValue,
+                    unit_price: requestData.new_unit_price
                   });
                 } else {
                   layer.msg('更新失败');
@@ -221,6 +388,84 @@
         });
         form.render(); // 刷新选择框渲染
       }
+      else if(layEvent === 'detail'){
+        // 发起AJAX请求获取详细数据
+        $.ajax({
+          type: 'GET',
+          url: '/shipment/selectInvoiceApplication',
+          data: {
+            arrival_date: data.arrival_date,
+            steel_mill: data.steel_mill,
+            steel_grade: data.steel_grade,
+            dimensions: data.dimensions,
+            trade_mode: data.trade_mode,
+            unit_price: data.unit_price,
+          },
+          success: function(res) {
+            if (res && res.length > 0) {
+              // 准备弹出层的HTML容器
+              var detailTableHtml = '<div id="detailTableContainer"></div>';
+              // 使用layer弹出表格
+              var detailLayerIndex = layer.open({
+                title: '详细信息',
+                content: detailTableHtml,
+                area: ['800px', '600px'], // 自定义宽度和高度
+                success: function(layero, index) {
+                  // 渲染表格
+                  var detailTable = layui.table.render({
+                    elem: layero.find('#detailTableContainer'),
+                    cols: [ [
+                      {field: 'unique_identifier', title: '标识符'},
+                      {field: 'weight', title: '重量', templet: function(d) { return parseFloat(d.weight).toFixed(2); }},
+                      {field: 'invoice_application', title: '结算状态'},
+                      {
+                        field: 'unit_price',
+                        title: '单价:(未税)',
+                        edit: 'text', // 允许编辑
+                        templet: function(d) { return parseFloat(d.unit_price).toFixed(2); }
+                      }
+                    ]],
+                    data: res, // 数据源
+                    page: true, // 如果数据很多，可以开启分页
+                    height: '500px',
+                    limit: 500,
+                    limits: [1000, 5000, 10000],
+                  });
+
+                  // 监听单元格编辑
+                  layui.table.on('edit(detailTableContainer)', function(obj) {
+                    var value = obj.value; // 得到修改后的值
+                    var data = obj.data; // 得到当前行数据
+                    var field = obj.field; // 得到字段
+                    if (field === 'unit_price') {
+                      $.ajax({
+                        type: 'POST',
+                        url: '/shipment/updateUnitPrice',
+                        data: {
+                          unique_identifier: data.unique_identifier,
+                          unit_price: (parseFloat(value)).toFixed(2),
+                        },
+                        success: function(res) {
+                          // detailTable.reload();
+                        }
+                      });
+                    }
+                  });
+                },
+                end: function() {
+                  // 在详细表格关闭时刷新主表格
+                  recordTable.reload();
+                }
+              });
+            } else {
+              layer.msg('未找到相关记录');
+            }
+          },
+          error: function() {
+            layer.msg('请求失败');
+          }
+        });
+      }
     });
     function formatDate(dateStr) {
       if (!dateStr) return '';
@@ -230,7 +475,7 @@
       let day = date.getDate().toString().padStart(2, '0');
       return `${year}-${month}-${day}`;
     }
-// 统一搜索表单提交事件
+    // 统一搜索表单提交事件
     form.on('submit(data-search-btn)', function(data) {
       var req = {};
       var formData = data.field;

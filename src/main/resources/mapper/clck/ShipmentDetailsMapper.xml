@@ -24,6 +24,7 @@
         <result column="placement_area" property="placementArea"/>
         <result column="purchaser" property="purchaser"/>
         <result column="time" property="time"/>
+        <result column="unit_price" property="unitPrice"/>
     </resultMap>
 
     <!-- 插入操作 -->
@@ -39,7 +40,7 @@
                  )
     </insert>
 
-    <!-- Batch insert operation -->
+    <!-- 批量插入操作 -->
     <insert id="insertShipmentDetails" parameterType="java.util.List">
         INSERT INTO shipment_details (
         unique_identifier, invoice_number, customer, trade_mode, delivery_point, arrival_port_date,
@@ -716,7 +717,8 @@
         dimensions,
         trade_mode,
         SUM(weight) AS weight,
-        invoice_application
+        invoice_application,
+        unit_price
         FROM shipment_details
         WHERE operation_type = '入库'
         <if test="startDate != null">
@@ -741,16 +743,40 @@
                 </otherwise>
             </choose>
         </if>
-        GROUP BY arrival_date, steel_mill, steel_grade, dimensions, trade_mode,invoice_application
+        GROUP BY arrival_date, steel_mill, steel_grade, dimensions, trade_mode,invoice_application,unit_price
         order by arrival_date;
     </select>
     <update id="updateInvoiceApplication" parameterType="map">
         UPDATE shipment_details
-        SET invoice_application = #{invoice_application}
+        <set>
+            invoice_application = #{invoice_application}
+            <if test="new_unit_price != null">
+                , unit_price = #{new_unit_price}
+            </if>
+        </set>
         WHERE arrival_date = #{arrival_date}
-          AND steel_mill = #{steel_mill}
-          AND steel_grade = #{steel_grade}
-          AND dimensions = #{dimensions}
-          AND trade_mode = #{trade_mode}
+        AND steel_mill = #{steel_mill}
+        AND steel_grade = #{steel_grade}
+        AND dimensions = #{dimensions}
+        AND trade_mode = #{trade_mode}
+        AND unit_price = #{original_unit_price}
     </update>
+    <select id="selectInvoiceApplication" parameterType="map" resultType="map">
+        SELECT *
+        FROM shipment_details
+        WHERE operation_type = '入库'
+          AND arrival_date = #{params.arrival_date}
+          AND steel_mill = #{params.steel_mill}
+          AND steel_grade = #{params.steel_grade}
+          AND dimensions = #{params.dimensions}
+          AND trade_mode = #{params.trade_mode}
+          AND unit_price= #{params.unit_price}
+    </select>
+    <update id="updateUnitPrice" parameterType="map">
+        UPDATE shipment_details
+        SET unit_price = #{unitPrice}
+        WHERE unique_identifier = #{uniqueIdentifier}
+    </update>
+
+
 </mapper>

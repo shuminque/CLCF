@@ -1,8 +1,8 @@
 package com.depository_manage.service.clck;
 
 import com.depository_manage.entity.ShipmentDetails;
-import org.apache.ibatis.annotations.Param;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -37,5 +37,8 @@ public interface ShipmentDetailsService {
 
     List<Map<String, Object>> queryShipmentDetails(Map<String, Object> params);
 
-    void updateInvoiceApplication(String arrival_date, String steel_mill, String steel_grade, String dimensions, String trade_mode, String invoice_application);
+    void updateInvoiceApplication(String arrival_date, String steel_mill, String steel_grade, String dimensions, String trade_mode, String invoice_application, BigDecimal original_unit_price, BigDecimal new_unit_price);
+    List<Map<String, Object>> selectInvoiceApplication(Map<String, Object> params);
+
+    void updateUnitPrice(String uniqueIdentifier, double unitPrice);
 }

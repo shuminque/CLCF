@@ -325,7 +325,7 @@
                 const uniqueIdentifier = data.uniqueIdentifier;
                 const date = new Date().toISOString().split('T')[0];
                 stockOut({ uniqueIdentifier, date });
-            } else if (layEvent === 'retH' && data.operationType === '入库') {
+            } else if (layEvent === 'retH' && data.operationType === '入库' ) {
                 console.log(data.uniqueIdentifier);
                 const uniqueIdentifier = data.uniqueIdentifier;
                 const idd = data.id;

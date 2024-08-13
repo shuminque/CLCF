@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -321,15 +322,53 @@ public class ShipmentDetailsController {
             @RequestParam String steel_grade,
             @RequestParam String dimensions,
             @RequestParam String trade_mode,
-            @RequestParam String invoice_application) {
-
+            @RequestParam String invoice_application,
+            @RequestParam(required = false) BigDecimal original_unit_price,  // 旧单价
+            @RequestParam(required = false) BigDecimal new_unit_price) {    // 新单价
         Map<String, Object> response = new HashMap<>();
         try {
-            shipmentDetailsService.updateInvoiceApplication(arrival_date, steel_mill, steel_grade, dimensions,trade_mode, invoice_application);
+            // 调用服务层更新结算状态和单价
+            shipmentDetailsService.updateInvoiceApplication(arrival_date, steel_mill, steel_grade, dimensions, trade_mode, invoice_application, original_unit_price, new_unit_price);
             response.put("success", true);
         } catch (Exception e) {
             response.put("success", false);
+            response.put("error", e.getMessage());
         }
         return response;
     }
+
+
+    @GetMapping("/selectInvoiceApplication")
+    public ResponseEntity<List<Map<String, Object>>> selectInvoiceApplication(
+            @RequestParam String arrival_date,
+            @RequestParam String steel_mill,
+            @RequestParam String steel_grade,
+            @RequestParam String dimensions,
+            @RequestParam String trade_mode,
+            @RequestParam double unit_price) {
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("arrival_date", arrival_date);
+        params.put("steel_mill", steel_mill);
+        params.put("steel_grade", steel_grade);
+        params.put("dimensions", dimensions);
+        params.put("trade_mode", trade_mode);
+        params.put("unit_price", unit_price);
+        System.out.println(params);
+        List<Map<String, Object>> result = shipmentDetailsService.selectInvoiceApplication(params);
+        return ResponseEntity.ok(result);
+    }
+    @PostMapping("/updateUnitPrice")
+    public ResponseEntity<?> updateUnitPrice(
+            @RequestParam String unique_identifier,
+            @RequestParam double unit_price) {
+
+        try {
+            shipmentDetailsService.updateUnitPrice(unique_identifier, unit_price);
+            return ResponseEntity.ok(Collections.singletonMap("success", true));
+        } catch (Exception e) {
+            return ResponseEntity.ok(Collections.singletonMap("success", false));
+        }
+    }
+
 }

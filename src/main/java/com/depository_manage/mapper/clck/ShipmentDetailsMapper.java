@@ -4,6 +4,7 @@ import com.depository_manage.entity.BearingRecord;
 import com.depository_manage.entity.ShipmentDetails;
 import org.apache.ibatis.annotations.Param;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +58,12 @@ public interface ShipmentDetailsMapper {
             @Param("steel_grade") String steel_grade,
             @Param("dimensions") String dimensions,
             @Param("trade_mode") String trade_mode,
-            @Param("invoice_application") String invoice_application
+            @Param("invoice_application") String invoice_application,
+            @Param("original_unit_price") BigDecimal original_unit_price,
+            @Param("new_unit_price") BigDecimal new_unit_price
     );
+
+    List<Map<String, Object>> selectInvoiceApplication(@Param("params") Map<String, Object> params);
+
+    void updateUnitPrice(@Param("uniqueIdentifier") String uniqueIdentifier, @Param("unitPrice") double unitPrice);
 }

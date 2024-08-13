@@ -7,6 +7,7 @@ import com.depository_manage.utils.ObjectFormatUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -281,7 +282,34 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
         return shipmentDetailsMapper.queryShipmentDetails(params);
     }
     @Override
-    public void updateInvoiceApplication(String arrival_date, String steel_mill, String steel_grade, String dimensions, String trade_mode,String invoice_application) {
-        shipmentDetailsMapper.updateInvoiceApplication(arrival_date, steel_mill, steel_grade, dimensions, trade_mode, invoice_application);
+    public void updateInvoiceApplication(
+            String arrival_date,
+            String steel_mill,
+            String steel_grade,
+            String dimensions,
+            String trade_mode,
+            String invoice_application,
+            BigDecimal original_unit_price,
+            BigDecimal new_unit_price) {
+
+        shipmentDetailsMapper.updateInvoiceApplication(
+                arrival_date,
+                steel_mill,
+                steel_grade,
+                dimensions,
+                trade_mode,
+                invoice_application,
+                original_unit_price,
+                new_unit_price);
+    }
+
+    @Override
+    public List<Map<String, Object>> selectInvoiceApplication(Map<String, Object> params) {
+        return shipmentDetailsMapper.selectInvoiceApplication(params);
+    }
+
+    @Override
+    public void updateUnitPrice(String uniqueIdentifier, double unitPrice) {
+        shipmentDetailsMapper.updateUnitPrice(uniqueIdentifier, unitPrice);
     }
 }
