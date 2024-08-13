@@ -177,10 +177,10 @@
         {field: 'weight', title: '重量'},
         {field: 'invoice_application', title: '结算状态'},
         {field: 'unit_price', title: '未税单价', templet: function(d) {
-            return parseFloat(d.unit_price).toFixed(2); // 确保显示三位小数
+            return parseFloat(d.unit_price).toFixed(5); // 确保显示三位小数
           },totalRowText: '未税合计:'},
         {field: 'untaxed_amount', title: '未税金额', templet: function(d) {
-            return (parseFloat(d.weight) * parseFloat(d.unit_price)).toFixed(2); // 计算未税金额并保留两位小数
+            return (parseFloat(d.weight) * parseFloat(d.unit_price)).toFixed(5); // 计算未税金额并保留两位小数
           }},
         {title: '操作', toolbar: '#operationBar', fixed: 'right', align: 'center'},
       ]],
@@ -206,7 +206,7 @@
               weightCell.getElementsByClassName('layui-table-cell')[0].innerText = totalWeight.toFixed(2).toString();
             }
             if (untaxedAmountCell) {
-              untaxedAmountCell.getElementsByClassName('layui-table-cell')[0].innerText = totalUntaxedAmount.toFixed(2).toString();
+              untaxedAmountCell.getElementsByClassName('layui-table-cell')[0].innerText = totalUntaxedAmount.toFixed(5).toString();
             }
           }
           addCustomPrintButton(); // 添加自定义按钮
@@ -301,9 +301,9 @@
         <td style="border: 1px solid black;">${item.steel_grade}</td>
         <td style="border: 1px solid black;">${item.dimensions}</td>
         <td style="border: 1px solid black;">${item.trade_mode}</td>
-        <td style="border: 1px solid black;">${parseFloat(item.weight).toFixed(1)}</td>
-        <td style="border: 1px solid black;">${parseFloat(item.unit_price).toFixed(1)}</td>
-        <td style="border: 1px solid black;">${(parseFloat(item.weight) * parseFloat(item.unit_price)).toFixed(1)}</td>
+        <td style="border: 1px solid black;">${parseFloat(item.weight).toFixed(2)}</td>
+        <td style="border: 1px solid black;">${parseFloat(item.unit_price).toFixed(5)}</td>
+        <td style="border: 1px solid black;">${(parseFloat(item.weight) * parseFloat(item.unit_price)).toFixed(5)}</td>
       </tr>
     `;
       });
@@ -314,7 +314,7 @@
         <td colspan="5" style="text-align: right; border: 1px solid black;">总重量:</td>
         <td style="border: 1px solid black;">${totalWeight.toFixed(2)}</td>
         <td colspan="1" style="text-align: right; border: 1px solid black;">未税合计:</td>
-        <td style="border: 1px solid black;">${totalUntaxedAmount.toFixed(2)}</td>
+        <td style="border: 1px solid black;">${totalUntaxedAmount.toFixed(5)}</td>
       </tr>
     </tbody>
     </table>
@@ -411,7 +411,7 @@
               trade_mode: data.trade_mode,
               invoice_application: newValue,
               original_unit_price: data.unit_price,  // 原单价
-              new_unit_price: newPrice ? parseFloat(newPrice).toFixed(2) : data.unit_price // 新单价
+              new_unit_price: newPrice ? parseFloat(newPrice).toFixed(5) : data.unit_price // 新单价
 
             };
             // 调用后台更新接口
@@ -474,7 +474,7 @@
                         field: 'unit_price',
                         title: '单价:(未税)',
                         edit: 'text', // 允许编辑
-                        templet: function(d) { return parseFloat(d.unit_price).toFixed(2); }
+                        templet: function(d) { return parseFloat(d.unit_price).toFixed(5); }
                       }
                     ]],
                     data: res, // 数据源
@@ -495,7 +495,7 @@
                         url: '/shipment/updateUnitPrice',
                         data: {
                           unique_identifier: data.unique_identifier,
-                          unit_price: (parseFloat(value)).toFixed(2),
+                          unit_price: (parseFloat(value)).toFixed(5),
                         },
                         success: function(res) {
                           // detailTable.reload();
