@@ -180,7 +180,7 @@
             return parseFloat(d.unit_price).toFixed(5); // 确保显示三位小数
           },totalRowText: '未税合计:'},
         {field: 'untaxed_amount', title: '未税金额', templet: function(d) {
-            return (parseFloat(d.weight) * parseFloat(d.unit_price)).toFixed(5); // 计算未税金额并保留两位小数
+            return (parseFloat(d.weight) * parseFloat(d.unit_price)).toFixed(2); // 计算未税金额并保留两位小数
           }},
         {title: '操作', toolbar: '#operationBar', fixed: 'right', align: 'center'},
       ]],
@@ -206,7 +206,7 @@
               weightCell.getElementsByClassName('layui-table-cell')[0].innerText = totalWeight.toFixed(0).toString();
             }
             if (untaxedAmountCell) {
-              untaxedAmountCell.getElementsByClassName('layui-table-cell')[0].innerText = totalUntaxedAmount.toFixed(5).toString();
+              untaxedAmountCell.getElementsByClassName('layui-table-cell')[0].innerText = totalUntaxedAmount.toFixed(2).toString();
             }
           }
           addCustomPrintButton(); // 添加自定义按钮
@@ -303,7 +303,7 @@
         <td style="border: 1px solid black;">${item.trade_mode}</td>
         <td style="border: 1px solid black;">${parseFloat(item.weight).toFixed(0)}</td>
         <td style="border: 1px solid black;">${parseFloat(item.unit_price).toFixed(5)}</td>
-        <td style="border: 1px solid black;">${(parseFloat(item.weight) * parseFloat(item.unit_price)).toFixed(5)}</td>
+        <td style="border: 1px solid black;">${(parseFloat(item.weight) * parseFloat(item.unit_price)).toFixed(2)}</td>
       </tr>
     `;
       });
@@ -314,7 +314,7 @@
         <td colspan="5" style="text-align: right; border: 1px solid black;">总重量:</td>
         <td style="border: 1px solid black;">${totalWeight.toFixed(0)}</td>
         <td colspan="1" style="text-align: right; border: 1px solid black;">未税合计:</td>
-        <td style="border: 1px solid black;">${totalUntaxedAmount.toFixed(5)}</td>
+        <td style="border: 1px solid black;">${totalUntaxedAmount.toFixed(2)}</td>
       </tr>
     </tbody>
     </table>
