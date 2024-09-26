@@ -237,7 +237,7 @@
     <select id="findStockInByUniqueIdentifier" parameterType="string" resultMap="shipmentDetailsMap">
         SELECT * FROM shipment_details
         WHERE unique_identifier = #{uniqueIdentifier}
-          AND (operation_type = '入库' OR operation_type = '转库')
+          AND (operation_type = '入库' OR operation_type = '转库' OR operation_type = '返库')
         ORDER BY id DESC
             LIMIT 1
     </select>
