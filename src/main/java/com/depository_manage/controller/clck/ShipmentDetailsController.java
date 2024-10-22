@@ -146,6 +146,7 @@ public class ShipmentDetailsController {
             shipment.setFurnaceNumber(request.get("furnaceNumber"));
             shipment.setWeight(Double.valueOf(request.get("weight")));
             shipment.setPlacementArea(request.get("area"));
+            shipment.setState("正常");
             String dateString = request.get("date");
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             Date date = dateFormat.parse(dateString);
