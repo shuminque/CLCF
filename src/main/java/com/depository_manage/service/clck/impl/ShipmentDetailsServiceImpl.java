@@ -148,6 +148,8 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
             stockOutRecord.setBundleCount(stockInRecord.getBundleCount());
             stockOutRecord.setPlacementArea(stockInRecord.getPlacementArea());
             stockOutRecord.setPurchaser(stockInRecord.getPurchaser());
+            stockOutRecord.setState(stockInRecord.getState());
+
             stockOutRecord.setTime(new Date()); // 设置当前时间
             // 插入出库记录
             shipmentDetailsMapper.insertShipmentDetail(stockOutRecord);
@@ -186,6 +188,7 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
             transferRecord.setBundleCount(record.getBundleCount());
             transferRecord.setPlacementArea(placementArea);
             transferRecord.setPurchaser(record.getPurchaser());
+            transferRecord.setState(record.getState());
             transferRecord.setTime(new Date()); // 设置当前时间
             shipmentDetailsMapper.insertShipmentDetail(transferRecord);
         }
@@ -217,6 +220,8 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
             stockOutRecord.setBundleCount(stockInRecord.getBundleCount());
             stockOutRecord.setPlacementArea(placementArea);
             stockOutRecord.setPurchaser(stockInRecord.getPurchaser());
+            stockOutRecord.setState(stockInRecord.getState());
+
             stockOutRecord.setTime(new Date()); // 设置当前时间
             shipmentDetailsMapper.insertShipmentDetail(stockOutRecord);
         }
@@ -311,5 +316,10 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
     @Override
     public void updateUnitPrice(String uniqueIdentifier, double unitPrice) {
         shipmentDetailsMapper.updateUnitPrice(uniqueIdentifier, unitPrice);
+    }
+
+    @Override
+    public List<Map<String, Object>> fetchShipmentDetails(Map<String, Object> params) {
+        return shipmentDetailsMapper.getShipmentDetails(params);
     }
 }

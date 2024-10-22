@@ -25,6 +25,7 @@
         <result column="purchaser" property="purchaser"/>
         <result column="time" property="time"/>
         <result column="unit_price" property="unitPrice"/>
+        <result property="state" column="state"/>
     </resultMap>
 
     <!-- 插入操作 -->
@@ -32,11 +33,11 @@
         INSERT INTO shipment_details (
             unique_identifier, invoice_number, customer, trade_mode, delivery_point, arrival_port_date,
             arrival_date, steel_grade, dimensions, weight, steel_mill, furnace_number, invoice_application,
-            operation_type, supplier_batch_number, bundle_count, placement_area, purchaser, time
+            operation_type, supplier_batch_number, bundle_count, placement_area, purchaser, time, state
         ) VALUES (
                      #{uniqueIdentifier}, #{invoiceNumber}, #{customer}, #{tradeMode}, #{deliveryPoint}, #{arrivalPortDate},
                      #{arrivalDate}, #{steelGrade}, #{dimensions}, #{weight}, #{steelMill}, #{furnaceNumber}, #{invoiceApplication},
-                     #{operationType}, #{supplierBatchNumber}, #{bundleCount}, #{placementArea}, #{purchaser}, #{time}
+                     #{operationType}, #{supplierBatchNumber}, #{bundleCount}, #{placementArea}, #{purchaser}, #{time}, #{state}
                  )
     </insert>
 
@@ -45,7 +46,7 @@
         INSERT INTO shipment_details (
         unique_identifier, invoice_number, customer, trade_mode, delivery_point, arrival_port_date,
         arrival_date, steel_grade, dimensions, weight, steel_mill, furnace_number, invoice_application,
-        operation_type, supplier_batch_number, bundle_count, placement_area, purchaser, time
+        operation_type, supplier_batch_number, bundle_count, placement_area, purchaser, time, state
         ) VALUES
         <foreach collection="list" item="detail" separator=",">
             (
@@ -53,7 +54,7 @@
             #{detail.arrivalPortDate}, #{detail.arrivalDate}, #{detail.steelGrade}, #{detail.dimensions}, #{detail.weight},
             #{detail.steelMill}, #{detail.furnaceNumber}, #{detail.invoiceApplication},
             #{detail.operationType}, #{detail.supplierBatchNumber}, #{detail.bundleCount}, #{detail.placementArea},
-             #{detail.purchaser}, #{detail.time}
+             #{detail.purchaser}, #{detail.time}, #{detail.state}
             )
         </foreach>
     </insert>
@@ -115,6 +116,9 @@
         </if>
         <if test="purchaser != null and purchaser != ''">
             AND purchaser = #{purchaser}
+        </if>
+        <if test="state != null and state != ''">
+            AND state = #{state}
         </if>
         <if test="startDate != null and endDate != null">
             AND DATE(arrival_date) BETWEEN #{startDate} AND #{endDate}
@@ -179,6 +183,9 @@
         <if test="purchaser != null and purchaser != ''">
             AND purchaser = #{purchaser}
         </if>
+        <if test="state != null and state != ''">
+            AND state = #{state}
+        </if>
         <if test="startDate != null and endDate != null">
             AND DATE(arrival_date) BETWEEN #{startDate} AND #{endDate}
         </if>
@@ -210,6 +217,7 @@
             <if test="placementArea != null">placement_area = #{placementArea},</if>
             <if test="purchaser != null">purchaser = #{purchaser},</if>
             <if test="time != null">time = #{time},</if>
+            <if test="state != null">state = #{state},</if>
         </set>
         WHERE id = #{id}
     </update>
@@ -307,6 +315,9 @@
             <if test="purchaser != null and purchaser != ''">
                 AND purchaser = #{purchaser}
             </if>
+            <if test="state != null and state != ''">
+                AND state = #{state}
+            </if>
             GROUP BY
             unique_identifier
             HAVING
@@ -364,6 +375,9 @@
             <if test="purchaser != null and purchaser != ''">
                 AND sd.purchaser = #{purchaser}
             </if>
+            <if test="state != null and state != ''">
+                AND sd.state = #{state}
+            </if>
             )
             SELECT
             latest_in_info.id,
@@ -387,7 +401,8 @@
             in_out_count.out_count,
             latest_in_info.time,
             latest_in_info.arrival_date,
-            latest_in_info.arrival_port_date
+            latest_in_info.arrival_port_date,
+            latest_in_info.state
             FROM
             latest_in_info
             JOIN
@@ -778,5 +793,24 @@
         WHERE unique_identifier = #{uniqueIdentifier}
     </update>
 
-
+    <select id="getShipmentDetails" parameterType="map" resultType="map">
+        SELECT
+            steel_mill,
+            steel_grade,
+            dimensions,
+            trade_mode,
+            customer,
+            COALESCE(SUM(CASE WHEN operation_type IN ('入库', '返库') AND DATE(time) BETWEEN #{startDate} AND #{endDate} AND state= #{state}  THEN weight END), 0) AS INweight,
+            COALESCE(SUM(CASE WHEN operation_type = '出库' AND DATE(time) BETWEEN #{startDate} AND #{endDate} AND state= #{state}  THEN weight END), 0) AS OUTweight,
+            COALESCE(SUM(CASE WHEN operation_type IN ('入库', '返库') AND DATE(time) &lt; #{endDate} AND state= #{state} THEN weight END), 0) -
+            COALESCE(SUM(CASE WHEN operation_type = '出库' AND DATE(time) &lt; #{endDate} AND state= #{state} THEN weight END), 0) AS current_stock
+        FROM shipment_details
+        GROUP BY
+            steel_mill,
+            steel_grade,
+            dimensions,
+            trade_mode,
+            customer
+        ORDER BY steel_mill DESC, dimensions
+    </select>
 </mapper>

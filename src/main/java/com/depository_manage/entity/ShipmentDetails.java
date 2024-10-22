@@ -29,6 +29,7 @@ public class ShipmentDetails {
     private String purchaser;
     private Date time;
     private BigDecimal unitPrice; // 新增的字段
+    private String state;
 
     // Getters and Setters
 }

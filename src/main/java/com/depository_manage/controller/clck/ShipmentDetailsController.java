@@ -371,4 +371,17 @@ public class ShipmentDetailsController {
         }
     }
 
+    @GetMapping("/details")
+    public ResponseEntity<?> getShipmentDetails(@RequestParam Map<String, Object> params) {
+        System.out.println(params);
+        String dateRange = (String) params.get("time");
+        if (dateRange != null && dateRange.contains(" - ")) {
+            String[] dates = dateRange.split(" - ");
+            params.put("startDate", dates[0] + " 00:00:00");
+            params.put("endDate", dates[1] + " 23:59:59");
+        }
+
+        List<Map<String, Object>> results = shipmentDetailsService.fetchShipmentDetails(params);
+        return ResponseEntity.ok(results);
+    }
 }

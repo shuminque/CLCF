@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>材料产品关联</title>
+  <link rel="stylesheet" href="/static/lib/layui-v2.8.17/css/layui.css" media="all">
+  <script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script>
+  <!-- jQuery 库 -->
+  <script src="/static/js/http_ajax.googleapis.com_ajax_libs_jquery_3.5.1_jquery.js"></script>
+  <script src="/static/js/http_code.jquery.com_jquery-3.6.0.min.js"></script>
+  <script src="/static/js/http_cdnjs.cloudflare.com_ajax_libs_bootstrap-3-typeahead_4.0.2_bootstrap3-typeahead.js"></script>
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .container {
+      margin: 20px;
+    }
+    .layui-table-view .layui-table { /* 调整表格样式 */
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <form class="layui-form" id="searchForm">
+    <div class="layui-form-item">
+      <div class="layui-input-inline">
+        <input type="text" name="time" id="date" placeholder="请选择日期" autocomplete="off" class="layui-input">
+      </div>
+      <div class="layui-input-inline">
+        <select name="state" id="state"  >
+          <option value="" selected>选择状态</option>
+          <option value="正常" >正常</option>
+          <option value="死库" >死库</option>
+        </select>
+      </div>
+      <div class="layui-inline">
+        <button type="submit" class="layui-btn layui-btn-primary" lay-submit lay-filter="data-search-btn">
+          <i class="layui-icon"></i> 搜 索
+        </button>
+      </div>
+    </div>
+  </form>
+  <table id="recordTable" lay-filter="recordTableFilter"></table>
+  <table id="bearingsTable" lay-filter="bearingsTableFilter"></table>
+</div>
+<script>
+  layui.use(['table', 'form', 'laydate'], function(){
+    var table = layui.table;
+    var form = layui.form;
+    var laydate=layui.laydate;
+
+    // 初始化日期范围选择器
+    laydate.render({
+      elem: '#date',
+      range: true,
+      rangeLinked: true
+    });
+
+    // 渲染表格
+    var recordTable = table.render({
+      elem: '#recordTable',
+      url: '/shipment/details',
+      title:'材料入库情况',
+      parseData: function(res) {
+        var filteredData = res.filter(function(item) {
+          return (!item.size || !item.size.includes('锻造材'));
+        });
+        return {
+          "code": 0,
+          "msg": "",
+          "count": filteredData.length,
+          "data": filteredData
+        };
+      },
+      request: {
+        pageName:'page',
+        limitName:'size'
+      },
+      height: 600, // 设置表格高度
+      toolbar: ['filter', 'exports', 'print'],
+      cols: [ [
+        {field: 'steel_mill', title: '钢厂'},
+        {field: 'steel_grade', title: '钢材等级'},
+        {field: 'dimensions', title: '尺寸'},
+        {field: 'trade_mode', title: '贸易方式'},
+        {field: 'customer', title: '客户'},
+        {field: 'INweight', title: '入荷重量',templet: function(d) { return Math.round(d.INweight); }},
+        {field: 'OUTweight', title: '出荷重量', templet: function(d) { return Math.round(d.OUTweight); }},
+        {field: 'current_stock', title: '在荷重量', templet: function(d) { return Math.round(d.current_stock); }},
+      ]],
+      limits: [200, 500, 1000, 20000],
+      limit: 200,
+      page: true, // 开启分页
+      totalRow: true, // 开启合计行
+
+    });
+
+    // 格式化日期
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      let date = new Date(dateStr);
+      let year = date.getFullYear();
+      let month = (date.getMonth() + 1).toString().padStart(2, '0');
+      let day = date.getDate().toString().padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+    // 统一搜索表单提交事件
+    form.on('submit(data-search-btn)', function(data) {
+      var req = {};
+      var formData = data.field;
+      if (formData.steelMill !== '') {
+        req.steelMill = formData.steelMill;
+      }
+      if (formData.steelGrade !== '') {
+        req.steelGrade = formData.steelGrade;
+      }
+      if (formData.tradeMode !== '') {
+        req.tradeMode = formData.tradeMode;
+      }
+      if (formData.dimensions !== '') {
+        req.dimensions = formData.dimensions;
+      }
+      if (formData.state !== '') {
+        req.state = formData.state;
+      }
+      if (formData.time !== '') {
+        var dates = formData.time.split(' - ');
+        req.startDate = dates[0];
+        req.endDate = dates[1];
+      }
+      // 执行搜索重载
+      recordTable.reload({
+        url: '/shipment/details',
+        where: req,
+        page: { curr: 1 }
+      });
+      return false;
+    });
+
+  });
+</script>
+</body>
+</html>

@@ -134,6 +134,7 @@ public class FileUploadController {
             shipment.setSteelGrade(steelGrade);
             shipment.setDimensions(steelSize);
             shipment.setSteelMill(steelType);
+            shipment.setState("正常");
             filledFieldsCount++;
 
         if (getCellValueAsDouble(row.getCell(3)) != null) {
@@ -186,6 +187,7 @@ public class FileUploadController {
 //        shipment.setSteelGrade(steelGrade);
 //        shipment.setDimensions(steelSize);
 //        shipment.setSteelMill(steelType);
+        shipment.setState("正常");
         filledFieldsCount++;
         if (getCellValueAsString(row.getCell(2)) != null) {
             shipment.setSteelMill(getCellValueAsString(row.getCell(2)));

@@ -41,4 +41,6 @@ public interface ShipmentDetailsService {
     List<Map<String, Object>> selectInvoiceApplication(Map<String, Object> params);
 
     void updateUnitPrice(String uniqueIdentifier, double unitPrice);
+    List<Map<String, Object>> fetchShipmentDetails(Map<String, Object> params);
+
 }

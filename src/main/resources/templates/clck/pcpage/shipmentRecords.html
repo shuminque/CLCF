@@ -102,7 +102,13 @@
                             th:text="${trade_mode.mode}"></option>
                 </select>
             </div>
-
+            <div class="layui-input-inline">
+                <select name="state" id="state"  >
+                    <option value="" selected>选择状态</option>
+                    <option value="正常" >正常</option>
+                    <option value="死库" >死库</option>
+                </select>
+            </div>
             <div class="layui-inline">
                 <button type="button" class="layui-btn" id="advancedSearchToggle">展开</button>
             </div>
@@ -285,6 +291,16 @@
                 </select>
             </div>
         </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">状态:</label>
+            <div class="layui-input-block">
+                <select name="state"   lay-verify="required">
+                <option value="" selected>选择状态</option>
+                <option value="正常" >正常</option>
+                <option value="死库" >死库</option>
+            </select>
+            </div>
+        </div>
         <div class="layui-form-item" style="text-align: center;">
             <button class="layui-btn layui-btn-normal" lay-submit lay-filter="editGradeSubmitBtnFilter">更新</button>
         </div>
@@ -380,7 +396,8 @@
                         },minWidth: 150},
                     {field: 'time', title: '操作日期', templet: function(d){
                             return formatDate(d.time);
-                        },minWidth: 150}
+                        },minWidth: 150},
+                    {field: 'state', title: '状态', minWidth: 100},
                 ]
             ],
             limits: [200, 500, 1000, 20000],
@@ -570,6 +587,9 @@
             if (formData.deliveryPoint !== '') {
                 req.deliveryPoint = formData.deliveryPoint;
             }
+            if (formData.state !== '') {
+                req.state = formData.state;
+            }
             if (formData.time !== '') {
                 var dates = formData.time.split(' - ');
                 req.startDate = dates[0];
@@ -631,7 +651,8 @@
                         'weight': data.weight,
                         'placementArea': data.placementArea,
                         'purchaser': data.purchaser,
-                        'deliveryPoint': data.deliveryPoint
+                        'deliveryPoint': data.deliveryPoint,
+                        'state': data.state,
                     });
                     layui.form.render();
                 }

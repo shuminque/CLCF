@@ -266,6 +266,15 @@
                             "roles": [
                                 "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "onlyRead"
                             ]
+                        },
+                        {
+                            "title": "材料在库报表",
+                            "href": "/details",
+                            "icon": "layui-icon layui-icon-list",
+                            "target": "_self",
+                            "roles": [
+                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "onlyRead"
+                            ]
                         }
                     ]
                 }

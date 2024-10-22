@@ -104,6 +104,13 @@
                 <div class="layui-input-inline">
                     <input type="text" name="uniqueIdentifier" placeholder="搜索材料ID" class="layui-input">
                 </div>
+                <div class="layui-input-inline">
+                    <select name="state" id="state"  >
+                        <option value="" selected>选择状态</option>
+                        <option value="正常" >正常</option>
+                        <option value="死库" >死库</option>
+                    </select>
+                </div>
             </div>
             <div class="layui-inline">
                 <button type="submit" class="layui-btn layui-btn-primary" lay-submit lay-filter="data-search-btn">
@@ -175,6 +182,7 @@
                 {field: 'time', title: '入库日期', templet: function(d){
                         return formatDate(d.time);
                     }},
+                {field: 'state', title: '状态', minWidth: 100},
             ]],
             limits: [10000, 20000, 50000],
             limit: 10000,
@@ -373,6 +381,9 @@
             }
             if (formData.uniqueIdentifier !== '') {
                 req.uniqueIdentifier = formData.uniqueIdentifier;
+            }
+            if (formData.state !== '') {
+                req.state = formData.state;
             }
             req.cutoffDate = formData.time;
             // 执行搜索重载

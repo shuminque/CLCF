@@ -132,6 +132,13 @@ public class PageController {
         addCommonObjects(mv, null);
         return mv;
     }
+    @GetMapping("/details")
+    public ModelAndView details() {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("clck/pcpage/details");
+        addCommonObjects(mv, null);
+        return mv;
+    }
     @GetMapping("/pda1")
     public ModelAndView pda(Map<String, Object> params) {
         ModelAndView mv = new ModelAndView();

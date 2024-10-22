@@ -66,4 +66,6 @@ public interface ShipmentDetailsMapper {
     List<Map<String, Object>> selectInvoiceApplication(@Param("params") Map<String, Object> params);
 
     void updateUnitPrice(@Param("uniqueIdentifier") String uniqueIdentifier, @Param("unitPrice") double unitPrice);
+    List<Map<String, Object>> getShipmentDetails(Map<String, Object> params);
+
 }
