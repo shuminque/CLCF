@@ -147,6 +147,17 @@ public class ShipmentDetailsController {
             shipment.setWeight(Double.valueOf(request.get("weight")));
             shipment.setPlacementArea(request.get("area"));
             shipment.setState("正常");
+            ShipmentDetails lastShipment = shipmentDetailsService.getLastCustomer(
+                    request.get("steelType"),
+                    request.get("steelGrade"),
+                    request.get("steelSize"),
+                    request.get("tradeMode")
+            );
+            if (lastShipment != null) {
+                shipment.setCustomer(lastShipment.getCustomer());
+                shipment.setDeliveryPoint(lastShipment.getDeliveryPoint());
+                shipment.setPurchaser(lastShipment.getPurchaser());
+            }
             String dateString = request.get("date");
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             Date date = dateFormat.parse(dateString);

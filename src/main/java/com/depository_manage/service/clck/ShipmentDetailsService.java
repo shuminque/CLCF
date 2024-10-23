@@ -26,6 +26,7 @@ public interface ShipmentDetailsService {
     List<ShipmentDetails> getIntoSDs(Map<String, Object> params);
 
     double getWeightByUniqueIdentifier(String uniqueIdentifier);
+    ShipmentDetails getLastCustomer(String steelMill, String steelGrade, String dimensions, String tradeMode);
     List<Map<String, Object>> getclstatus(Date cutoffDate);
 
     List<Map<String, Object>> getClstatusByDimensions(Date cutoffDate);

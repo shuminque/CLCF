@@ -254,6 +254,11 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
     }
 
     @Override
+    public ShipmentDetails getLastCustomer(String steelMill, String steelGrade, String dimensions, String tradeMode) {
+        return shipmentDetailsMapper.getLastCustomer(steelMill, steelGrade, dimensions, tradeMode);
+    }
+
+    @Override
     public List<Map<String, Object>> getclstatus(Date cutoffDate) {
         return shipmentDetailsMapper.getclstatus(cutoffDate);
     }

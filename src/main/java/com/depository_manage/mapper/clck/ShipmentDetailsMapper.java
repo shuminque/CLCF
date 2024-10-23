@@ -42,7 +42,10 @@ public interface ShipmentDetailsMapper {
 
 
     double getWeightByUniqueIdentifier(@Param("uniqueIdentifier") String uniqueIdentifier);
-
+    ShipmentDetails getLastCustomer(@Param("steelMill") String steelMill,
+                           @Param("steelGrade") String steelGrade,
+                           @Param("dimensions") String dimensions,
+                           @Param("tradeMode") String tradeMode);
     List<Map<String, Object>> getclstatus(@Param("date") Date cutoffDate);
     List<Map<String, Object>> getClstatusByDimensions(@Param("date") Date cutoffDate);
     List<Map<String, Object>> getPipeByDimensions(@Param("date") Date cutoffDate);

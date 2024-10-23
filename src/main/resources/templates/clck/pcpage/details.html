@@ -64,7 +64,7 @@
     var recordTable = table.render({
       elem: '#recordTable',
       url: '/shipment/details',
-      title:'材料入库情况',
+      title:'材料在库报表',
       parseData: function(res) {
         var filteredData = res.filter(function(item) {
           return (!item.size || !item.size.includes('锻造材'));

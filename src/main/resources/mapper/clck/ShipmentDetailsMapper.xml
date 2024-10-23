@@ -476,6 +476,18 @@
         ORDER BY id DESC
             LIMIT 1
     </select>
+
+    <select id="getLastCustomer" parameterType="String" resultMap="shipmentDetailsMap">
+        SELECT *
+        FROM shipment_details
+        WHERE steel_mill = #{steelMill}
+          AND steel_grade = #{steelGrade}
+          AND dimensions = #{dimensions}
+          AND trade_mode = #{tradeMode}
+        ORDER BY id DESC
+            LIMIT 1
+    </select>
+
     <!-- 饼图厂家 -->
     <select id="getclstatus" resultType="map">
         WITH in_out_count AS (
