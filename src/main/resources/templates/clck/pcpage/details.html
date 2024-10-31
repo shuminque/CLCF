@@ -67,7 +67,9 @@
       title:'材料在库报表',
       parseData: function(res) {
         var filteredData = res.filter(function(item) {
-          return (!item.size || !item.size.includes('锻造材'));
+          return (
+                  !(Math.round(item.INweight) === 0 && Math.round(item.OUTweight) === 0 && Math.round(item.current_stock) === 0)
+          );
         });
         return {
           "code": 0,
