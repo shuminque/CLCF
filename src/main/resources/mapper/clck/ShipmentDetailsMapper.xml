@@ -814,8 +814,8 @@
             customer,
             COALESCE(SUM(CASE WHEN operation_type IN ('入库', '返库') AND DATE(time) BETWEEN #{startDate} AND #{endDate} AND state= #{state}  THEN weight END), 0) AS INweight,
             COALESCE(SUM(CASE WHEN operation_type = '出库' AND DATE(time) BETWEEN #{startDate} AND #{endDate} AND state= #{state}  THEN weight END), 0) AS OUTweight,
-            COALESCE(SUM(CASE WHEN operation_type IN ('入库', '返库') AND DATE(time) &lt; #{endDate} AND state= #{state} THEN weight END), 0) -
-            COALESCE(SUM(CASE WHEN operation_type = '出库' AND DATE(time) &lt; #{endDate} AND state= #{state} THEN weight END), 0) AS current_stock
+            COALESCE(SUM(CASE WHEN operation_type IN ('入库', '返库') AND DATE(time) &lt;= #{endDate} AND state= #{state} THEN weight END), 0) -
+            COALESCE(SUM(CASE WHEN operation_type = '出库' AND DATE(time) &lt;= #{endDate} AND state= #{state} THEN weight END), 0) AS current_stock
         FROM shipment_details
         GROUP BY
             steel_mill,
