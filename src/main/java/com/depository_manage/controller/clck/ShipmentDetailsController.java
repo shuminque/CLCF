@@ -396,4 +396,15 @@ public class ShipmentDetailsController {
         List<Map<String, Object>> results = shipmentDetailsService.fetchShipmentDetails(params);
         return ResponseEntity.ok(results);
     }
+    @GetMapping("/monthlyInventory")
+    public ResponseEntity<List<Map<String, Object>>> getMonthlyInventory(
+            @RequestParam(required = false, defaultValue = "正常") String state,
+            @RequestParam(required = false) String year) {
+        // 如果年份未指定，默认为当前年份
+        if (year == null || year.isEmpty()) {
+            year = String.valueOf(LocalDate.now().getYear());
+        }
+        List<Map<String, Object>> inventoryStatus = shipmentDetailsService.getMonthlyInventory(state, year);
+        return ResponseEntity.ok(inventoryStatus);
+    }
 }

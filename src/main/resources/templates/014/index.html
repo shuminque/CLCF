@@ -16,13 +16,16 @@
     <main class="t_main">
         <div class="t_box">
             <header class="t_title">
-                <input type="date" id="cutoff-date" style="border-radius: 15px;background-color: transparent;color: white;">
+                <input type="date" id="cutoff-date" style="border-radius: 15px;">
             </header>
             <div id="chart_2" style="width: 100%; height: 100%;"></div>
 <!--            <div id="bar_chart" style="width: 100%; height: 30%;"></div>-->
         </div>
         <div class="t_box">
             <div id="pipe_chart" style="width: 100%; height: 100%;"></div>
+        </div>
+        <div class="t_box">
+            <div id="bar_chart" style="width: 100%; height: 100%;"></div>
         </div>
     </main>
 </div>
@@ -51,6 +54,7 @@
         let url6 = `/shipment/forg_dimensions?cutoffDate=${cutoffDate}`;
         let url3 = `/shipment/monthlyInOutWeightByYear?year=${year}`;
         let url4 = `/shipment/monthlyCumulativeInventoryStatusByYear?year=${year}`;
+        let url7 = `/shipment/monthlyInventory?year=${year}`;
 
         Promise.all([
             fetch(url1).then(response => response.json()),
@@ -58,12 +62,13 @@
             fetch(url5).then(response => response.json()),
             fetch(url6).then(response => response.json()),
             fetch(url3).then(response => response.json()),
-            fetch(url4).then(response => response.json())
+            fetch(url4).then(response => response.json()),
+            fetch(url7).then(response => response.json())
         ])
-            .then(([steelMillData, dimensionsData,pipeDimensionsData,forgDimensionsData, monthlyInOutData, cumulativeInventoryData]) => {
+            .then(([steelMillData, dimensionsData,pipeDimensionsData,forgDimensionsData, monthlyInOutData0, cumulativeInventoryData, monthlyInOutData]) => {
                 echart_2(steelMillData, dimensionsData);
                 updatePipeChart(pipeDimensionsData,forgDimensionsData); // 使用获取的数据更新图表
-                updateBarChart(monthlyInOutData, cumulativeInventoryData); // 使用获取的数据更新图表
+                updateBarChart(monthlyInOutData0, cumulativeInventoryData, monthlyInOutData); // 使用获取的数据更新图表
             })
             .catch(error => console.error('Error fetching chart data:', error));
     }
@@ -511,16 +516,21 @@
             ]
         });
     }
-    function updateBarChart(monthlyInOutData, cumulativeInventoryData) {
+    function updateBarChart(monthlyInOutData0, cumulativeInventoryData, monthlyInOutData) {
         var barChart = echarts.init(document.getElementById('bar_chart'));
         const months = monthlyInOutData.map(item => item.month);
-        const inWeights = monthlyInOutData.map(item => Math.round(item.in_weight));
-        const outWeights = monthlyInOutData.map(item => Math.round(item.out_weight));
-        const cumulativeWeights = cumulativeInventoryData.map(item => Math.round(item.cumulative_weight));
-
+        const binWeights = monthlyInOutData.map(item => Math.round(item.棒_in));
+        const boutWeights = monthlyInOutData.map(item => Math.round(item.棒_out));
+        const btWeights = monthlyInOutData.map(item => Math.round(item.棒_weight));
+        const ginWeights = monthlyInOutData.map(item => Math.round(item.管_in));
+        const goutWeights = monthlyInOutData.map(item => Math.round(item.管_out));
+        const gtWeights = monthlyInOutData.map(item => Math.round(item.管_weight));
+        const dinWeights = monthlyInOutData.map(item => Math.round(item.锻_in));
+        const doutWeights = monthlyInOutData.map(item => Math.round(item.锻_out));
+        const dtWeights = monthlyInOutData.map(item => Math.round(item.锻_weight));
         barChart.setOption({
             title: {
-                text: '各月入库与出库重量及累计在库情况',
+                text: '月度分析图',
                 left: 'center',
                 textStyle: {
                     color: '#FFFFFF' // 标题文字颜色
@@ -536,8 +546,8 @@
                 }
             },
             legend: {
-                data: ['入库重量', '出库重量', '累计在库重量'],
-                bottom: 0,
+                data: ['棒材', '管材', '锻造材'],
+                top: 20,
                 textStyle: {
                     color: '#FFFFFF' // 图例文字颜色
                 }
@@ -555,45 +565,75 @@
                     interval: 0, // 保证所有月份标签都显示
                     rotate: 45,  // 旋转标签以防重叠
                     color: '#FFFFFF' // X轴文字颜色
+                },
+                axisLine: {
+                    lineStyle: {
+                        color: '#FFFFFF' // X轴轴线颜色
+                    }
+                },
+                axisTick: {
+                    lineStyle: {
+                        color: '#FFFFFF' // X轴刻度颜色
+                    }
                 }
             },
             yAxis: {
                 type: 'value',
                 axisLabel: {
                     color: '#FFFFFF' // Y轴文字颜色
+                },
+                axisLine: {
+                    lineStyle: {
+                        color: '#FFFFFF' // Y轴轴线颜色
+                    }
+                },
+                axisTick: {
+                    lineStyle: {
+                        color: '#FFFFFF' // Y轴刻度颜色
+                    }
+                },
+                splitLine: {
+                    lineStyle: {
+                        color: '#FFFFFF' // 网格线颜色，如果需要
+                    }
                 }
             },
             series: [
                 {
-                    name: '入库重量',
+                    name: '棒材',
                     type: 'bar',
-                    data: inWeights,
+                    stack: '入库',
+                    data: binWeights,
                     itemStyle: {
-                        color: '#00FF00' // 修改为适合蓝色背景的颜色
+                        color: '#0862d6' // 修改为适合蓝色背景的颜色
                     },
                     label: {
                         show: true,
                         position: 'top',
                         color: '#FFFFFF' // 顶部文字颜色
-                    }
+                    },
+                    z:10
                 },
                 {
-                    name: '出库重量',
+                    name: '管材',
                     type: 'bar',
-                    data: outWeights,
+                    stack: '入库',
+                    data: ginWeights,
                     itemStyle: {
-                        color: '#FFCC00' // 修改为适合蓝色背景的颜色
+                        color: '#26b510' // 修改为适合蓝色背景的颜色
                     },
                     label: {
                         show: true,
                         position: 'top',
                         color: '#FFFFFF' // 顶部文字颜色
-                    }
+                    },
+                    z:8
                 },
                 {
-                    name: '累计在库重量',
-                    type: 'line',
-                    data: cumulativeWeights,
+                    name: '锻造材',
+                    type: 'bar',
+                    stack: '入库',
+                    data: dinWeights,
                     itemStyle: {
                         color: '#FF0000' // 修改为适合蓝色背景的颜色
                     },
@@ -605,7 +645,101 @@
                     lineStyle: {
                         color: '#FF0000' // 修改为适合蓝色背景的颜色
                     }
-                }
+                },
+                {
+                    name: '棒材',
+                    type: 'bar',
+                    stack: '出库',
+                    data: boutWeights,
+                    itemStyle: {
+                        color: '#0862d6' // 修改为适合蓝色背景的颜色
+                    },
+                    label: {
+                        show: true,
+                        position: 'top',
+                        color: '#FFFFFF' // 顶部文字颜色
+                    },
+                    z:10
+                },
+                {
+                    name: '管材',
+                    type: 'bar',
+                    stack: '出库',
+                    data: goutWeights,
+                    itemStyle: {
+                        color: '#26b510' // 修改为适合蓝色背景的颜色
+                    },
+                    label: {
+                        show: true,
+                        position: 'top',
+                        color: '#FFFFFF' // 顶部文字颜色
+                    },
+                    z:8
+                },
+                {
+                    name: '锻造材',
+                    type: 'bar',
+                    stack: '出库',
+                    data: doutWeights,
+                    itemStyle: {
+                        color: '#FF0000' // 修改为适合蓝色背景的颜色
+                    },
+                    label: {
+                        show: true,
+                        position: 'top',
+                        color: '#FFFFFF' // 顶部文字颜色
+                    },
+                    lineStyle: {
+                        color: '#FF0000' // 修改为适合蓝色背景的颜色
+                    }
+                },
+                {
+                    name: '棒材',
+                    type: 'bar',
+                    stack: '在库',
+                    data: btWeights,
+                    itemStyle: {
+                        color: '#0862d6' // 修改为适合蓝色背景的颜色
+                    },
+                    label: {
+                        show: true,
+                        position: 'top',
+                        color: '#FFFFFF' // 顶部文字颜色
+                    },
+                    z:10
+                },
+                {
+                    name: '管材',
+                    type: 'bar',
+                    stack: '在库',
+                    data: gtWeights,
+                    itemStyle: {
+                        color: '#26b510' // 修改为适合蓝色背景的颜色
+                    },
+                    label: {
+                        show: true,
+                        position: 'top',
+                        color: '#FFFFFF' // 顶部文字颜色
+                    },
+                    z:8
+                },
+                {
+                    name: '锻造材',
+                    type: 'bar',
+                    stack: '在库',
+                    data: dtWeights,
+                    itemStyle: {
+                        color: '#FF0000' // 修改为适合蓝色背景的颜色
+                    },
+                    label: {
+                        show: true,
+                        position: 'top',
+                        color: '#FFFFFF' // 顶部文字颜色
+                    },
+                    lineStyle: {
+                        color: '#FF0000' // 修改为适合蓝色背景的颜色
+                    }
+                },
             ]
         });
     }

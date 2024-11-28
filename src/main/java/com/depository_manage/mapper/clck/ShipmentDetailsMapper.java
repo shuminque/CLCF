@@ -70,5 +70,8 @@ public interface ShipmentDetailsMapper {
 
     void updateUnitPrice(@Param("uniqueIdentifier") String uniqueIdentifier, @Param("unitPrice") double unitPrice);
     List<Map<String, Object>> getShipmentDetails(Map<String, Object> params);
-
+    List<Map<String, Object>> selectMonthlyInventory(
+            @Param("state") String state,
+            @Param("year") String year
+    );
 }

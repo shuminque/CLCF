@@ -327,4 +327,8 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
     public List<Map<String, Object>> fetchShipmentDetails(Map<String, Object> params) {
         return shipmentDetailsMapper.getShipmentDetails(params);
     }
+    @Override
+    public List<Map<String, Object>> getMonthlyInventory(String state, String year) {
+        return shipmentDetailsMapper.selectMonthlyInventory(state, year);
+    }
 }

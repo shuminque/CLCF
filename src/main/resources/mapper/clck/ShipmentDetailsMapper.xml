@@ -825,4 +825,101 @@
             customer
         ORDER BY steel_mill DESC, dimensions
     </select>
+
+    <select id="selectMonthlyInventory" resultType="map" parameterType="map">
+        WITH months AS (
+        SELECT
+        DATE_FORMAT(DATE_ADD('${year}-01-01', INTERVAL seq MONTH), '%Y-%m') AS month,
+        DATE_ADD('${year}-01-01', INTERVAL seq MONTH) AS month_start_date,
+        DATE_ADD('${year}-01-01', INTERVAL seq + 1 MONTH) AS month_end_date
+        FROM (
+        SELECT 0 AS seq UNION ALL
+        SELECT 1 UNION ALL
+        SELECT 2 UNION ALL
+        SELECT 3 UNION ALL
+        SELECT 4 UNION ALL
+        SELECT 5 UNION ALL
+        SELECT 6 UNION ALL
+        SELECT 7 UNION ALL
+        SELECT 8 UNION ALL
+        SELECT 9 UNION ALL
+        SELECT 10 UNION ALL
+        SELECT 11
+        ) AS numbers
+        )
+        SELECT
+        m.month,
+        -- 当月入库数量
+        SUM(
+        CASE
+        WHEN br.operation_type IN ('入库', '返库') AND br.steel_mill LIKE('%材%') AND br.time >= m.month_start_date AND br.time &lt; m.month_end_date THEN br.weight
+                                                                                                                                  ELSE 0
+        END
+        ) AS 棒_in,
+        SUM(
+        CASE
+        WHEN br.operation_type IN ('入库', '返库') AND br.steel_mill LIKE('%管%') AND br.time >= m.month_start_date AND br.time &lt; m.month_end_date THEN br.weight
+                                                                                                                                  ELSE 0
+        END
+        ) AS 管_in,
+        SUM(
+        CASE
+        WHEN br.operation_type IN ('入库', '返库') AND br.steel_mill LIKE('%锻造%')  AND br.time >= m.month_start_date AND br.time &lt; m.month_end_date THEN br.weight
+                                                                                                                                     ELSE 0
+        END
+        ) AS 锻_in,
+        -- 当月出库数量
+        SUM(
+        CASE
+        WHEN br.operation_type IN ('出库') AND br.steel_mill LIKE('%材%') AND br.time >= m.month_start_date AND br.time &lt; m.month_end_date THEN br.weight
+                                                                                                                          ELSE 0
+        END
+        ) AS 棒_out,
+        SUM(
+        CASE
+        WHEN br.operation_type IN ('出库') AND br.steel_mill LIKE('%管%') AND br.time >= m.month_start_date AND br.time &lt; m.month_end_date THEN br.weight
+                                                                                                                          ELSE 0
+        END
+        ) AS 管_out,
+        SUM(
+        CASE
+        WHEN br.operation_type IN ('出库') AND br.steel_mill LIKE('%锻造%') AND br.time >= m.month_start_date AND br.time &lt; m.month_end_date THEN br.weight
+                                                                                                                            ELSE 0
+        END
+        ) AS 锻_out,
+        SUM(
+        CASE
+        WHEN br.operation_type IN ('入库', '返库') AND br.steel_mill LIKE('%材%') THEN br.weight
+        WHEN br.operation_type IN ('出库') AND br.steel_mill LIKE('%材%') THEN -br.weight
+        ELSE 0
+        END
+        ) AS 棒_weight,
+        SUM(
+        CASE
+        WHEN br.operation_type IN ('入库', '返库') AND br.steel_mill LIKE('%管%') THEN br.weight
+        WHEN br.operation_type IN ('出库') AND br.steel_mill LIKE('%管%') THEN -br.weight
+        ELSE 0
+        END
+        ) AS 管_weight,
+        SUM(
+        CASE
+        WHEN br.operation_type IN ('入库', '返库') AND br.steel_mill LIKE('%锻造%') THEN br.weight
+        WHEN br.operation_type IN ('出库') AND br.steel_mill LIKE('%锻造%') THEN -br.weight
+        ELSE 0
+        END
+        ) AS 锻_weight
+        FROM
+        months m
+        LEFT JOIN shipment_details br ON br.time &lt; m.month_end_date
+        WHERE
+        1=1
+        <if test="state != null and state != 'ALL'">
+            AND br.state = #{state}
+        </if>
+        AND br.weight > 0
+        GROUP BY
+        m.month
+        ORDER BY
+        m.month
+    </select>
 </mapper>

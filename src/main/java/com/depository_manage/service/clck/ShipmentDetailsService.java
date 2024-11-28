@@ -43,5 +43,6 @@ public interface ShipmentDetailsService {
 
     void updateUnitPrice(String uniqueIdentifier, double unitPrice);
     List<Map<String, Object>> fetchShipmentDetails(Map<String, Object> params);
+    List<Map<String, Object>> getMonthlyInventory(String state, String year);
 
 }
