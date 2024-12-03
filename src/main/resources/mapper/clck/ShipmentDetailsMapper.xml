@@ -279,8 +279,8 @@
             WITH in_out_count AS (
             SELECT
             unique_identifier,
-            SUM(CASE WHEN operation_type in ('入库', '退库') THEN 1 ELSE 0 END) AS in_count,
-            SUM(CASE WHEN operation_type = '出库' THEN 1 ELSE 0 END) AS out_count
+            SUM(CASE WHEN operation_type in ('入库', '返库') THEN 1 ELSE 0 END) AS in_count,
+            SUM(CASE WHEN operation_type in ('出库')  THEN 1 ELSE 0 END) AS out_count
             FROM
             shipment_details
             WHERE
@@ -814,10 +814,10 @@
             dimensions,
             trade_mode,
             customer,
-            COALESCE(SUM(CASE WHEN operation_type IN ('入库', '退货') AND DATE(time) BETWEEN #{startDate} AND #{endDate} AND state= #{state}  THEN weight END), 0) AS INweight,
+            COALESCE(SUM(CASE WHEN operation_type IN ('入库') AND DATE(time) BETWEEN #{startDate} AND #{endDate} AND state= #{state}  THEN weight END), 0) AS INweight,
             COALESCE(SUM(CASE WHEN operation_type = '出库' AND DATE(time) BETWEEN #{startDate} AND #{endDate} AND state = #{state} THEN weight END), 0) -
             COALESCE(SUM(CASE WHEN operation_type = '返库' AND DATE(time) BETWEEN #{startDate} AND #{endDate} AND state = #{state} THEN weight END), 0) AS OUTweight,
-            COALESCE(SUM(CASE WHEN operation_type IN ('入库', '退货','返库') AND DATE(time) &lt;= #{endDate} AND state= #{state} THEN weight END), 0) -
+            COALESCE(SUM(CASE WHEN operation_type IN ('入库','返库') AND DATE(time) &lt;= #{endDate} AND state= #{state} THEN weight END), 0) -
             COALESCE(SUM(CASE WHEN operation_type = '出库' AND DATE(time) &lt;= #{endDate} AND state= #{state} THEN weight END), 0) AS current_stock
         FROM shipment_details
         GROUP BY
