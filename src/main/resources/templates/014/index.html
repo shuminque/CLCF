@@ -563,8 +563,13 @@
                 data: months,
                 axisLabel: {
                     interval: 0, // 保证所有月份标签都显示
-                    rotate: 45,  // 旋转标签以防重叠
-                    color: '#FFFFFF' // X轴文字颜色
+                    rotate: 0,  // 旋转标签以防重叠
+                    color: '#FFFFFF', // X轴文字颜色
+                    formatter: function (value, index) {
+                        // Customize the labels based on the index
+                        const labels = ['入库', '出库', '在库'];
+                        return value + '\n' + labels.join(' ');
+                    }
                 },
                 axisLine: {
                     lineStyle: {
@@ -609,7 +614,8 @@
                     },
                     label: {
                         show: true,
-                        position: 'top',
+                        position: 'insideTop',
+                        offset: [0, 0],
                         color: '#FFFFFF' // 顶部文字颜色
                     },
                     z:10
@@ -625,6 +631,7 @@
                     label: {
                         show: true,
                         position: 'top',
+                        offset: [0, 15],
                         color: '#FFFFFF' // 顶部文字颜色
                     },
                     z:8
@@ -640,6 +647,7 @@
                     label: {
                         show: true,
                         position: 'top',
+                         offset: [0, 10],
                         color: '#FFFFFF' // 顶部文字颜色
                     },
                     lineStyle: {
@@ -656,7 +664,8 @@
                     },
                     label: {
                         show: true,
-                        position: 'top',
+                         position: 'insideTop',
+                        offset: [0, 0],
                         color: '#FFFFFF' // 顶部文字颜色
                     },
                     z:10
@@ -672,6 +681,7 @@
                     label: {
                         show: true,
                         position: 'top',
+                        offset: [0, 15],
                         color: '#FFFFFF' // 顶部文字颜色
                     },
                     z:8
@@ -687,6 +697,7 @@
                     label: {
                         show: true,
                         position: 'top',
+                         offset: [0, 10],
                         color: '#FFFFFF' // 顶部文字颜色
                     },
                     lineStyle: {
@@ -703,7 +714,8 @@
                     },
                     label: {
                         show: true,
-                        position: 'top',
+                         position: 'insideTop',
+                        offset: [0, 0],
                         color: '#FFFFFF' // 顶部文字颜色
                     },
                     z:10
@@ -719,6 +731,7 @@
                     label: {
                         show: true,
                         position: 'top',
+                        offset: [0, 15],
                         color: '#FFFFFF' // 顶部文字颜色
                     },
                     z:8
@@ -734,6 +747,7 @@
                     label: {
                         show: true,
                         position: 'top',
+                         offset: [0, 10], 
                         color: '#FFFFFF' // 顶部文字颜色
                     },
                     lineStyle: {
