@@ -546,7 +546,7 @@
                 }
             },
             legend: {
-                data: ['棒材', '管材', '锻造材'],
+                data: ['管材', '棒材',  '锻造材'],
                 top: 20,
                 textStyle: {
                     color: '#FFFFFF' // 图例文字颜色
@@ -567,7 +567,7 @@
                     color: '#FFFFFF', // X轴文字颜色
                     formatter: function (value, index) {
                         // Customize the labels based on the index
-                        const labels = ['入库         ', '出库', '         在库'];
+                        const labels = ['入库             ', '出库', '             在库'];
                         return labels.join(' ') + '\n'+'\n' + value;
                     }
                 },
@@ -624,39 +624,39 @@
                     z:10
                 },
                 {
-                    name: '管材',
+                    name: '棒材',
                     type: 'bar',
                     stack: '入库',
-                    data: ginWeights,
+                    data: binWeights,
                     itemStyle: {
                         color: '#26b510' // 修改为适合蓝色背景的颜色
                     },
                     label: {
                         show: true,
-                        position: 'top',
-                        offset: [0, 15],
+                        position: 'insideTop',
+                        offset: [0, 0],
                         color: '#FFFFFF' ,// 顶部文字颜色
                         formatter: function (params) {
-                            return params.value === 0 ? '' : params.value.toLocaleString() + ' kg';
+                            return params.value === 0 ? '' : params.value.toLocaleString() + 'kg';
                         }
                     },
                     z:8
                 },
                 {
-                    name: '棒材',
+                    name: '管材',
                     type: 'bar',
                     stack: '入库',
-                    data: binWeights,
+                    data: ginWeights,
                     itemStyle: {
                         color: '#FF0000' // 修改为适合蓝色背景的颜色
                     },
                     label: {
                         show: true,
                         position: 'top',
-                         offset: [0, 10],
+                         offset: [0, 0],
                         color: '#FFFFFF', // 顶部文字颜色
                         formatter: function (params) {
-                            return params.value === 0 ? '' : params.value.toLocaleString() + ' kg';
+                            return params.value === 0 ? '' : params.value.toLocaleString() + 'kg';
                         }
                     },
                     lineStyle: {
@@ -683,39 +683,39 @@
                     z:10
                 },
                 {
-                    name: '管材',
+                    name: '棒材',
                     type: 'bar',
                     stack: '出库',
-                    data: goutWeights,
+                    data: boutWeights,
                     itemStyle: {
                         color: '#26b510' // 修改为适合蓝色背景的颜色
                     },
                     label: {
                         show: true,
-                        position: 'top',
-                        offset: [0, 15],
+                        position: 'insideTop',
+                        offset: [0, 0],
                         color: '#FFFFFF', // 顶部文字颜色
                         formatter: function (params) {
-                            return params.value === 0 ? '' : params.value.toLocaleString() + ' kg';
+                            return params.value === 0 ? '' : params.value.toLocaleString() + 'kg';
                         }
                     },
                     z:8
                 },
                 {
-                    name: '棒材',
+                    name: '管材',
                     type: 'bar',
                     stack: '出库',
-                    data: boutWeights,
+                    data: goutWeights,
                     itemStyle: {
                         color: '#FF0000' // 修改为适合蓝色背景的颜色
                     },
                     label: {
                         show: true,
                         position: 'top',
-                         offset: [0, 10],
+                         offset: [0, 0],
                         color: '#FFFFFF', // 顶部文字颜色
                         formatter: function (params) {
-                            return params.value === 0 ? '' : params.value.toLocaleString() + ' kg';
+                            return params.value === 0 ? '' : params.value.toLocaleString() + 'kg';
                         }
                     },
                     lineStyle: {
@@ -742,39 +742,39 @@
                     z:10
                 },
                 {
-                    name: '管材',
+                    name: '棒材',
                     type: 'bar',
                     stack: '在库',
-                    data: gtWeights,
+                    data: btWeights,
                     itemStyle: {
                         color: '#26b510' // 修改为适合蓝色背景的颜色
                     },
                     label: {
                         show: true,
-                        position: 'top',
-                        offset: [0, 15],
+                        position: 'insideTop',
+                        offset: [0, 0],
                         color: '#FFFFFF', // 顶部文字颜色
                         formatter: function (params) {
-                            return params.value.toLocaleString() + ' kg';
+                            return params.value.toLocaleString() + 'kg';
                         }
                     },
                     z:8
                 },
                 {
-                    name: '棒材',
+                    name: '管材',
                     type: 'bar',
                     stack: '在库',
-                    data: btWeights,
+                    data: gtWeights,
                     itemStyle: {
                         color: '#FF0000' // 修改为适合蓝色背景的颜色
                     },
                     label: {
                         show: true,
                         position: 'top',
-                         offset: [0, 10], 
+                         offset: [0, 0],
                         color: '#FFFFFF',
                         formatter: function (params) {
-                            return params.value.toLocaleString() + ' kg';
+                            return params.value.toLocaleString() + 'kg';
                         }
                     },
                     lineStyle: {
