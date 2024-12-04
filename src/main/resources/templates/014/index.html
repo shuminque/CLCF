@@ -565,10 +565,16 @@
                     interval: 0, // 保证所有月份标签都显示
                     rotate: 0,  // 旋转标签以防重叠
                     color: '#FFFFFF', // X轴文字颜色
+                    rich: {
+                        largeFont: {
+                            fontSize: 11, // 设置自定义标签的字体大小
+                            color: '#FFFFFF' // 自定义标签的颜色
+                        }
+                    },
                     formatter: function (value, index) {
                         // Customize the labels based on the index
-                        const labels = ['入库             ', '出库', '             在库'];
-                        return labels.join(' ') + '\n'+'\n' + value;
+                        const labels = ['{largeFont|入库}             ', '{largeFont|出库}', '             {largeFont|在库}'];
+                        return '\n'+labels.join(' ') + '\n'+'\n' + value;
                     }
                 },
                 axisLine: {
