@@ -100,6 +100,16 @@ public class ShipmentDetailsController {
             return ResponseEntity.status(400).body(null);  // Return 400 Bad Request if duplicate entry is attempted
         }
     }
+    @PostMapping("/tuiHuo")
+    public ResponseEntity<Void> tuiHuo(@RequestBody Map<String, String> request) {
+        try {
+            String uniqueIdentifier = request.get("uniqueIdentifier");
+            shipmentDetailsService.tuiHuo(uniqueIdentifier);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(null);  // Return 400 Bad Request if stock out is not allowed
+        }
+    }
     @PostMapping("/stockOut")
     public ResponseEntity<Void> stockOut(@RequestBody Map<String, String> request) {
         try {

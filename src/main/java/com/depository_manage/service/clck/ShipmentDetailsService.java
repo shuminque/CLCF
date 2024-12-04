@@ -19,6 +19,7 @@ public interface ShipmentDetailsService {
     boolean batchDeleteShipmentDetails(List<Integer> ids);
     void updateOperationTypeByUniqueIdentifier(String uniqueIdentifier, String operationType, String placementArea) throws Exception;
     void stockOut(String uniqueIdentifier) throws Exception;
+    void tuiHuo(String uniqueIdentifier) throws Exception;
     void transfer(String uniqueIdentifier, String placementArea) throws Exception;  // 新增的方法
     void returnToStock(String uniqueIdentifier, double weight, String placementArea)throws Exception;
     List<ShipmentDetails> getStockStatusBeforeCutoffDate(Map<String, Object> params);

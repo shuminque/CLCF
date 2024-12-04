@@ -567,8 +567,8 @@
                     color: '#FFFFFF', // X轴文字颜色
                     formatter: function (value, index) {
                         // Customize the labels based on the index
-                        const labels = ['入库', '出库', '在库'];
-                        return value + '\n' + labels.join(' ');
+                        const labels = ['入库     ', '出库', '     在库'];
+                        return labels.join(' ') + '\n' + value;
                     }
                 },
                 axisLine: {
@@ -605,10 +605,10 @@
             },
             series: [
                 {
-                    name: '棒材',
+                    name: '锻造材',
                     type: 'bar',
                     stack: '入库',
-                    data: binWeights,
+                    data: dinWeights,
                     itemStyle: {
                         color: '#0862d6' // 修改为适合蓝色背景的颜色
                     },
@@ -616,7 +616,10 @@
                         show: true,
                         position: 'insideTop',
                         offset: [0, 0],
-                        color: '#FFFFFF' // 顶部文字颜色
+                        color: '#FFFFFF', // 顶部文字颜色
+                        formatter: function (params) {
+                            return params.value === 0 ? '' : params.value.toLocaleString() + '个';
+                        }
                     },
                     z:10
                 },
@@ -632,15 +635,18 @@
                         show: true,
                         position: 'top',
                         offset: [0, 15],
-                        color: '#FFFFFF' // 顶部文字颜色
+                        color: '#FFFFFF' ,// 顶部文字颜色
+                        formatter: function (params) {
+                            return params.value === 0 ? '' : params.value.toLocaleString() + ' kg';
+                        }
                     },
                     z:8
                 },
                 {
-                    name: '锻造材',
+                    name: '棒材',
                     type: 'bar',
                     stack: '入库',
-                    data: dinWeights,
+                    data: binWeights,
                     itemStyle: {
                         color: '#FF0000' // 修改为适合蓝色背景的颜色
                     },
@@ -648,17 +654,20 @@
                         show: true,
                         position: 'top',
                          offset: [0, 10],
-                        color: '#FFFFFF' // 顶部文字颜色
+                        color: '#FFFFFF', // 顶部文字颜色
+                        formatter: function (params) {
+                            return params.value === 0 ? '' : params.value.toLocaleString() + ' kg';
+                        }
                     },
                     lineStyle: {
                         color: '#FF0000' // 修改为适合蓝色背景的颜色
                     }
                 },
                 {
-                    name: '棒材',
+                    name: '锻造材',
                     type: 'bar',
                     stack: '出库',
-                    data: boutWeights,
+                    data: doutWeights,
                     itemStyle: {
                         color: '#0862d6' // 修改为适合蓝色背景的颜色
                     },
@@ -666,7 +675,10 @@
                         show: true,
                          position: 'insideTop',
                         offset: [0, 0],
-                        color: '#FFFFFF' // 顶部文字颜色
+                        color: '#FFFFFF', // 顶部文字颜色
+                        formatter: function (params) {
+                            return params.value === 0 ? '' : params.value.toLocaleString() + '个';
+                        }
                     },
                     z:10
                 },
@@ -682,15 +694,18 @@
                         show: true,
                         position: 'top',
                         offset: [0, 15],
-                        color: '#FFFFFF' // 顶部文字颜色
+                        color: '#FFFFFF', // 顶部文字颜色
+                        formatter: function (params) {
+                            return params.value === 0 ? '' : params.value.toLocaleString() + ' kg';
+                        }
                     },
                     z:8
                 },
                 {
-                    name: '锻造材',
+                    name: '棒材',
                     type: 'bar',
                     stack: '出库',
-                    data: doutWeights,
+                    data: boutWeights,
                     itemStyle: {
                         color: '#FF0000' // 修改为适合蓝色背景的颜色
                     },
@@ -698,17 +713,20 @@
                         show: true,
                         position: 'top',
                          offset: [0, 10],
-                        color: '#FFFFFF' // 顶部文字颜色
+                        color: '#FFFFFF', // 顶部文字颜色
+                        formatter: function (params) {
+                            return params.value === 0 ? '' : params.value.toLocaleString() + ' kg';
+                        }
                     },
                     lineStyle: {
                         color: '#FF0000' // 修改为适合蓝色背景的颜色
                     }
                 },
                 {
-                    name: '棒材',
+                    name: '锻造材',
                     type: 'bar',
                     stack: '在库',
-                    data: btWeights,
+                    data: dtWeights,
                     itemStyle: {
                         color: '#0862d6' // 修改为适合蓝色背景的颜色
                     },
@@ -716,7 +734,10 @@
                         show: true,
                          position: 'insideTop',
                         offset: [0, 0],
-                        color: '#FFFFFF' // 顶部文字颜色
+                        color: '#FFFFFF', // 顶部文字颜色
+                        formatter: function (params) {
+                            return params.value.toLocaleString() +  '个';
+                        }
                     },
                     z:10
                 },
@@ -732,15 +753,18 @@
                         show: true,
                         position: 'top',
                         offset: [0, 15],
-                        color: '#FFFFFF' // 顶部文字颜色
+                        color: '#FFFFFF', // 顶部文字颜色
+                        formatter: function (params) {
+                            return params.value.toLocaleString() + ' kg';
+                        }
                     },
                     z:8
                 },
                 {
-                    name: '锻造材',
+                    name: '棒材',
                     type: 'bar',
                     stack: '在库',
-                    data: dtWeights,
+                    data: btWeights,
                     itemStyle: {
                         color: '#FF0000' // 修改为适合蓝色背景的颜色
                     },
@@ -748,7 +772,10 @@
                         show: true,
                         position: 'top',
                          offset: [0, 10], 
-                        color: '#FFFFFF' // 顶部文字颜色
+                        color: '#FFFFFF',
+                        formatter: function (params) {
+                            return params.value.toLocaleString() + ' kg';
+                        }
                     },
                     lineStyle: {
                         color: '#FF0000' // 修改为适合蓝色背景的颜色

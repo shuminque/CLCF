@@ -156,6 +156,42 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
         }
     }
     @Override
+    public void tuiHuo(String uniqueIdentifier) throws Exception {
+        int netStockInCount = shipmentDetailsMapper.getNetStockInCountByUniqueIdentifier(uniqueIdentifier);
+        if (netStockInCount <= 0) {
+            throw new Exception("当前批次号没有可退货的库存");
+        }
+        // 根据 uniqueIdentifier 和 operationType 为 '入库' 查找记录
+        List<ShipmentDetails> stockInRecords = shipmentDetailsMapper.findStockInByUniqueIdentifier(uniqueIdentifier);
+        if (stockInRecords != null) {
+            ShipmentDetails stockInRecord = stockInRecords.get(0);
+            // 创建出库记录
+            ShipmentDetails stockOutRecord = new ShipmentDetails();
+            stockOutRecord.setUniqueIdentifier(stockInRecord.getUniqueIdentifier());
+            stockOutRecord.setInvoiceNumber(stockInRecord.getInvoiceNumber());
+            stockOutRecord.setCustomer(stockInRecord.getCustomer());
+            stockOutRecord.setTradeMode(stockInRecord.getTradeMode());
+            stockOutRecord.setDeliveryPoint(stockInRecord.getDeliveryPoint());
+            stockOutRecord.setArrivalPortDate(stockInRecord.getArrivalPortDate());
+            stockOutRecord.setArrivalDate(stockInRecord.getArrivalDate());
+            stockOutRecord.setSteelGrade(stockInRecord.getSteelGrade());
+            stockOutRecord.setDimensions(stockInRecord.getDimensions());
+            stockOutRecord.setWeight(stockInRecord.getWeight());
+            stockOutRecord.setSteelMill(stockInRecord.getSteelMill());
+            stockOutRecord.setFurnaceNumber(stockInRecord.getFurnaceNumber());
+            stockOutRecord.setInvoiceApplication(stockInRecord.getInvoiceApplication());
+            stockOutRecord.setOperationType("退货");
+            stockOutRecord.setSupplierBatchNumber(stockInRecord.getSupplierBatchNumber());
+            stockOutRecord.setBundleCount(stockInRecord.getBundleCount());
+            stockOutRecord.setPlacementArea(stockInRecord.getPlacementArea());
+            stockOutRecord.setPurchaser(stockInRecord.getPurchaser());
+            stockOutRecord.setState(stockInRecord.getState());
+            stockOutRecord.setTime(new Date()); // 设置当前时间
+            // 插入出库记录
+            shipmentDetailsMapper.insertShipmentDetail(stockOutRecord);
+        }
+    }
+    @Override
     public void transfer(String uniqueIdentifier, String placementArea) throws Exception {
         // 检查净入库记录数是否大于0
         int netStockInCount = shipmentDetailsMapper.getNetStockInCountByUniqueIdentifier(uniqueIdentifier);
