@@ -54,7 +54,10 @@
         <div class="layui-form-item">
 
             <div class="layui-input-inline">
-                <input type="text" name="time" id="date" placeholder="请选择到货日期" autocomplete="off" class="layui-input">
+                <input type="hidden" name="time" id="date" placeholder="请选择到货日期" autocomplete="off" class="layui-input" >
+            </div>
+            <div class="layui-input-inline">
+                <input type="text" name="time2" id="date3" placeholder="请选择操作日期" autocomplete="off" class="layui-input">
             </div>
             <div class="layui-input-inline">
                 <select name="operationType" id="operationType">
@@ -66,9 +69,6 @@
                     <option value="退货">退货 </option>
                     <option value="none">无操作</option>
                 </select>
-            </div>
-            <div class="layui-input-inline">
-                <input type="text" name="time2" id="date3" placeholder="请选择操作日期" autocomplete="off" class="layui-input">
             </div>
             <div class="layui-input-inline">
                 <select name="steelMill">
