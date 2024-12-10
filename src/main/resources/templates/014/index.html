@@ -537,12 +537,28 @@
                 }
             },
             tooltip: {
-                trigger: 'axis',
-                axisPointer: {
-                    type: 'shadow'
-                },
+                trigger: 'item',
                 textStyle: {
                     color: '#FFFFFF' // 提示文字颜色
+                },
+                formatter: function (params) {
+                    // 根据系列顺序确定堆叠组名称
+                    const stackNames = ['入库', '出库', '在库'];
+
+                    // 找到当前系列的索引
+                    const seriesIndex = params.seriesIndex;
+
+                    // 确定堆叠组名称
+                    const stackName = stackNames[Math.floor(seriesIndex / 3)]; // 每个堆叠组有3个分类
+
+                    // 获取分类信息
+                    const materialType = params.seriesName; // 如“管材”、“棒材”、“锻造材”
+
+                    // 获取当前值
+                    const value = params.value.toLocaleString(); // 格式化值为千分位
+
+                    // 返回完整提示信息
+                    return `${stackName}${materialType}: ${value} kg`;
                 }
             },
             legend: {
@@ -605,7 +621,7 @@
                 },
                 splitLine: {
                     lineStyle: {
-                        color: '#FFFFFF' // 网格线颜色，如果需要
+                        color: '#FFFFFF' // 网格线颜色
                     }
                 }
             },
