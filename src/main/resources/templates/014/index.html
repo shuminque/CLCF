@@ -558,7 +558,7 @@
                     const value = params.value.toLocaleString(); // 格式化值为千分位
 
                     // 返回完整提示信息
-                    return materialType==='锻造材'?`${stackName}${materialType}: ${value}个`:`${stackName}${materialType}: ${value}kg`;
+                    return materialType==='锻造材'?`${materialType}${stackName}: ${value}个`:`${materialType}${stackName}: ${value}kg`;
                 }
             },
             legend: {
