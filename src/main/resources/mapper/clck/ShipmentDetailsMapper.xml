@@ -69,7 +69,7 @@
         SELECT * FROM shipment_details WHERE 1=1
         <if test="operationType != null">
             <choose>
-                <when test="operationType == 'none'">
+                <when test="operationType.equals('none')">
                     AND operation_type IS NULL
                 </when>
                 <otherwise>
