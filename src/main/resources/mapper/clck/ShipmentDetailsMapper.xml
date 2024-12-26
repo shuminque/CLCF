@@ -70,7 +70,7 @@
         <if test="operationType != null">
             <choose>
                 <when test="operationType.equals('none')">
-                    AND operation_type IS NULL
+                    AND (operation_type IS NULL OR operation_type = '')
                 </when>
                 <otherwise>
                     AND operation_type = #{operationType}
