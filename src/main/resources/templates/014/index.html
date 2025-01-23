@@ -521,13 +521,28 @@
         const months = monthlyInOutData.map(item => item.month);
         const binWeights = monthlyInOutData.map(item => Math.round(item.棒_in));
         const boutWeights = monthlyInOutData.map(item => Math.round(item.棒_out));
-        const btWeights = monthlyInOutData.map(item => Math.round(item.棒_weight));
+        const btWeights = monthlyInOutData.map(item => {
+            if (item.棒_in === 0 && item.棒_out === 0) {
+                return 0;
+            }
+            return Math.round(item.棒_weight);
+        });
         const ginWeights = monthlyInOutData.map(item => Math.round(item.管_in));
         const goutWeights = monthlyInOutData.map(item => Math.round(item.管_out));
-        const gtWeights = monthlyInOutData.map(item => Math.round(item.管_weight));
+        const gtWeights = monthlyInOutData.map(item => {
+            if (item.管_in === 0 && item.管_out === 0) {
+                return 0;
+            }
+            return Math.round(item.管_weight);
+        });
         const dinWeights = monthlyInOutData.map(item => Math.round(item.锻_in));
         const doutWeights = monthlyInOutData.map(item => Math.round(item.锻_out));
-        const dtWeights = monthlyInOutData.map(item => Math.round(item.锻_weight));
+        const dtWeights = monthlyInOutData.map(item => {
+            if (item.锻_in === 0 && item.锻_out === 0) {
+                return 0;
+            }
+            return Math.round(item.锻_weight);
+        });
         barChart.setOption({
             title: {
                 text: '月度材料库存分析图',
@@ -588,9 +603,14 @@
                         }
                     },
                     formatter: function (value, index) {
-                        // Customize the labels based on the index
-                        const labels = ['{largeFont|入库}             ', '{largeFont|出库}', '             {largeFont|在库}'];
-                        return '\n'+labels.join(' ') + '\n'+'\n' + value;
+                        // 判断年份是否为 2024
+                        if (value.includes('2024')) {
+                            const labels = ['{largeFont|入库}             ', '{largeFont|出库}', '             {largeFont|在库}'];
+                            return '\n' + labels.join(' ') + '\n' + '\n' + value;
+                        } else {
+                            const labels = ['{largeFont|入库}', '{largeFont|出库}', '{largeFont|在库}'];
+                            return '\n' + labels.join(' ') + '\n' + '\n' + value;
+                        }
                     }
                 },
                 axisLine: {
