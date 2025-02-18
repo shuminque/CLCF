@@ -393,7 +393,14 @@
                     textStyle: {
                         color: '#FFFFFF'
                     },
-                    data: pieSeriesDataForgs.map(item => item.name)
+                    data: pieSeriesDataForgs.map(item => item.name),
+                    formatter: function (name) {
+                        let formattedName = '';
+                        for (let i = 0; i < name.length; i += 7) {
+                            formattedName += name.slice(i, i + 7) + '\n';
+                        }
+                        return formattedName.trim();
+                    }
                 }
             ],
             series: [
@@ -483,9 +490,18 @@
                             formatter: function(param) {
                                 const formatter = new Intl.NumberFormat('en-US');
                                 const weightFormatted = formatter.format(Math.round(param.data.weight));
+
+                                // 将 param.name 按照每7个字符一行进行换行处理
+                                let name = param.name;
+                                let formattedName = '';
+                                for (let i = 0; i < name.length; i += 7) {
+                                    formattedName += name.slice(i, i + 7) + '\n';
+                                }
+
+                                // 返回格式化后的文本
                                 return [
-                                    '{nameStyle|' + param.name + '}',
-                                    '{valueStyle|个数: ' + weightFormatted + '个'+'}'
+                                    '{nameStyle|' + formattedName.trim() + '}',
+                                    '{valueStyle|个数: ' + weightFormatted + '个' + '}'
                                 ].join('\n');
                             },
                             padding: [0, 10]
