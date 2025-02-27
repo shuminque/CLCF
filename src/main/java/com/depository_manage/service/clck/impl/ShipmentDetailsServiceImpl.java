@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -192,7 +194,7 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
         }
     }
     @Override
-    public void transfer(String uniqueIdentifier, String placementArea) throws Exception {
+    public String transfer(String uniqueIdentifier, String placementArea) throws Exception {
         // 检查净入库记录数是否大于0
         int netStockInCount = shipmentDetailsMapper.getNetStockInCountByUniqueIdentifier(uniqueIdentifier);
         if (netStockInCount <= 0) {
@@ -204,6 +206,48 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
             // 检查选择的库位是否与原库位相同
             if (placementArea.equals(record.getPlacementArea())) {
                 throw new Exception("选择的库位与原库位相同，请选择不同的库位");
+            }
+            String message = null;  // 用于返回给前端的提示信息
+            System.out.println(record.getPlacementArea()+"------>"+placementArea);
+            if ((record.getPlacementArea().startsWith("C") || record.getPlacementArea().startsWith("D") || record.getPlacementArea().startsWith("F"))
+                    && (placementArea.startsWith("A") || placementArea.startsWith("B") || placementArea.startsWith("E") || placementArea.startsWith("通道"))) {
+                // 获取当前年月日作为cutoffDate
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                String cutoffDate = sdf.format(new Date()); // 当前日期
+
+                // 使用record的dimensions, steelGrade, steelMill和cutoffDate进行在库查询
+                Map<String, Object> params = new HashMap<>();
+                params.put("dimensions", record.getDimensions());
+                params.put("steelGrade", record.getSteelGrade());
+                params.put("steelMill", record.getSteelMill());
+                params.put("cutoffDate", cutoffDate);
+                // 调用库存查询服务方法
+                List<ShipmentDetails> stockRecords = shipmentDetailsMapper.getStockStatusBeforeCutoffDate(params);
+
+                // 打印查询结果，格式化入库时间
+                SimpleDateFormat timeFormat = new SimpleDateFormat("yyyy-MM-dd");
+                // 假设最早的入库时间
+                Date earliestTime = null;
+                ShipmentDetails earliestStockRecord = null;
+
+                for (ShipmentDetails stockRecord : stockRecords) {
+                    String formattedTime = timeFormat.format(stockRecord.getTime()); // 格式化入库时间
+                    System.out.println("Steel Mill: " + stockRecord.getSteelMill() + ", Steel Grade: " + stockRecord.getSteelGrade()
+                            + ", Dimensions: " + stockRecord.getDimensions() + ", Date: " + cutoffDate
+                            + ", 区域：" + stockRecord.getPlacementArea() + " 入库时间: " + formattedTime);
+
+                    // 判断是否有比当前record的入库时间更早的记录
+                    if (earliestTime == null || stockRecord.getTime().before(earliestTime)) {
+                        earliestTime = stockRecord.getTime();
+                        earliestStockRecord = stockRecord;
+                    }
+                }
+                // 如果找到更早的入库记录，给出提示
+                if (earliestStockRecord != null && earliestTime.before(record.getTime())) {
+                    String earliestPlacementArea = earliestStockRecord.getPlacementArea();
+                    message = "转库成功,区域：" + earliestPlacementArea + " 有更早材料需要优先使用";
+                }
+                System.out.println(message);
             }
             ShipmentDetails transferRecord = new ShipmentDetails();
             transferRecord.setUniqueIdentifier(record.getUniqueIdentifier());
@@ -227,7 +271,9 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
             transferRecord.setState(record.getState());
             transferRecord.setTime(new Date()); // 设置当前时间
             shipmentDetailsMapper.insertShipmentDetail(transferRecord);
+            return message != null ? message : "转库成功";  // 如果有提示信息返回，否则返回“转库成功”
         }
+        return "未找到匹配记录";
     }
     public void returnToStock(String uniqueIdentifier, double weight, String placementArea)throws Exception {
         if (!canStockIn(uniqueIdentifier)) {

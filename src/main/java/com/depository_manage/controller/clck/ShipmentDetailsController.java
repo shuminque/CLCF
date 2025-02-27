@@ -126,12 +126,15 @@ public class ShipmentDetailsController {
         String uniqueIdentifier = request.get("uniqueIdentifier");
         String placementArea = request.get("placementArea");
         try {
-            shipmentDetailsService.transfer(uniqueIdentifier, placementArea);
-            return ResponseEntity.ok().build();
+            // 调用服务层的 transfer 方法，并返回消息
+            String resultMessage = shipmentDetailsService.transfer(uniqueIdentifier, placementArea);
+            return ResponseEntity.ok(resultMessage);  // 返回提示信息
         } catch (Exception e) {
-            return ResponseEntity.status(400).body(e.getMessage());  // Return 400 Bad Request with error message
+            return ResponseEntity.status(400).body(e.getMessage());  // 返回 400 错误并带上错误信息
         }
     }
+
+
     @PostMapping("/return")
     public ResponseEntity<Void> returnToStock(@RequestBody Map<String, String> request) {
         try {
@@ -188,6 +191,7 @@ public class ShipmentDetailsController {
     }
     @GetMapping("/getStockStatusBeforeCutoffDate")
     public ResponseEntity<?> getStockStatusBeforeCutoffDate(@RequestParam Map<String, Object> params) {
+        System.out.println(params);
         List<ShipmentDetails> records = shipmentDetailsService.getStockStatusBeforeCutoffDate(params);
         return ResponseEntity.ok(records);
     }

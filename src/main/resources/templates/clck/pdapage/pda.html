@@ -326,7 +326,9 @@
     }).then(response => {
       if (response.ok) {
         console.log('operationType updated');
-        showNotification('转库成功', 'is-success');
+        response.text().then(text => {
+          showNotification(text, 'is-success');  // 显示返回的提示信息
+        });
       }  else {
         return response.text().then(text => {
           showNotification(text, 'is-danger');
