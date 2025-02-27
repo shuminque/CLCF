@@ -116,10 +116,10 @@
                 {field: 'supplier_batch_number', title: '批号', hide:true},
                 {field: 'from_area', title: '转出区',sort: true},
                 {field: 'to_area', title: '转入区'},
-                {field: 'time', title: '转出时间', templet: function(d) {
-                        return formatDate(d.time);}},
-                {field: 'time', title: '转入时间', templet: function(d) {
-                        return formatDate(d.time);}},
+                {field: 'from_time', title: '转出时间', templet: function(d) {
+                        return formatDate(d.from_time);}},
+                {field: 'to_time', title: '转入时间', templet: function(d) {
+                        return formatDate(d.to_time);}},
             ]],
             done: function(res, curr, count) {
                 // 表格渲染完成后的回调

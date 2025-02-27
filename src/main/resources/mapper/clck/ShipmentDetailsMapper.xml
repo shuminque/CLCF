@@ -416,15 +416,16 @@
 
     <select id="viewTransfer" parameterType="map" resultType="map">
         SELECT
-            id,
-            steel_mill,
-            steel_grade,
-            dimensions,
-            weight,
-            unique_identifier,
-            placement_area AS from_area,
-            to_area,
-            time
+            subquery.id,
+            subquery.steel_mill,
+            subquery.steel_grade,
+            subquery.dimensions,
+            subquery.weight,
+            subquery.unique_identifier,
+            subquery.placement_area AS from_area,
+            subquery.to_area,
+            subquery.time AS from_time,
+            sd2.time AS to_time
         FROM (
                  SELECT
                      sd.*,
@@ -436,11 +437,17 @@
                      sd.operation_type IN ('入库', '转库')
                    AND time BETWEEN #{startDate} AND #{endDate}
              ) AS subquery
+                 LEFT JOIN shipment_details sd2
+                           ON subquery.unique_identifier = sd2.unique_identifier
+                               AND subquery.to_area = sd2.placement_area
         WHERE
-            to_area IS NOT NULL
-          AND (operation_type = '入库' AND next_operation = '转库') OR (operation_type = '转库' AND next_operation = '转库')
+            subquery.to_area IS NOT NULL
+          AND (
+            (subquery.operation_type = '入库' AND subquery.next_operation = '转库')
+                OR (subquery.operation_type = '转库' AND subquery.next_operation = '转库')
+            )
         ORDER BY
-            unique_identifier, time;
+            subquery.unique_identifier, subquery.time;
     </select>
 
     <select id="getIntoSDs"  resultMap="shipmentDetailsMap" parameterType="map">
