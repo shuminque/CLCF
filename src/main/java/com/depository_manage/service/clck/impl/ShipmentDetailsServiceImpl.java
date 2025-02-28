@@ -234,7 +234,7 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
                     String formattedTime = timeFormat.format(stockRecord.getTime()); // 格式化入库时间
                     System.out.println("Steel Mill: " + stockRecord.getSteelMill() + ", Steel Grade: " + stockRecord.getSteelGrade()
                             + ", Dimensions: " + stockRecord.getDimensions() + ", Date: " + cutoffDate
-                            + ", 区域：" + stockRecord.getPlacementArea() + " 入库时间: " + formattedTime);
+                            + ", 区域" + stockRecord.getPlacementArea() + " 入库时间: " + formattedTime);
 
                     // 判断是否有比当前record的入库时间更早的记录
                     if (earliestTime == null || stockRecord.getTime().before(earliestTime)) {
@@ -245,7 +245,7 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
                 // 如果找到更早的入库记录，给出提示
                 if (earliestStockRecord != null && earliestTime.before(record.getTime())) {
                     String earliestPlacementArea = earliestStockRecord.getPlacementArea();
-                    message = "转库成功,区域：" + earliestPlacementArea + " 有更早材料需要优先使用";
+                    message = "转库成功(FIFO预警：区域" + earliestPlacementArea + " 有更早材料需要优先使用)";
                 }
                 System.out.println(message);
             }

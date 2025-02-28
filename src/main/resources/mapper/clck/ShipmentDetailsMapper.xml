@@ -447,7 +447,7 @@
                 OR (subquery.operation_type = '转库' AND subquery.next_operation = '转库')
             )
         ORDER BY
-            subquery.unique_identifier, subquery.time;
+            sd2.time DESC, subquery.unique_identifier,  subquery.time;
     </select>
 
     <select id="getIntoSDs"  resultMap="shipmentDetailsMap" parameterType="map">

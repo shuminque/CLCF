@@ -327,7 +327,14 @@
       if (response.ok) {
         console.log('operationType updated');
         response.text().then(text => {
-          showNotification(text, 'is-success');  // 显示返回的提示信息
+          let notificationClass = 'is-success';  // 默认是成功
+          if (text.includes('FIFO预警')) {
+            notificationClass = 'is-warning';
+          }
+          if (text === '转库成功') {
+            notificationClass = 'is-success';
+          }
+          showNotification(text, notificationClass);
         });
       }  else {
         return response.text().then(text => {
@@ -403,7 +410,7 @@
     notification.style.display = 'block';
     setTimeout(() => {
       notification.style.display = 'none';
-    }, 1300);
+    }, 2200);
   }
 
   function closeNotification() {
