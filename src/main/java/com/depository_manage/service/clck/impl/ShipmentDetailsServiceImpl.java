@@ -99,6 +99,7 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
             stockOutRecord.setFurnaceNumber(stockInRecord.getFurnaceNumber());
             stockOutRecord.setInvoiceApplication(stockInRecord.getInvoiceApplication());
             stockOutRecord.setOperationType("入库");
+            stockOutRecord.setState("正常");
             stockOutRecord.setSupplierBatchNumber(stockInRecord.getSupplierBatchNumber());
             stockOutRecord.setBundleCount(stockInRecord.getBundleCount());
             stockOutRecord.setPlacementArea(placementArea);
