@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>材料产品关联</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- 手机适配关键 -->
+
+    <!-- 样式库 -->
+    <link rel="stylesheet" href="/static/lib/layui-v2.8.17/css/layui.css" media="all">
+    <link rel="stylesheet" href="/static/css/http_cdn.jsdelivr.net_npm_bulma@0.9.3_css_bulma.css">
+
+    <!-- JS 库 -->
+    <script src="/static/js/http_ajax.googleapis.com_ajax_libs_jquery_3.5.1_jquery.js"></script>
+    <script src="/static/js/http_code.jquery.com_jquery-3.6.0.min.js"></script>
+    <script src="/static/js/http_cdnjs.cloudflare.com_ajax_libs_bootstrap-3-typeahead_4.0.2_bootstrap3-typeahead.js"></script>
+    <script src="/static/js/http_cdnjs.cloudflare.com_ajax_libs_xlsx_0.17.3_xlsx.full.min.js"></script>
+    <script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script>
+
+    <style>
+        body, html {
+            height: 100%;
+            background: linear-gradient(13deg, #f5f7fa 0%, rgb(4, 84, 145) 100%);
+        }
+
+        .container {
+            margin: 20px;
+        }
+
+        .layui-table-view .layui-table {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 手机端样式适配 */
+        @media screen and (max-width: 768px) {
+            .layui-form-item {
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+
+            .layui-input-inline {
+                width: 100% !important;
+            }
+
+            .button-bar {
+                display: flex;
+                justify-content: center;
+                margin-top: 20px;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- 搜索表单 -->
+    <form class="layui-form" id="searchForm">
+        <div class="layui-form-item">
+            <div class="layui-input-inline">
+                <input type="text" name="time" id="date" placeholder="请选择日期" autocomplete="off" class="layui-input">
+            </div>
+            <div class="layui-input-inline">
+                <select class="input area-select" name="placementArea" id="areaSelect">
+                    <option value="" selected>选择库位</option>
+                    <option th:each="placement_area : ${areas}"
+                            th:value="${placement_area.area}"
+                            th:text="${placement_area.area}"></option>
+                </select>
+            </div>
+            <div class="layui-input-inline">
+                <select name="steelMill">
+                    <option value="" selected>选择钢厂</option>
+                    <option th:each="steel_type : ${steelTypes}"
+                            th:value="${steel_type.name}"
+                            th:text="${steel_type.name}"></option>
+                </select>
+            </div>
+            <div class="layui-input-inline">
+                <select name="steelGrade">
+                    <option value="" selected>选择钢材等级</option>
+                    <option th:each="steel_grade : ${steelGrades}"
+                            th:value="${steel_grade.grade}"
+                            th:text="${steel_grade.grade}"></option>
+                </select>
+            </div>
+            <div class="layui-input-inline">
+                <select name="dimensions" id="dimensions" lay-search>
+                    <option value="" selected>选择尺寸</option>
+                    <option th:each="steel_size : ${steelSizes}"
+                            th:value="${steel_size.size}"
+                            th:text="${steel_size.size}"></option>
+                </select>
+            </div>
+        </div>
+    </form>
+
+    <!-- 查询与返回按钮 -->
+    <div class="button-bar">
+        <button type="button" class="layui-btn" onclick="submitSearch()">查询库存</button>
+        <button class="button" onclick="history.back()" aria-label="返回">返回</button>
+    </div>
+</div>
+
+<script>
+    layui.use(['table', 'form', 'laydate'], function () {
+        var laydate = layui.laydate;
+
+        // 初始化日期为今天
+        laydate.render({
+            elem: '#date',
+            value: new Date()
+        });
+    });
+
+    function submitSearch() {
+        const date = document.getElementById('date').value;
+        const area = document.getElementById('areaSelect').value;
+        const steelMill = document.querySelector('select[name="steelMill"]').value;
+        const steelGrade = document.querySelector('select[name="steelGrade"]').value;
+        const dimensions = document.getElementById('dimensions').value;
+
+        const query = new URLSearchParams({
+            time: date,
+            subArea: area,
+            steelMill: steelMill,
+            steelGrade: steelGrade,
+            dimensions: dimensions
+        }).toString();
+
+        // 跳转并携带参数
+        window.location.href = `/pda-stockManage?${query}`;
+    }
+</script>
+</body>
+</html>

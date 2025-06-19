@@ -153,6 +153,20 @@ public class PageController {
         addCommonObjects(mv, params);
         return mv;
     }
+    @GetMapping("/pda-stockManage")
+    public ModelAndView pdaStockManage(Map<String, Object> params) {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("clck/pdapage/pda-stockManage");
+        addCommonObjects(mv, params);
+        return mv;
+    }
+    @GetMapping("/pda-stockValue")
+    public ModelAndView pdaStockValue(Map<String, Object> params) {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("clck/pdapage/pda-stockValue");
+        addCommonObjects(mv, params);
+        return mv;
+    }
     @GetMapping("/pad-subAreas")
     public ModelAndView padSubAreas(Map<String, Object> params) {
         ModelAndView mv = new ModelAndView();
