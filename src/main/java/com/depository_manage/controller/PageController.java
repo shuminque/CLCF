@@ -226,6 +226,11 @@ public class PageController {
         ModelAndView mv = new ModelAndView();
         mv.setViewName("clck/data/area");return mv;
     }
+    @GetMapping("/purchaser")
+    public ModelAndView purchaser() {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("clck/data/purchaser");return mv;
+    }
     @GetMapping("/tax")
     public ModelAndView Tax() {
         ModelAndView mv = new ModelAndView();
