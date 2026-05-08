@@ -59,6 +59,11 @@
                 <span style="float: right; font-size: 20px;">QS/ZAB4-03-06</span>
             </th>
         </tr>
+        <tr th:if="${customer != null and #strings.contains(customer, '美蓓亚')}">
+            <td colspan="8" style="font-size: 20px; text-align: right; border: none;">
+                棒材生产批号（切断员工填写）：____________________
+            </td>
+        </tr>
 
         <tr>
             <td rowspan="3">L1工程</td> <!-- "L1工程"跨三行 -->
@@ -267,6 +272,11 @@
                 产品履历追溯记录表
                 <span style="float: right; font-size: 20px;">QS/ZAB4-03-06</span>
             </th>
+        </tr>
+        <tr th:if="${customer != null and #strings.contains(customer, '美蓓亚')}">
+            <td colspan="8" style="font-size: 20px; text-align: right; border: none;">
+                棒材生产批号（切断员工填写）：____________________
+            </td>
         </tr>
 
         <tr>
