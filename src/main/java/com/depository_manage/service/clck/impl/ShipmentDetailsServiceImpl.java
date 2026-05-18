@@ -166,33 +166,34 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
         }
         // 根据 uniqueIdentifier 和 operationType 为 '入库' 查找记录
         List<ShipmentDetails> stockInRecords = shipmentDetailsMapper.findStockInByUniqueIdentifier(uniqueIdentifier);
-        if (stockInRecords != null) {
-            ShipmentDetails stockInRecord = stockInRecords.get(0);
-            // 创建出库记录
-            ShipmentDetails stockOutRecord = new ShipmentDetails();
-            stockOutRecord.setUniqueIdentifier(stockInRecord.getUniqueIdentifier());
-            stockOutRecord.setInvoiceNumber(stockInRecord.getInvoiceNumber());
-            stockOutRecord.setCustomer(stockInRecord.getCustomer());
-            stockOutRecord.setTradeMode(stockInRecord.getTradeMode());
-            stockOutRecord.setDeliveryPoint(stockInRecord.getDeliveryPoint());
-            stockOutRecord.setArrivalPortDate(stockInRecord.getArrivalPortDate());
-            stockOutRecord.setArrivalDate(stockInRecord.getArrivalDate());
-            stockOutRecord.setSteelGrade(stockInRecord.getSteelGrade());
-            stockOutRecord.setDimensions(stockInRecord.getDimensions());
-            stockOutRecord.setWeight(stockInRecord.getWeight());
-            stockOutRecord.setSteelMill(stockInRecord.getSteelMill());
-            stockOutRecord.setFurnaceNumber(stockInRecord.getFurnaceNumber());
-            stockOutRecord.setInvoiceApplication(stockInRecord.getInvoiceApplication());
-            stockOutRecord.setOperationType("退货");
-            stockOutRecord.setSupplierBatchNumber(stockInRecord.getSupplierBatchNumber());
-            stockOutRecord.setBundleCount(stockInRecord.getBundleCount());
-            stockOutRecord.setPlacementArea(stockInRecord.getPlacementArea());
-            stockOutRecord.setPurchaser(stockInRecord.getPurchaser());
-            stockOutRecord.setState(stockInRecord.getState());
-            stockOutRecord.setTime(new Date()); // 设置当前时间
-            // 插入出库记录
-            shipmentDetailsMapper.insertShipmentDetail(stockOutRecord);
+        if (stockInRecords == null || stockInRecords.isEmpty()) {
+            throw new Exception("未找到对应的入库记录，无法退货");
         }
+
+        ShipmentDetails stockInRecord = stockInRecords.get(0);
+        // 仅新增一条 operation_type='退货' 流水，不更新原入库记录
+        ShipmentDetails returnRecord = new ShipmentDetails();
+        returnRecord.setUniqueIdentifier(stockInRecord.getUniqueIdentifier());
+        returnRecord.setInvoiceNumber(stockInRecord.getInvoiceNumber());
+        returnRecord.setCustomer(stockInRecord.getCustomer());
+        returnRecord.setTradeMode(stockInRecord.getTradeMode());
+        returnRecord.setDeliveryPoint(stockInRecord.getDeliveryPoint());
+        returnRecord.setArrivalPortDate(stockInRecord.getArrivalPortDate());
+        returnRecord.setArrivalDate(stockInRecord.getArrivalDate());
+        returnRecord.setSteelGrade(stockInRecord.getSteelGrade());
+        returnRecord.setDimensions(stockInRecord.getDimensions());
+        returnRecord.setWeight(stockInRecord.getWeight());
+        returnRecord.setSteelMill(stockInRecord.getSteelMill());
+        returnRecord.setFurnaceNumber(stockInRecord.getFurnaceNumber());
+        returnRecord.setInvoiceApplication(stockInRecord.getInvoiceApplication());
+        returnRecord.setOperationType("退货");
+        returnRecord.setSupplierBatchNumber(stockInRecord.getSupplierBatchNumber());
+        returnRecord.setBundleCount(stockInRecord.getBundleCount());
+        returnRecord.setPlacementArea(stockInRecord.getPlacementArea());
+        returnRecord.setPurchaser(stockInRecord.getPurchaser());
+        returnRecord.setState(stockInRecord.getState());
+        returnRecord.setTime(new Date()); // 设置当前时间
+        shipmentDetailsMapper.insertShipmentDetail(returnRecord);
     }
     @Override
     public String transfer(String uniqueIdentifier, String placementArea) throws Exception {
