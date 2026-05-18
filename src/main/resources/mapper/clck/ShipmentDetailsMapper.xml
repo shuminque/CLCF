@@ -271,6 +271,10 @@
                (SELECT COUNT(*) FROM shipment_details
                 WHERE unique_identifier = #{uniqueIdentifier}
                 AND operation_type = '出库'
+               ) -
+               (SELECT COUNT(*) FROM shipment_details
+                WHERE unique_identifier = #{uniqueIdentifier}
+                AND operation_type = '退货'
                )   AS netStockInCount
     </select>
 
@@ -280,7 +284,7 @@
             SELECT
             unique_identifier,
             SUM(CASE WHEN operation_type in ('入库', '返库') THEN 1 ELSE 0 END) AS in_count,
-            SUM(CASE WHEN operation_type in ('出库')  THEN 1 ELSE 0 END) AS out_count
+            SUM(CASE WHEN operation_type in ('出库', '退货')  THEN 1 ELSE 0 END) AS out_count
             FROM
             shipment_details
             WHERE
