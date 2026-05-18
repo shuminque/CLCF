@@ -100,7 +100,7 @@ public class ShipmentDetailsController {
             return ResponseEntity.status(400).body(null);  // Return 400 Bad Request if duplicate entry is attempted
         }
     }
-    @PostMapping("/tuiHuo")
+    @PostMapping({"/tuiHuo", "/returnShipment"})
     public ResponseEntity<Void> tuiHuo(@RequestBody Map<String, String> request) {
         try {
             String uniqueIdentifier = request.get("uniqueIdentifier");
