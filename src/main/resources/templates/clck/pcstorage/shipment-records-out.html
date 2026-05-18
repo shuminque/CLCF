@@ -328,9 +328,8 @@
             } else if (layEvent === 'retH' && data.operationType === '入库' ) {
                 console.log(data.uniqueIdentifier);
                 const uniqueIdentifier = data.uniqueIdentifier;
-                const idd = data.id;
                 const date = new Date().toISOString().split('T')[0];
-                tuiHuo({ uniqueIdentifier, date,idd });
+                tuiHuo({ uniqueIdentifier, date });
             } else {
                 // Handle cases where operationType is not "入库", if needed
                 console.log('Operation not allowed for this record.');
@@ -338,19 +337,22 @@
             }
         });
         function tuiHuo(data) {
-            // 发送 AJAX 请求来更新数据
+            // 发送 AJAX 请求来新增退货记录
             $.ajax({
-                url: '/shipment/update/' + data.idd, // 更新API URL
-                type: 'PUT', // 使用 PUT 方法更新
+                url: '/shipment/tuiHuo',
+                type: 'POST',
                 contentType: 'application/json', // 发送数据的格式
-                data: JSON.stringify({ operationType: '退货' }), // 将合并后的数据转换为 JSON 字符串
+                data: JSON.stringify({
+                    uniqueIdentifier: data.uniqueIdentifier,
+                    operationType: '退货'
+                }), // 将合并后的数据转换为 JSON 字符串
                 success: function(response) {
-                    layer.msg('退货操作完成！', {icon: 1, time: 3000});
+                    layer.msg('新增退货记录成功', {icon: 1, time: 3000});
                     table.reload('recordTable'); // 重新加载表格数据
                 },
                 error: function(xhr, status, error) {
                     // 处理请求失败的情况
-                    layer.msg('更新失败！', {icon: 2, time: 3000});
+                    layer.msg('新增退货记录失败！', {icon: 2, time: 3000});
                 }
             });
             return false; // 阻止表单跳转
