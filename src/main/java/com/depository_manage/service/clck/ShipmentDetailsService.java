@@ -9,6 +9,8 @@ import java.util.Map;
 
 public interface ShipmentDetailsService {
 
+    List<Map<String, String>> getMaterialOptions(String steelMill);
+
     ShipmentDetails getShipmentDetailById(int id);
     int countShipmentDetails(Map<String, Object> params);
     List<ShipmentDetails> getAllShipmentDetails(Map<String, Object> params);

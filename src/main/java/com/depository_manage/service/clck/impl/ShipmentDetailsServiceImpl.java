@@ -25,6 +25,11 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
     }
 
     @Override
+    public List<Map<String, String>> getMaterialOptions(String steelMill) {
+        return shipmentDetailsMapper.selectMaterialOptions(steelMill);
+    }
+
+    @Override
     public ShipmentDetails getShipmentDetailById(int id) {
         return shipmentDetailsMapper.selectShipmentDetailById(id);
     }

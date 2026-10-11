@@ -28,6 +28,14 @@
         <result property="state" column="state"/>
     </resultMap>
 
+    <!-- 查询钢厂的全部等级/尺寸组合，不受表格分页影响。 -->
+    <select id="selectMaterialOptions" resultType="map">
+        SELECT DISTINCT steel_grade AS steelGrade, dimensions
+        FROM shipment_details
+        WHERE steel_mill = #{steelMill}
+        ORDER BY steel_grade, dimensions
+    </select>
+
     <!-- 插入操作 -->
     <insert id="insertShipmentDetail" parameterType="com.depository_manage.entity.ShipmentDetails">
         INSERT INTO shipment_details (

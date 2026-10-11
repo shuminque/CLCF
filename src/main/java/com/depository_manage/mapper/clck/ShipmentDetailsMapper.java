@@ -11,6 +11,8 @@ import java.util.Map;
 
 public interface ShipmentDetailsMapper {
 
+    List<Map<String, String>> selectMaterialOptions(@Param("steelMill") String steelMill);
+
     int insertShipmentDetail(ShipmentDetails shipmentDetails);
 
     ShipmentDetails selectShipmentDetailById(@Param("id") int id);

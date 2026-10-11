@@ -30,6 +30,11 @@ public class ShipmentDetailsController {
     @Autowired
     private DailyCounterService dailyCounterService;
 
+    @GetMapping("/material-options")
+    public ResponseEntity<List<Map<String, String>>> getMaterialOptions(@RequestParam String steelMill) {
+        return ResponseEntity.ok(shipmentDetailsService.getMaterialOptions(steelMill));
+    }
+
     @GetMapping
     public ResponseEntity<?> getAllRecords(  @RequestParam Map<String, Object> params,
                                              @RequestParam(defaultValue = "1") int page, // 页码通常是从1开始

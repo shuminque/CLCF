@@ -12,6 +12,7 @@
     <script type="text/javascript" src="/static/js/jquery.qrcode.js" charset="utf-8"></script>
     <script type="text/javascript" src="/static/js/http_unpkg.com_html5-qrcode.js" charset="utf-8"></script>
     <script src="/static/js/http_cdnjs.cloudflare.com_ajax_libs_xlsx_0.17.3_xlsx.full.min.js"></script>
+    <script src="/static/js/shipment-query-cascade.js"></script>
 
     <style>
         #printArea div {
@@ -50,7 +51,7 @@
 <body>
 <div class="container">
     <!-- 统一的搜索表单 -->
-    <form class="layui-form" id="searchForm">
+    <form class="layui-form" id="searchForm" lay-filter="shipmentSearchForm">
         <div class="layui-form-item">
 
             <div class="layui-input-inline">
@@ -71,7 +72,7 @@
                 </select>
             </div>
             <div class="layui-input-inline">
-                <select name="steelMill">
+                <select name="steelMill" lay-filter="querySteelMill">
                     <option value="" selected>选择钢厂</option>
                     <option th:each="steel_type : ${steelTypes}"
                             th:value="${steel_type.name}"
@@ -79,7 +80,7 @@
                 </select>
             </div>
             <div class="layui-input-inline">
-                <select name="steelGrade">
+                <select name="steelGrade" lay-filter="querySteelGrade">
                     <option value="" selected>选择钢材等级</option>
                     <option th:each="steel_grade : ${steelGrades}"
                             th:value="${steel_grade.grade}"
@@ -347,6 +348,7 @@
         var table = layui.table;
         var form = layui.form;
         var laydate=layui.laydate;
+        var materialQuery = initShipmentQueryCascade(form, $, layui.layer);
 
         laydate.render({
             elem: '#date'
@@ -550,6 +552,10 @@
 
         // 统一搜索表单提交事件
         form.on('submit(data-search-btn)', function(data) {
+            if (!materialQuery.ready()) {
+                layui.layer.msg('等级和尺寸选项尚未加载完成，请稍后重试或重新选择钢厂');
+                return false;
+            }
             var req = {};
             var formData = data.field;
             if (formData.operationType !== '') {
