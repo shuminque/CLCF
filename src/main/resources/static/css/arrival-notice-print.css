@@ -33,15 +33,15 @@ body {
     width: 190mm;
     max-width: calc(100% - 32px);
     margin: 20px auto;
-    padding: 12mm 0;
+    padding: 4mm 0;
     background: #fff;
     font-family: SimSun, "Songti SC", "Times New Roman", serif;
-    font-size: 12pt;
+    font-size: 8.5pt;
 }
 .notice-sheet h1 {
-    margin: 0 0 7mm;
+    margin: 0 0 2mm;
     text-align: center;
-    font-size: 17pt;
+    font-size: 13pt;
     font-weight: normal;
     letter-spacing: 2px;
 }
@@ -50,39 +50,53 @@ body {
     text-align: right;
 }
 .notice-document-code {
-    line-height: 1.5;
+    margin: 0;
+    line-height: 1.15;
     white-space: nowrap;
 }
 .notice-date {
-    margin-bottom: 2mm;
+    margin-top: .5mm;
+    margin-bottom: 1mm;
 }
 .notice-table-area {
     position: relative;
-    padding-right: 6mm;
+    padding-right: 5mm;
 }
 .notice-department {
     position: absolute;
-    top: 2mm;
+    top: 1mm;
     right: 0;
-    bottom: 2mm;
-    width: 6mm;
+    bottom: 1mm;
+    width: 5mm;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
+    font-size: 8.5pt;
+    line-height: 1;
 }
 .notice-table {
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
-    line-height: 1.5;
+    font-size: 8.5pt;
+    line-height: 1.05;
 }
 .notice-table th, .notice-table td {
     border: 1px solid #000;
-    padding: 1mm;
+    padding: .35mm .45mm;
     text-align: center;
     font-weight: normal;
     overflow-wrap: anywhere;
+}
+.notice-table th {
+    white-space: nowrap;
+}
+.notice-customer {
+    line-height: 1.05;
+}
+.notice-trade-mode {
+    white-space: nowrap;
 }
 .notice-table .notice-weight {
     text-align: right;
@@ -91,11 +105,12 @@ body {
 .notice-footer {
     display: flex;
     justify-content: space-between;
-    margin: 2mm 24mm 0;
+    margin: 1mm 20mm 0;
+    font-size: 9pt;
 }
 @page {
     size: A4 portrait;
-    margin: 12mm 10mm;
+    margin: 7mm 10mm;
 }
 @media print {
     body {

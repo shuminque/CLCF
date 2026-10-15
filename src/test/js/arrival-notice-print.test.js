@@ -12,7 +12,7 @@ test('prints direct field names, combined specifications and sample quantities',
     assert.ok(html.includes('原材料到货通知 ZAB'));
     assert.ok(html.includes('2026年7月28日'));
     assert.ok(html.includes('26-7-28'));
-    assert.ok(html.includes('一般贸易新(KS)'));
+    assert.ok(html.includes('<div class="notice-trade-mode">一般贸易</div><div class="notice-customer-name">新(KS)</div>'));
     assert.ok(html.includes('30.40S2'));
     assert.ok(html.includes('>32</td>'));
     assert.ok(html.includes('30,292'));
@@ -37,7 +37,7 @@ test('different delivery points receive separate notices and imported strings ar
 test('blank fields render empty and fractional weights retain precision', () => {
     const html = renderNotice([{...sample, customer: null, steelGrade: null, weight: 0.125}], '2026-07-28');
     assert.ok(!html.includes('null'));
-    assert.ok(html.includes('>一般贸易</td>'));
+    assert.ok(html.includes('<div class="notice-trade-mode">一般贸易</div><div class="notice-customer-name"></div>'));
     assert.ok(html.includes('>30.40</td>'));
     assert.ok(html.includes('0.125'));
 });

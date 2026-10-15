@@ -29,6 +29,14 @@
         return Number(value).toLocaleString('en-US', {maximumFractionDigits: 6});
     }
 
+    function customerHtml(row) {
+        var tradeMode = text(row.tradeMode);
+        var customer = text(row.customer);
+        return '<div class="notice-customer">' +
+            (tradeMode ? '<div class="notice-trade-mode">' + escapeHtml(tradeMode) + '</div>' : '') +
+            '<div class="notice-customer-name">' + escapeHtml(customer) + '</div></div>';
+    }
+
     function renderNotice(rows, arrivalDate) {
         var groups = new Map();
         rows.forEach(function (row) {
@@ -40,7 +48,7 @@
         groups.forEach(function (items, point) {
             var body = items.map(function (row, index) {
                 return '<tr><td>' + (index + 1) + '</td><td>' + escapeHtml(shortDate(arrivalDate)) +
-                    '</td><td>' + escapeHtml(text(row.tradeMode) + text(row.customer)) +
+                    '</td><td>' + customerHtml(row) +
                     '</td><td>' + escapeHtml(text(row.dimensions) + text(row.steelGrade)) +
                     '</td><td>' + escapeHtml(row.bundleCount) + '</td><td class="notice-weight">' +
                     escapeHtml(formatWeight(row.weight)) + '</td><td>' + escapeHtml(row.steelMill) +
@@ -50,9 +58,9 @@
                 (point ? ' ' + escapeHtml(point) : '') + '</h1>' +
                 '<p class="notice-document-code">QS/ZAB 4-06-06 (A/0)</p><p class="notice-date">' +
                 escapeHtml(longDate(arrivalDate)) + '</p><div class="notice-table-area"><table class="notice-table">' +
-                '<colgroup><col style="width:5%"><col style="width:11%"><col style="width:22%">' +
-                '<col style="width:16%"><col style="width:7%"><col style="width:13%">' +
-                '<col style="width:10%"><col style="width:16%"></colgroup>' +
+                '<colgroup><col style="width:4%"><col style="width:9%"><col style="width:18%">' +
+                '<col style="width:18%"><col style="width:6%"><col style="width:12%">' +
+                '<col style="width:11%"><col style="width:22%"></colgroup>' +
                 '<thead><tr><th>No.</th><th>到货日</th><th>顾客名称</th><th>规格</th>' +
                 '<th>捆数</th><th>KGS/PCS</th><th>钢厂</th><th>备注</th></tr></thead>' +
                 '<tbody>' + body + '</tbody></table>' +
