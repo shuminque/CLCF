@@ -1,0 +1,126 @@
+body {
+    margin: 0;
+    background: #f2f2f2;
+    color: #000;
+}
+.notice-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    background: #fff;
+}
+.notice-toolbar .layui-input {
+    width: 170px;
+}
+.notice-toolbar .layui-btn {
+    margin: 0;
+}
+.notice-toolbar button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+.notice-hint, #noticeStatus {
+    color: #666;
+    font-size: 14px;
+}
+#noticeStatus {
+    padding: 12px 20px;
+}
+.notice-sheet {
+    box-sizing: border-box;
+    width: 190mm;
+    max-width: calc(100% - 32px);
+    margin: 20px auto;
+    padding: 12mm 0;
+    background: #fff;
+    font-family: SimSun, "Songti SC", "Times New Roman", serif;
+    font-size: 12pt;
+}
+.notice-sheet h1 {
+    margin: 0 0 7mm;
+    text-align: center;
+    font-size: 17pt;
+    font-weight: normal;
+    letter-spacing: 2px;
+}
+.notice-document-code, .notice-date {
+    padding-right: 6mm;
+    text-align: right;
+}
+.notice-document-code {
+    line-height: 1.5;
+    white-space: nowrap;
+}
+.notice-date {
+    margin-bottom: 2mm;
+}
+.notice-table-area {
+    position: relative;
+    padding-right: 6mm;
+}
+.notice-department {
+    position: absolute;
+    top: 2mm;
+    right: 0;
+    bottom: 2mm;
+    width: 6mm;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+.notice-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    line-height: 1.5;
+}
+.notice-table th, .notice-table td {
+    border: 1px solid #000;
+    padding: 1mm;
+    text-align: center;
+    font-weight: normal;
+    overflow-wrap: anywhere;
+}
+.notice-table .notice-weight {
+    text-align: right;
+    white-space: nowrap;
+}
+.notice-footer {
+    display: flex;
+    justify-content: space-between;
+    margin: 2mm 24mm 0;
+}
+@page {
+    size: A4 portrait;
+    margin: 12mm 10mm;
+}
+@media print {
+    body {
+        background: #fff;
+    }
+    .notice-toolbar, #noticeStatus {
+        display: none;
+    }
+    .notice-sheet {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding: 0;
+        break-after: page;
+        page-break-after: always;
+    }
+    .notice-sheet:last-child {
+        break-after: auto;
+        page-break-after: auto;
+    }
+    .notice-table thead {
+        display: table-header-group;
+    }
+    .notice-table tr, .notice-footer {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+}

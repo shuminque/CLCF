@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>原材料到货通知</title>
+    <link rel="stylesheet" href="/static/lib/layui-v2.8.17/css/layui.css">
+    <link rel="stylesheet" href="/static/css/arrival-notice-print.css?v=20261013-traditional"
+          th:href="@{/static/css/arrival-notice-print.css(v=${#dates.createNow().getTime()})}">
+    <script src="/static/js/arrival-notice-print.js?v=20261013-traditional"
+            th:src="@{/static/js/arrival-notice-print.js(v=${#dates.createNow().getTime()})}" defer></script>
+</head>
+<body>
+    <form id="noticeForm" class="notice-toolbar">
+        <label for="noticeArrivalDate">到货日：</label>
+        <input type="date" id="noticeArrivalDate" required class="layui-input">
+        <button type="submit" class="layui-btn layui-btn-normal">查询预览</button>
+        <button type="button" id="noticePrintButton" class="layui-btn" disabled>打印</button>
+        <span class="notice-hint">按到达日期查询，每条材料记录计一捆。</span>
+    </form>
+    <p id="noticeStatus" role="status" aria-live="polite"></p>
+    <main id="noticePreview" aria-label="原材料到货通知打印预览"></main>
+</body>
+</html>
