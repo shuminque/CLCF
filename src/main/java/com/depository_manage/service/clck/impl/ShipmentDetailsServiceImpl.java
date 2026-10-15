@@ -1,6 +1,7 @@
 package com.depository_manage.service.clck.impl;
 
 import com.depository_manage.entity.ShipmentDetails;
+import com.depository_manage.pojo.ArrivalNoticeRow;
 import com.depository_manage.mapper.clck.ShipmentDetailsMapper;
 import com.depository_manage.service.clck.ShipmentDetailsService;
 import com.depository_manage.utils.ObjectFormatUtil;
@@ -27,6 +28,11 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
     @Override
     public List<Map<String, String>> getMaterialOptions(String steelMill) {
         return shipmentDetailsMapper.selectMaterialOptions(steelMill);
+    }
+
+    @Override
+    public List<ArrivalNoticeRow> getArrivalNotice(String arrivalDate) {
+        return shipmentDetailsMapper.selectArrivalNotice(arrivalDate);
     }
 
     @Override

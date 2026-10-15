@@ -2,6 +2,7 @@ package com.depository_manage.controller.clck;
 
 import com.depository_manage.entity.BearingRecord;
 import com.depository_manage.entity.ShipmentDetails;
+import com.depository_manage.pojo.ArrivalNoticeRow;
 import com.depository_manage.service.BearingRecordService;
 import com.depository_manage.service.clck.DailyCounterService;
 import com.depository_manage.service.clck.ShipmentDetailsService;
@@ -33,6 +34,12 @@ public class ShipmentDetailsController {
     @GetMapping("/material-options")
     public ResponseEntity<List<Map<String, String>>> getMaterialOptions(@RequestParam String steelMill) {
         return ResponseEntity.ok(shipmentDetailsService.getMaterialOptions(steelMill));
+    }
+
+    @GetMapping("/arrival-notice")
+    public ResponseEntity<List<ArrivalNoticeRow>> getArrivalNotice(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate arrivalDate) {
+        return ResponseEntity.ok(shipmentDetailsService.getArrivalNotice(arrivalDate.toString()));
     }
 
     @GetMapping

@@ -2,6 +2,7 @@ package com.depository_manage.mapper.clck;
 
 import com.depository_manage.entity.BearingRecord;
 import com.depository_manage.entity.ShipmentDetails;
+import com.depository_manage.pojo.ArrivalNoticeRow;
 import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
@@ -12,6 +13,8 @@ import java.util.Map;
 public interface ShipmentDetailsMapper {
 
     List<Map<String, String>> selectMaterialOptions(@Param("steelMill") String steelMill);
+
+    List<ArrivalNoticeRow> selectArrivalNotice(@Param("arrivalDate") String arrivalDate);
 
     int insertShipmentDetail(ShipmentDetails shipmentDetails);
 

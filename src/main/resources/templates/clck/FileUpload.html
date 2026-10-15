@@ -151,6 +151,7 @@
                 <button type="submit" class="layui-btn" lay-submit>生成二维码</button>
                 <button type="button" class="layui-btn layui-btn-primary" onclick="printQRCode()">打印二维码</button>
                 <button type="button" class="layui-btn layui-btn-normal" onclick="exportQRCode()">导出</button>
+                <button type="button" class="layui-btn layui-btn-normal" onclick="openArrivalNoticePrint()">原材料到货通知 打印</button>
             </div>
         </div>
     </form>
@@ -304,6 +305,16 @@
                 spacerDiv.style.height = '340px'; // 设置留空的高度
                 qrcodeDisplayArea.appendChild(spacerDiv);
             }
+        });
+    }
+
+    function openArrivalNoticePrint() {
+        layer.open({
+            type: 2,
+            title: '原材料到货通知 打印',
+            area: ['95%', '90%'],
+            maxmin: true,
+            content: '/arrivalNoticePrint?arrivalDate=' + encodeURIComponent(document.getElementById('arrivalDate').value) + '&v=' + Date.now()
         });
     }
 

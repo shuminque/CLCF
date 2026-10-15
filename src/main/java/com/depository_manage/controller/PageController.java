@@ -70,6 +70,11 @@ public class PageController {
         addCommonObjects(mv, null);
         return mv;
     }
+    @GetMapping("/arrivalNoticePrint")
+    public String arrivalNoticePrint() {
+        return "clck/ArrivalNoticePrint";
+    }
+
     @GetMapping("/freeUpload")
     public ModelAndView freeUpload() {
         ModelAndView mv = new ModelAndView();
