@@ -44,7 +44,8 @@
             if (!groups.has(point)) groups.set(point, []);
             groups.get(point).push(row);
         });
-        var sheets = [];
+        var pages = [];
+        var departments = ['计划', '生管', '仓库', '受入检查', '受入检查'];
         groups.forEach(function (items, point) {
             var body = items.map(function (row, index) {
                 return '<tr><td>' + (index + 1) + '</td><td>' + escapeHtml(shortDate(arrivalDate)) +
@@ -54,21 +55,40 @@
                     escapeHtml(formatWeight(row.weight)) + '</td><td>' + escapeHtml(row.steelMill) +
                     '</td><td>' + escapeHtml(row.furnaceNumber) + '</td></tr>';
             }).join('');
-            sheets.push('<section class="notice-sheet"><h1>原材料到货通知' +
-                (point ? ' ' + escapeHtml(point) : '') + '</h1>' +
-                '<p class="notice-document-code">QS/ZAB 4-06-06 (A/0)</p><p class="notice-date">' +
-                escapeHtml(longDate(arrivalDate)) + '</p><div class="notice-table-area"><table class="notice-table">' +
-                '<colgroup><col style="width:4%"><col style="width:9%"><col style="width:18%">' +
-                '<col style="width:18%"><col style="width:6%"><col style="width:12%">' +
-                '<col style="width:11%"><col style="width:22%"></colgroup>' +
-                '<thead><tr><th>No.</th><th>到货日</th><th>顾客名称</th><th>规格</th>' +
-                '<th>捆数</th><th>KGS/PCS</th><th>钢厂</th><th>备注</th></tr></thead>' +
-                '<tbody>' + body + '</tbody></table>' +
-                '<div class="notice-department" aria-label="生管"><span>生</span><span>管</span></div>' +
-                '</div><div class="notice-footer">' +
-                '<span>制单：</span><span>入库确认：</span></div></section>');
+            for (var empty = items.length; empty < 3; empty++) {
+                body += '<tr class="notice-empty-row" aria-hidden="true">' +
+                    '<td></td>'.repeat(8) + '</tr>';
+            }
+            var copies = departments.map(function (department) {
+                return '<section class="notice-sheet"><div class="notice-copy-content"><h1>原材料到货通知' +
+                    (point ? ' ' + escapeHtml(point) : '') + '</h1>' +
+                    '<p class="notice-document-code">QS/ZAB 4-06-06 (A/0)</p><p class="notice-date">' +
+                    escapeHtml(longDate(arrivalDate)) + '</p><div class="notice-table-area"><table class="notice-table">' +
+                    '<colgroup><col style="width:4%"><col style="width:9%"><col style="width:18%">' +
+                    '<col style="width:18%"><col style="width:6%"><col style="width:10%">' +
+                    '<col style="width:14%"><col style="width:21%"></colgroup>' +
+                    '<thead><tr><th>No.</th><th>到货日</th><th>顾客名称</th><th>规格</th>' +
+                    '<th>捆数</th><th>KGS/PCS</th><th>钢厂</th><th>备注</th></tr></thead>' +
+                    '<tbody>' + body + '</tbody></table>' +
+                    '<div class="notice-department" aria-label="' + department + '">' +
+                    department.split('').map(function (character) { return '<span>' + character + '</span>'; }).join('') + '</div>' +
+                    '</div><div class="notice-footer">' +
+                    '<span>制单：</span><span>入库确认：</span></div></div></section>';
+            }).join('');
+            pages.push('<section class="notice-page">' + copies + '</section>');
         });
-        return sheets.join('');
+        return pages.join('');
+    }
+
+    function fitNoticePages(preview) {
+        preview.querySelectorAll('.notice-sheet').forEach(function (sheet) {
+            var content = sheet.querySelector('.notice-copy-content');
+            content.style.transform = '';
+            var style = window.getComputedStyle(sheet);
+            var availableHeight = sheet.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+            var scale = Math.min(1, availableHeight / content.getBoundingClientRect().height);
+            content.style.transform = 'scale(' + scale + ')';
+        });
     }
 
     function init() {
@@ -108,6 +128,12 @@
                         return;
                     }
                     preview.innerHTML = renderNotice(rows, date);
+                    fitNoticePages(preview);
+                    if (document.fonts) {
+                        document.fonts.ready.then(function () {
+                            if (version === requestVersion) fitNoticePages(preview);
+                        });
+                    }
                     loadedDate = date;
                     printButton.disabled = false;
                     status.textContent = '已合并为 ' + rows.length + ' 项，共 ' +
@@ -125,8 +151,12 @@
         });
         dateInput.addEventListener('change', loadNotice);
         printButton.addEventListener('click', function () {
-            if (!printButton.disabled && loadedDate === dateInput.value) window.print();
+            if (!printButton.disabled && loadedDate === dateInput.value) {
+                fitNoticePages(preview);
+                window.print();
+            }
         });
+        window.addEventListener('beforeprint', function () { fitNoticePages(preview); });
         loadNotice();
     }
 

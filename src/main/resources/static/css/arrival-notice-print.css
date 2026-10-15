@@ -21,22 +21,37 @@ body {
     opacity: .5;
     cursor: not-allowed;
 }
-.notice-hint, #noticeStatus {
+#noticeStatus {
     color: #666;
     font-size: 14px;
-}
-#noticeStatus {
     padding: 12px 20px;
+}
+.notice-page {
+    box-sizing: border-box;
+    width: 210mm;
+    height: 297mm;
+    margin: 20px auto;
+    padding: 7mm 10mm;
+    display: grid;
+    grid-template-rows: repeat(5, minmax(0, 1fr));
+    row-gap: 3mm;
+    background: #fff;
+}
+#noticePreview {
+    overflow-x: auto;
 }
 .notice-sheet {
     box-sizing: border-box;
-    width: 190mm;
-    max-width: calc(100% - 32px);
-    margin: 20px auto;
-    padding: 4mm 0;
-    background: #fff;
+    min-width: 0;
+    min-height: 0;
+    padding: 2mm 0;
+    overflow: hidden;
     font-family: SimSun, "Songti SC", "Times New Roman", serif;
     font-size: 8.5pt;
+}
+.notice-copy-content {
+    display: flow-root;
+    transform-origin: top center;
 }
 .notice-sheet h1 {
     margin: 0 0 2mm;
@@ -64,7 +79,7 @@ body {
 }
 .notice-department {
     position: absolute;
-    top: 1mm;
+    top: 5mm;
     right: 0;
     bottom: 1mm;
     width: 5mm;
@@ -92,6 +107,9 @@ body {
 .notice-table th {
     white-space: nowrap;
 }
+.notice-table td {
+    height: 5mm;
+}
 .notice-customer {
     line-height: 1.05;
 }
@@ -99,7 +117,7 @@ body {
     white-space: nowrap;
 }
 .notice-table .notice-weight {
-    text-align: right;
+    text-align: center;
     white-space: nowrap;
 }
 .notice-footer {
@@ -119,22 +137,25 @@ body {
     .notice-toolbar, #noticeStatus {
         display: none;
     }
-    .notice-sheet {
-        width: 100%;
-        max-width: none;
+    #noticePreview {
+        overflow: visible;
+    }
+    .notice-page {
+        width: 190mm;
+        height: 283mm;
         margin: 0;
         padding: 0;
         break-after: page;
         page-break-after: always;
     }
-    .notice-sheet:last-child {
+    .notice-page:last-child {
         break-after: auto;
         page-break-after: auto;
     }
     .notice-table thead {
         display: table-header-group;
     }
-    .notice-table tr, .notice-footer {
+    .notice-sheet, .notice-table tr, .notice-footer {
         break-inside: avoid;
         page-break-inside: avoid;
     }

@@ -22,16 +22,40 @@ test('prints direct field names, combined specifications and sample quantities',
     assert.ok(renderNotice([{...sample, furnaceNumber: 'H12608511XX/H12608520XX', bundleCount: 18, weight: 58214}], '2026-07-28')
         .includes('H12608511XX/H12608520XX'));
     assert.ok(html.includes('入库确认：'));
-    assert.equal((html.match(/class="notice-sheet"/g) || []).length, 1);
+    assert.equal((html.match(/class="notice-page"/g) || []).length, 1);
+    assert.equal((html.match(/class="notice-sheet"/g) || []).length, 5);
 });
 
 test('different delivery points receive separate notices and imported strings are escaped', () => {
     const html = renderNotice([sample, {...sample, deliveryPoint: 'SAB', customer: '<script>bad()</script>', furnaceNumber: '"<&'}], '2026-07-28');
-    assert.equal((html.match(/class="notice-sheet"/g) || []).length, 2);
+    assert.equal((html.match(/class="notice-page"/g) || []).length, 2);
+    assert.equal((html.match(/class="notice-sheet"/g) || []).length, 10);
     assert.ok(html.includes('原材料到货通知 SAB'));
     assert.ok(html.includes('&lt;script&gt;bad()&lt;/script&gt;'));
     assert.ok(html.includes('&quot;&lt;&amp;'));
     assert.ok(!html.includes('<script>'));
+});
+
+test('each A4 page repeats the same contents with five department labels, including two inspection copies', () => {
+    const html = renderNotice([sample], '2026-07-28');
+    const copies = html.split('<section class="notice-sheet">').slice(1);
+    const labels = copies.map(copy => /class="notice-department" aria-label="([^"]+)"/.exec(copy)[1]);
+    assert.deepEqual(labels, ['计划', '生管', '仓库', '受入检查', '受入检查']);
+    const contents = copies.map(copy => copy.slice(0, copy.indexOf('<div class="notice-department"')));
+    contents.forEach(content => assert.equal(content, contents[0]));
+    assert.equal((html.match(/class="notice-empty-row"/g) || []).length, 10);
+});
+
+test('all materials remain on one five-copy A4 page without losing rows', () => {
+    const rows = Array.from({length: 7}, (_, index) => ({...sample, customer: 'customer-' + (index + 1)}));
+    const pages = renderNotice(rows, '2026-07-28').split('<section class="notice-page">').slice(1);
+    assert.equal(pages.length, 1);
+    assert.equal((pages[0].match(/class="notice-sheet"/g) || []).length, 5);
+    rows.forEach((row, index) => {
+        assert.equal(pages[0].split('>' + row.customer + '</div>').length - 1, 5);
+        assert.equal(pages[0].split('<tr><td>' + (index + 1) + '</td>').length - 1, 5);
+    });
+    assert.equal(renderNotice([], '2026-07-28'), '');
 });
 
 test('blank fields render empty and fractional weights retain precision', () => {
@@ -45,11 +69,13 @@ test('blank fields render empty and fractional weights retain precision', () => 
 test('latest date wins; empty and failed responses cannot print stale materials', async () => {
     const events = {};
     const fields = Object.fromEntries(['noticeArrivalDate', 'noticePreview', 'noticeStatus', 'noticePrintButton', 'noticeForm'].map(id =>
-        [id, {value: '', innerHTML: '', textContent: '', addEventListener(type, handler) { events[id + ':' + type] = handler; }}]));
+        [id, {value: '', innerHTML: '', textContent: '', querySelectorAll() { return []; },
+            addEventListener(type, handler) { events[id + ':' + type] = handler; }}]));
     const requests = [];
     let printCount = 0;
     global.document = {getElementById: id => fields[id]};
-    global.window = {location: {search: '?arrivalDate=2026-07-28'}, print() { printCount++; }};
+    global.window = {location: {search: '?arrivalDate=2026-07-28'}, print() { printCount++; },
+        addEventListener(type, handler) { events['window:' + type] = handler; }};
     global.fetch = url => new Promise((resolve, reject) => requests.push({url, resolve, reject}));
     try {
         init();
