@@ -62,7 +62,7 @@
 
 <script src="/static/js/http_code.jquery.com_jquery-3.6.0.min.js"></script>
 <script>
-  layui.use(['table', 'form', 'laydate'], function(){
+  layui.use(['table', 'form', 'laydate', 'util'], function(){
     var table = layui.table;
     var form = layui.form;
     var laydate = layui.laydate;
@@ -170,6 +170,7 @@
       cols: [ [ // 表头
         {type: 'checkbox'},  // 添加复选框列
         {field: 'arrival_date', title: '到达日期'},
+        {field: 'customer', title: '客户', minWidth: 120},
         {field: 'steel_mill', title: '钢厂'},
         {field: 'steel_grade', title: '钢等'},
         {field: 'dimensions', title: '尺寸'},
@@ -281,6 +282,7 @@
       <thead>
         <tr style="border: 1px solid black;"> <!-- 加深边框颜色 -->
           <th style="border: 1px solid black;">到达日期</th>
+          <th style="border: 1px solid black;">客户</th>
           <th style="border: 1px solid black;">钢厂</th>
           <th style="border: 1px solid black;">钢等</th>
           <th style="border: 1px solid black;">尺寸</th>
@@ -297,6 +299,7 @@
         printContent += `
       <tr style="border: 1px solid black;"> <!-- 加深边框颜色 -->
         <td style="border: 1px solid black;">${item.arrival_date}</td>
+        <td style="border: 1px solid black;">${layui.util.escape(item.customer || '')}</td>
         <td style="border: 1px solid black;">${item.steel_mill}</td>
         <td style="border: 1px solid black;">${item.steel_grade}</td>
         <td style="border: 1px solid black;">${item.dimensions}</td>
@@ -311,7 +314,7 @@
       // 添加合计行
       printContent += `
       <tr style="border: 1px solid black;"> <!-- 加深边框颜色 -->
-        <td colspan="5" style="text-align: right; border: 1px solid black;">总重量:</td>
+        <td colspan="6" style="text-align: right; border: 1px solid black;">总重量:</td>
         <td style="border: 1px solid black;">${totalWeight.toFixed(0)}</td>
         <td colspan="1" style="text-align: right; border: 1px solid black;">未税合计:</td>
         <td style="border: 1px solid black;">${totalUntaxedAmount.toFixed(2)}</td>
@@ -409,6 +412,7 @@
               steel_grade: data.steel_grade,
               dimensions: data.dimensions,
               trade_mode: data.trade_mode,
+              customer: data.customer || '',
               invoice_application: newValue,
               original_unit_price: data.unit_price,  // 原单价
               new_unit_price: newPrice ? parseFloat(newPrice).toFixed(5) : data.unit_price // 新单价
@@ -451,6 +455,7 @@
             steel_grade: data.steel_grade,
             dimensions: data.dimensions,
             trade_mode: data.trade_mode,
+            customer: data.customer || '',
             unit_price: data.unit_price,
           },
           success: function(res) {

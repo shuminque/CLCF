@@ -393,6 +393,7 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
             String steel_grade,
             String dimensions,
             String trade_mode,
+            String customer,
             String invoice_application,
             BigDecimal original_unit_price,
             BigDecimal new_unit_price) {
@@ -403,6 +404,7 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
                 steel_grade,
                 dimensions,
                 trade_mode,
+                customer,
                 invoice_application,
                 original_unit_price,
                 new_unit_price);

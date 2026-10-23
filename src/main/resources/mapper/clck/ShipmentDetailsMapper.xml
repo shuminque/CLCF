@@ -782,6 +782,7 @@
     <select id="queryShipmentDetails" resultType="map">
         SELECT DISTINCT
         arrival_date,
+        COALESCE(customer, '') AS customer,
         steel_mill,
         steel_grade,
         dimensions,
@@ -813,7 +814,7 @@
                 </otherwise>
             </choose>
         </if>
-        GROUP BY arrival_date, steel_mill, steel_grade, dimensions, trade_mode,invoice_application,unit_price
+        GROUP BY arrival_date, COALESCE(customer, ''), steel_mill, steel_grade, dimensions, trade_mode,invoice_application,unit_price
         order by arrival_date;
     </select>
     <update id="updateInvoiceApplication" parameterType="map">
@@ -829,6 +830,7 @@
         AND steel_grade = #{steel_grade}
         AND dimensions = #{dimensions}
         AND trade_mode = #{trade_mode}
+        AND COALESCE(customer, '') = #{customer}
         AND unit_price = #{original_unit_price}
     </update>
     <select id="selectInvoiceApplication" parameterType="map" resultType="map">
@@ -840,6 +842,7 @@
           AND steel_grade = #{params.steel_grade}
           AND dimensions = #{params.dimensions}
           AND trade_mode = #{params.trade_mode}
+          AND COALESCE(customer, '') = #{params.customer}
           AND unit_price= #{params.unit_price}
     </select>
     <update id="updateUnitPrice" parameterType="map">

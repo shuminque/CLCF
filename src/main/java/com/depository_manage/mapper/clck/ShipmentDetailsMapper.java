@@ -66,6 +66,7 @@ public interface ShipmentDetailsMapper {
             @Param("steel_grade") String steel_grade,
             @Param("dimensions") String dimensions,
             @Param("trade_mode") String trade_mode,
+            @Param("customer") String customer,
             @Param("invoice_application") String invoice_application,
             @Param("original_unit_price") BigDecimal original_unit_price,
             @Param("new_unit_price") BigDecimal new_unit_price

@@ -360,13 +360,14 @@ public class ShipmentDetailsController {
             @RequestParam String steel_grade,
             @RequestParam String dimensions,
             @RequestParam String trade_mode,
+            @RequestParam(defaultValue = "") String customer,
             @RequestParam String invoice_application,
             @RequestParam(required = false) BigDecimal original_unit_price,  // 旧单价
             @RequestParam(required = false) BigDecimal new_unit_price) {    // 新单价
         Map<String, Object> response = new HashMap<>();
         try {
             // 调用服务层更新结算状态和单价
-            shipmentDetailsService.updateInvoiceApplication(arrival_date, steel_mill, steel_grade, dimensions, trade_mode, invoice_application, original_unit_price, new_unit_price);
+            shipmentDetailsService.updateInvoiceApplication(arrival_date, steel_mill, steel_grade, dimensions, trade_mode, customer, invoice_application, original_unit_price, new_unit_price);
             response.put("success", true);
         } catch (Exception e) {
             response.put("success", false);
@@ -383,6 +384,7 @@ public class ShipmentDetailsController {
             @RequestParam String steel_grade,
             @RequestParam String dimensions,
             @RequestParam String trade_mode,
+            @RequestParam(defaultValue = "") String customer,
             @RequestParam double unit_price) {
 
         Map<String, Object> params = new HashMap<>();
@@ -391,6 +393,7 @@ public class ShipmentDetailsController {
         params.put("steel_grade", steel_grade);
         params.put("dimensions", dimensions);
         params.put("trade_mode", trade_mode);
+        params.put("customer", customer);
         params.put("unit_price", unit_price);
         System.out.println(params);
         List<Map<String, Object>> result = shipmentDetailsService.selectInvoiceApplication(params);
