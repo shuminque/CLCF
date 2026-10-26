@@ -804,6 +804,9 @@
         <if test="steelMill != null and steelMill != ''">
             AND steel_mill = #{steelMill}
         </if>
+        <if test="customer != null and customer != ''">
+            AND customer = #{customer}
+        </if>
         <if test="invoiceApplication != null">
             <choose>
                 <when test="invoiceApplication == 'none'">

@@ -52,7 +52,7 @@ public class InvoiceCustomerTest {
         }
         session = new SqlSessionFactoryBuilder().build(configuration).openSession();
         try (Statement statement = session.getConnection().createStatement()) {
-            statement.execute("CREATE TABLE shipment_details (id INT PRIMARY KEY, arrival_date DATE, " +
+            statement.execute("CREATE TABLE shipment_details (id INT PRIMARY KEY, arrival_date TIMESTAMP, " +
                     "steel_mill VARCHAR(100), steel_grade VARCHAR(100), dimensions VARCHAR(100), " +
                     "trade_mode VARCHAR(100), customer VARCHAR(100), weight DECIMAL(12, 2), " +
                     "invoice_application VARCHAR(100), unit_price DECIMAL(12, 5), operation_type VARCHAR(100))");
@@ -117,6 +117,29 @@ public class InvoiceCustomerTest {
                 .andExpect(status().isOk()).andExpect(jsonPath("$.count").value(3))
                 .andExpect(jsonPath("$.data[*].customer").value(
                         org.hamcrest.Matchers.containsInAnyOrder("", "客户甲", "客户乙")));
+    }
+
+    @Test
+    public void customerSearchFiltersExactlyAndKeepsArrivalDateOrder() throws Exception {
+        try (Statement statement = session.getConnection().createStatement()) {
+            statement.executeUpdate("UPDATE shipment_details SET arrival_date = '2026-10-24' WHERE id = 1");
+            statement.executeUpdate("UPDATE shipment_details SET arrival_date = '2026-10-22' WHERE id = 2");
+        }
+        mvc.perform(get("/shipment/query").param("customer", "客户甲")
+                        .param("steelMill", "江阴材").param("steelGrade", "SUJ2S1")
+                        .param("dimensions", "35.40").param("startDate", "2026-10-22")
+                        .param("endDate", "2026-10-24"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.count").value(2))
+                .andExpect(jsonPath("$.data[0].customer").value("客户甲"))
+                .andExpect(jsonPath("$.data[1].customer").value("客户甲"))
+                .andExpect(jsonPath("$.data[0].weight").value(20))
+                .andExpect(jsonPath("$.data[1].weight").value(10));
+        mvc.perform(get("/shipment/query").param("customer", ""))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.count").value(4));
+        mvc.perform(get("/shipment/query").param("customer", "客户"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.count").value(0));
+        mvc.perform(get("/shipment/query").param("customer", "客户甲' OR 1=1 --"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.count").value(0));
     }
 
     @Test

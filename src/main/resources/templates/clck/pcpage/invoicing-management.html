@@ -22,6 +22,14 @@
             </select>
           </div>
           <div class="layui-input-inline">
+            <select name="customer" lay-search>
+              <option value="" selected>选择客户</option>
+              <option th:each="customer : ${customers}"
+                      th:value="${customer.name}"
+                      th:text="${customer.name}"></option>
+            </select>
+          </div>
+          <div class="layui-input-inline">
             <select name="steelMill">
               <option value="" selected>选择钢厂</option>
               <option th:each="steel_type : ${steelTypes}"
@@ -536,6 +544,7 @@
     form.on('submit(data-search-btn)', function(data) {
       var req = {};
       var formData = data.field;
+      req.customer = formData.customer || '';
       if (formData.steelMill !== '') {
         req.steelMill = formData.steelMill;
       }
