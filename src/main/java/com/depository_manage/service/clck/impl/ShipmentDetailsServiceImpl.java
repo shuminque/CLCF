@@ -396,7 +396,9 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
             String customer,
             String invoice_application,
             BigDecimal original_unit_price,
-            BigDecimal new_unit_price) {
+            BigDecimal new_unit_price,
+            boolean mergeCustomers,
+            String original_invoice_application) {
 
         shipmentDetailsMapper.updateInvoiceApplication(
                 arrival_date,
@@ -407,7 +409,9 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
                 customer,
                 invoice_application,
                 original_unit_price,
-                new_unit_price);
+                new_unit_price,
+                mergeCustomers,
+                original_invoice_application);
     }
 
     @Override

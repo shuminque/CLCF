@@ -339,13 +339,19 @@ public class ShipmentDetailsController {
     public ResponseEntity<?> queryShipmentDetails(
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") String startDate,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") String endDate,
+            @RequestParam(defaultValue = "false") boolean mergeCustomers,
             @RequestParam Map<String, Object> params) {
         if (startDate != null && endDate != null) {
             params.put("startDate", startDate + " 00:00:00");
             params.put("endDate", endDate + " 23:59:59");
         }
 
+        params.put("mergeCustomers", mergeCustomers);
         List<Map<String, Object>> result = shipmentDetailsService.queryShipmentDetails(params);
+        for (Map<String, Object> row : result) {
+            row.put("merge_customers", mergeCustomers);
+            row.put("customer_filter", params.getOrDefault("customer", ""));
+        }
         Map<String, Object> response = new HashMap<>();
         response.put("code", 0);
         response.put("msg", "");
@@ -361,13 +367,15 @@ public class ShipmentDetailsController {
             @RequestParam String dimensions,
             @RequestParam String trade_mode,
             @RequestParam(defaultValue = "") String customer,
+            @RequestParam(defaultValue = "false") boolean mergeCustomers,
+            @RequestParam(required = false) String original_invoice_application,
             @RequestParam String invoice_application,
             @RequestParam(required = false) BigDecimal original_unit_price,  // 旧单价
             @RequestParam(required = false) BigDecimal new_unit_price) {    // 新单价
         Map<String, Object> response = new HashMap<>();
         try {
             // 调用服务层更新结算状态和单价
-            shipmentDetailsService.updateInvoiceApplication(arrival_date, steel_mill, steel_grade, dimensions, trade_mode, customer, invoice_application, original_unit_price, new_unit_price);
+            shipmentDetailsService.updateInvoiceApplication(arrival_date, steel_mill, steel_grade, dimensions, trade_mode, customer, invoice_application, original_unit_price, new_unit_price, mergeCustomers, original_invoice_application);
             response.put("success", true);
         } catch (Exception e) {
             response.put("success", false);
@@ -385,6 +393,8 @@ public class ShipmentDetailsController {
             @RequestParam String dimensions,
             @RequestParam String trade_mode,
             @RequestParam(defaultValue = "") String customer,
+            @RequestParam(defaultValue = "false") boolean mergeCustomers,
+            @RequestParam(required = false) String original_invoice_application,
             @RequestParam double unit_price) {
 
         Map<String, Object> params = new HashMap<>();
@@ -394,6 +404,8 @@ public class ShipmentDetailsController {
         params.put("dimensions", dimensions);
         params.put("trade_mode", trade_mode);
         params.put("customer", customer);
+        params.put("mergeCustomers", mergeCustomers);
+        params.put("original_invoice_application", original_invoice_application);
         params.put("unit_price", unit_price);
         System.out.println(params);
         List<Map<String, Object>> result = shipmentDetailsService.selectInvoiceApplication(params);

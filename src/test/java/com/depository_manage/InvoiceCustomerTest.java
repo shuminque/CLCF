@@ -143,6 +143,103 @@ public class InvoiceCustomerTest {
     }
 
     @Test
+    public void mergeCheckboxCombinesCustomersWithinTheCurrentFilter() throws Exception {
+        insert(6, "客户甲", 100, "出库");
+        mvc.perform(get("/shipment/query").param("mergeCustomers", "true"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.count").value(1))
+                .andExpect(jsonPath("$.data[0].weight").value(79))
+                .andExpect(jsonPath("$.data[0].customer").value("多个客户"))
+                .andExpect(jsonPath("$.data[0].merge_customers").value(true))
+                .andExpect(jsonPath("$.data[0].customer_filter").value(""));
+        mvc.perform(get("/shipment/query").param("mergeCustomers", "true").param("customer", "客户甲"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.count").value(1))
+                .andExpect(jsonPath("$.data[0].weight").value(30))
+                .andExpect(jsonPath("$.data[0].customer_filter").value("客户甲"));
+        mvc.perform(get("/shipment/query").param("mergeCustomers", "false"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.count").value(3))
+                .andExpect(jsonPath("$.data[0].merge_customers").value(false));
+    }
+
+    @Test
+    public void mergedModeKeepsOriginalGroupingFieldsAndDateOrder() throws Exception {
+        String[][] variations = {{"arrival_date", "2026-10-22"}, {"steel_mill", "另一个钢厂"},
+                {"steel_grade", "另一钢等"}, {"dimensions", "36.40"}, {"trade_mode", "来料加工"},
+                {"invoice_application", "已结算"}, {"unit_price", "7.12345"}};
+        for (int i = 0; i < variations.length; i++) {
+            insert(6 + i, "客户乙", 10, "入库");
+            try (PreparedStatement statement = session.getConnection().prepareStatement(
+                    "UPDATE shipment_details SET " + variations[i][0] + " = ? WHERE id = ?")) {
+                statement.setString(1, variations[i][1]);
+                statement.setInt(2, 6 + i);
+                statement.executeUpdate();
+            }
+        }
+        mvc.perform(get("/shipment/query").param("mergeCustomers", "true"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.count").value(8))
+                .andExpect(jsonPath("$.data[0].weight").value(10));
+    }
+
+    @Test
+    public void mergedDetailsAndEditsIncludeAllCustomersButOnlyTheSelectedGroup() throws Exception {
+        insert(6, "客户乙", 1, "入库");
+        insert(7, "客户乙", 1, "入库");
+        insert(8, "客户乙", 1, "入库");
+        try (Statement statement = session.getConnection().createStatement()) {
+            statement.executeUpdate("UPDATE shipment_details SET invoice_application = '已结算' WHERE id = 6");
+            statement.executeUpdate("UPDATE shipment_details SET unit_price = 9 WHERE id = 7");
+            statement.executeUpdate("UPDATE shipment_details SET invoice_application = NULL WHERE id = 8");
+        }
+        mvc.perform(group(get("/shipment/selectInvoiceApplication"))
+                        .param("mergeCustomers", "true").param("unit_price", "6.50863")
+                        .param("original_invoice_application", ""))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(5));
+        mvc.perform(group(post("/shipment/updateInvoice"))
+                        .param("mergeCustomers", "true").param("original_invoice_application", "")
+                        .param("invoice_application", "已核对开票、未结算")
+                        .param("original_unit_price", "6.50863").param("new_unit_price", "7.12345"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.success").value(true));
+        for (int id = 1; id <= 5; id++) assertInvoice(id, "已核对开票、未结算", "7.12345");
+        assertInvoice(6, "已结算", "6.50863");
+        assertInvoice(7, "", "9");
+        assertInvoice(8, null, "6.50863");
+    }
+
+    @Test
+    public void mergedOperationsRespectTheCustomerSearchFilter() throws Exception {
+        mvc.perform(group(get("/shipment/selectInvoiceApplication"))
+                        .param("mergeCustomers", "true").param("customer", "客户甲")
+                        .param("original_invoice_application", "").param("unit_price", "6.50863"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(2));
+        mvc.perform(group(post("/shipment/updateInvoice"))
+                        .param("mergeCustomers", "true").param("customer", "客户甲")
+                        .param("original_invoice_application", "").param("invoice_application", "已结算")
+                        .param("original_unit_price", "6.50863").param("new_unit_price", "7.12345"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.success").value(true));
+        assertInvoice(1, "已结算", "7.12345");
+        assertInvoice(2, "已结算", "7.12345");
+        for (int id = 3; id <= 5; id++) assertInvoice(id, "", "6.50863");
+    }
+
+    @Test
+    public void mergedNullStatusDoesNotIncludeEmptyStatusRecords() throws Exception {
+        try (Statement statement = session.getConnection().createStatement()) {
+            statement.executeUpdate("UPDATE shipment_details SET invoice_application = NULL WHERE id IN (1, 3)");
+        }
+        mvc.perform(group(get("/shipment/selectInvoiceApplication"))
+                        .param("mergeCustomers", "true").param("unit_price", "6.50863"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(2));
+        mvc.perform(group(post("/shipment/updateInvoice"))
+                        .param("mergeCustomers", "true").param("invoice_application", "已结算")
+                        .param("original_unit_price", "6.50863").param("new_unit_price", "7.12345"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.success").value(true));
+        assertInvoice(1, "已结算", "7.12345");
+        assertInvoice(3, "已结算", "7.12345");
+        assertInvoice(2, "", "6.50863");
+        assertInvoice(4, "", "6.50863");
+        assertInvoice(5, "", "6.50863");
+    }
+
+    @Test
     public void detailsAndInvoiceEditsStayWithinTheSelectedCustomer() throws Exception {
         mvc.perform(group(get("/shipment/selectInvoiceApplication"))
                         .param("customer", "客户甲").param("unit_price", "6.50863"))

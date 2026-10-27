@@ -67,6 +67,15 @@
   <a class="layui-btn layui-btn-xs layui-btn-normal" lay-event="detail">详细</a>
   <a class="layui-btn layui-btn-xs" lay-event="edit">修改</a>
 </script>
+<script type="text/html" id="invoiceToolbar">
+  <div class="layui-form" style="display: flex; align-items: center; gap: 16px;">
+    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" lay-event="printSelected">
+      <i class="layui-icon layui-icon-print"></i> 选中打印
+    </button>
+    <input type="checkbox" name="mergeCustomers" title="合并客户" lay-skin="primary" lay-filter="mergeCustomers"
+           {{# if(d.where.mergeCustomers){ }}checked{{# } }}>
+  </div>
+</script>
 
 <script src="/static/js/http_code.jquery.com_jquery-3.6.0.min.js"></script>
 <script>
@@ -74,6 +83,7 @@
     var table = layui.table;
     var form = layui.form;
     var laydate = layui.laydate;
+    var currentQuery = {customer: '', mergeCustomers: false};
 // 获取当前日期并格式化为 YYYY-MM-DD
     var currentDate = new Date();
     var year = currentDate.getFullYear();
@@ -174,7 +184,9 @@
       url: '/shipment/query', // 数据接口
       height: 600, // 设置表格高度
       // page: true, // 开启分页
-      toolbar: ['filter', 'exports', 'print'],
+      toolbar: '#invoiceToolbar',
+      defaultToolbar: ['filter', 'exports', 'print'],
+      where: currentQuery,
       cols: [ [ // 表头
         {type: 'checkbox'},  // 添加复选框列
         {field: 'arrival_date', title: '到达日期'},
@@ -218,22 +230,20 @@
               untaxedAmountCell.getElementsByClassName('layui-table-cell')[0].innerText = totalUntaxedAmount.toFixed(2).toString();
             }
           }
-          addCustomPrintButton(); // 添加自定义按钮
+          form.render('checkbox');
         }
     });
     });
-    // 添加自定义按钮
-    function addCustomPrintButton() {
-      if ($('#customPrintButton').length === 0) {
-        var customPrintButton = $('<button class="layui-btn layui-btn-primary layui-btn-sm" id="customPrintButton" style="display: flex; align-items: center;"><i class="layui-icon layui-icon-print" style="margin-right: 5px;"></i> 选中打印</button>');
-        $('.layui-table-tool-temp').prepend(customPrintButton);
-
-        // 绑定自定义打印按钮点击事件
-        $('#customPrintButton').on('click', function() {
-          printSelectedRows();
-        });
+    table.on('toolbar(recordsTableFilter)', function(obj) {
+      if (obj.event === 'printSelected') {
+        printSelectedRows();
       }
-    }
+    });
+    form.on('checkbox(mergeCustomers)', function(data) {
+      currentQuery.mergeCustomers = data.elem.checked;
+      table.hideCol('recordsTable', {field: 'customer', hide: currentQuery.mergeCustomers});
+      recordTable.reload({where: currentQuery, page: {curr: 1}}, false);
+    });
     function printSelectedRows() {
       var checkStatus = table.checkStatus('recordsTable'); // 获取选中的行
       var data = checkStatus.data; // 获取选中的数据
@@ -241,6 +251,7 @@
         layer.msg('请选择要打印的行');
         return;
       }
+      var showCustomer = !data[0].merge_customers;
 
       // 计算总重量和未税合计
       var totalWeight = 0;
@@ -290,7 +301,7 @@
       <thead>
         <tr style="border: 1px solid black;"> <!-- 加深边框颜色 -->
           <th style="border: 1px solid black;">到达日期</th>
-          <th style="border: 1px solid black;">客户</th>
+          ${showCustomer ? '<th style="border: 1px solid black;">客户</th>' : ''}
           <th style="border: 1px solid black;">钢厂</th>
           <th style="border: 1px solid black;">钢等</th>
           <th style="border: 1px solid black;">尺寸</th>
@@ -307,7 +318,7 @@
         printContent += `
       <tr style="border: 1px solid black;"> <!-- 加深边框颜色 -->
         <td style="border: 1px solid black;">${item.arrival_date}</td>
-        <td style="border: 1px solid black;">${layui.util.escape(item.customer || '')}</td>
+        ${showCustomer ? '<td style="border: 1px solid black;">' + layui.util.escape(item.customer || '') + '</td>' : ''}
         <td style="border: 1px solid black;">${item.steel_mill}</td>
         <td style="border: 1px solid black;">${item.steel_grade}</td>
         <td style="border: 1px solid black;">${item.dimensions}</td>
@@ -322,7 +333,7 @@
       // 添加合计行
       printContent += `
       <tr style="border: 1px solid black;"> <!-- 加深边框颜色 -->
-        <td colspan="6" style="text-align: right; border: 1px solid black;">总重量:</td>
+        <td colspan="${showCustomer ? 6 : 5}" style="text-align: right; border: 1px solid black;">总重量:</td>
         <td style="border: 1px solid black;">${totalWeight.toFixed(0)}</td>
         <td colspan="1" style="text-align: right; border: 1px solid black;">未税合计:</td>
         <td style="border: 1px solid black;">${totalUntaxedAmount.toFixed(2)}</td>
@@ -376,6 +387,8 @@
     table.on('tool(recordsTableFilter)', function(obj){
       var data = obj.data; // 得到当前行数据
       var layEvent = obj.event; // 得到对应的按钮事件
+      var mergeCustomers = data.merge_customers === true;
+      var customerScope = mergeCustomers ? (data.customer_filter || '') : (data.customer || '');
 
       if(layEvent === 'edit'){ // 修改按钮事件
         var selectHtml = '<div class="layui-input-inline">' +
@@ -389,7 +402,7 @@
                 '<input type="number" id="newUnitPrice" placeholder="请输入未税单价" class="layui-input" min="0" step="0.001">' +
                 '</div>';
         layer.open({
-          title: '修改' +data.arrival_date+'日'+ data.steel_mill +'/'+data.steel_grade+'/'+ data.dimensions +'的结算状态',
+          title: '修改' +data.arrival_date+'日'+ data.steel_mill +'/'+data.steel_grade+'/'+ data.dimensions +'的结算状态' + (mergeCustomers ? '（合并客户）' : ''),
           content: selectHtml,
           btn: ['确认', '取消'],
           success: function(layero, index) {
@@ -420,12 +433,16 @@
               steel_grade: data.steel_grade,
               dimensions: data.dimensions,
               trade_mode: data.trade_mode,
-              customer: data.customer || '',
+              customer: customerScope,
+              mergeCustomers: mergeCustomers,
               invoice_application: newValue,
               original_unit_price: data.unit_price,  // 原单价
               new_unit_price: newPrice ? parseFloat(newPrice).toFixed(5) : data.unit_price // 新单价
 
             };
+            if (data.invoice_application != null) {
+              requestData.original_invoice_application = data.invoice_application;
+            }
             // 调用后台更新接口
             $.ajax({
               type: 'POST',
@@ -434,11 +451,7 @@
               success: function(res) {
                 if (res.success) {
                   layer.msg('更新成功');
-                  // 更新表格数据
-                  obj.update({
-                    invoice_application: newValue,
-                    unit_price: requestData.new_unit_price
-                  });
+                  recordTable.reload();
                 } else {
                   layer.msg('更新失败');
                 }
@@ -453,19 +466,24 @@
         form.render(); // 刷新选择框渲染
       }
       else if(layEvent === 'detail'){
+        var detailParams = {
+          arrival_date: data.arrival_date,
+          steel_mill: data.steel_mill,
+          steel_grade: data.steel_grade,
+          dimensions: data.dimensions,
+          trade_mode: data.trade_mode,
+          customer: customerScope,
+          mergeCustomers: mergeCustomers,
+          unit_price: data.unit_price
+        };
+        if (data.invoice_application != null) {
+          detailParams.original_invoice_application = data.invoice_application;
+        }
         // 发起AJAX请求获取详细数据
         $.ajax({
           type: 'GET',
           url: '/shipment/selectInvoiceApplication',
-          data: {
-            arrival_date: data.arrival_date,
-            steel_mill: data.steel_mill,
-            steel_grade: data.steel_grade,
-            dimensions: data.dimensions,
-            trade_mode: data.trade_mode,
-            customer: data.customer || '',
-            unit_price: data.unit_price,
-          },
+          data: detailParams,
           success: function(res) {
             if (res && res.length > 0) {
               // 准备弹出层的HTML容器
@@ -481,6 +499,7 @@
                     elem: layero.find('#detailTableContainer'),
                     cols: [ [
                       {field: 'unique_identifier', title: '标识符'},
+                      {field: 'customer', title: '客户'},
                       {field: 'weight', title: '重量', templet: function(d) { return parseFloat(d.weight).toFixed(0); }},
                       {field: 'invoice_application', title: '结算状态'},
                       {
@@ -542,7 +561,7 @@
     }
     // 统一搜索表单提交事件
     form.on('submit(data-search-btn)', function(data) {
-      var req = {};
+      var req = {mergeCustomers: currentQuery.mergeCustomers};
       var formData = data.field;
       req.customer = formData.customer || '';
       if (formData.steelMill !== '') {
@@ -566,11 +585,12 @@
         req.endDate = dates[1];
       }
       // 执行搜索重载
+      currentQuery = req;
       recordTable.reload({
         url: '/shipment/query',
         where: req,
         page: {curr: 1}
-      });
+      }, false);
       return false;
     });
   });

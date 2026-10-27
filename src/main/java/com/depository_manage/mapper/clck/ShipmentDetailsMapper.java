@@ -69,7 +69,9 @@ public interface ShipmentDetailsMapper {
             @Param("customer") String customer,
             @Param("invoice_application") String invoice_application,
             @Param("original_unit_price") BigDecimal original_unit_price,
-            @Param("new_unit_price") BigDecimal new_unit_price
+            @Param("new_unit_price") BigDecimal new_unit_price,
+            @Param("mergeCustomers") boolean mergeCustomers,
+            @Param("original_invoice_application") String original_invoice_application
     );
 
     List<Map<String, Object>> selectInvoiceApplication(@Param("params") Map<String, Object> params);

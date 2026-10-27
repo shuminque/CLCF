@@ -44,7 +44,7 @@ public interface ShipmentDetailsService {
 
     List<Map<String, Object>> queryShipmentDetails(Map<String, Object> params);
 
-    void updateInvoiceApplication(String arrival_date, String steel_mill, String steel_grade, String dimensions, String trade_mode, String customer, String invoice_application, BigDecimal original_unit_price, BigDecimal new_unit_price);
+    void updateInvoiceApplication(String arrival_date, String steel_mill, String steel_grade, String dimensions, String trade_mode, String customer, String invoice_application, BigDecimal original_unit_price, BigDecimal new_unit_price, boolean mergeCustomers, String original_invoice_application);
     List<Map<String, Object>> selectInvoiceApplication(Map<String, Object> params);
 
     void updateUnitPrice(String uniqueIdentifier, double unitPrice);
