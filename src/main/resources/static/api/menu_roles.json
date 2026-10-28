@@ -121,6 +121,15 @@
                             ]
                         },
                         {
+                            "title": "到货查询",
+                            "href": "/arrivalRecords",
+                            "icon": "fa fa-th-list",
+                            "target": "_self",
+                            "roles": [
+                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "onlyRead", "operate"
+                            ]
+                        },
+                        {
                             "title": "在库查询",
                             "href": "/queryIn",
                             "icon": "fa fa-th-list",

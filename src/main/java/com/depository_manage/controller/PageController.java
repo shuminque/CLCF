@@ -89,6 +89,13 @@ public class PageController {
         addCommonObjects(mv, params);
         return mv;
     }
+    @GetMapping("/arrivalRecords")
+    public ModelAndView arrivalRecords(Map<String, Object> params) {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("clck/pcpage/arrivalRecords");
+        addCommonObjects(mv, params);
+        return mv;
+    }
     @GetMapping("/shipment-records-out")
     public ModelAndView shipmentRecordsOut(Map<String, Object> params) {
         ModelAndView mv = new ModelAndView();
