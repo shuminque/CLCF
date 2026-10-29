@@ -61,17 +61,6 @@
                 <input type="hidden" name="time2" id="date3" autocomplete="off">
             </div>
             <div class="layui-input-inline">
-                <select name="operationType" id="operationType">
-                    <option value="" selected>选择操作类型</option>
-                    <option value="入库">入库</option>
-                    <option value="出库">出库 </option>
-                    <option value="转库">转库 </option>
-                    <option value="返库">返库 </option>
-                    <option value="退货">退货 </option>
-                    <option value="none">无操作</option>
-                </select>
-            </div>
-            <div class="layui-input-inline">
                 <select name="steelMill" lay-filter="querySteelMill">
                     <option value="" selected>选择钢厂</option>
                     <option th:each="steel_type : ${steelTypes}"
@@ -520,7 +509,6 @@
                     weight: row.weight,
                 };
             });
-            var operationType = $('#operationType').val().replace(/\s+/g, '').replace(/-/g, '_'); // 去除空格并替换日期中 的 '-' 为 '_'
             var ws = XLSX.utils.json_to_sheet(data, {
                 header: [
                     "operationType",
@@ -547,7 +535,7 @@
             var wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "记录汇总");
             // 导出 Excel 文件，文件名包含日期
-            XLSX.writeFile(wb, dateValue + operationType+"_汇总.xlsx");
+            XLSX.writeFile(wb, dateValue + "_汇总.xlsx");
         }
 
         // 统一搜索表单提交事件
@@ -558,9 +546,6 @@
             }
             var req = {};
             var formData = data.field;
-            if (formData.operationType !== '') {
-                req.operationType = formData.operationType;
-            }
             if (formData.uniqueIdentifier !== '') {
                 req.uniqueIdentifier = formData.uniqueIdentifier;
             }
