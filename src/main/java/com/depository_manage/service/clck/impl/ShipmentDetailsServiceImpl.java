@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +33,15 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
 
     @Override
     public List<ArrivalNoticeRow> getArrivalNotice(String arrivalDate) {
-        return shipmentDetailsMapper.selectArrivalNotice(arrivalDate);
+        LocalDate date = LocalDate.parse(arrivalDate);
+        return shipmentDetailsMapper.selectArrivalNoticeByDateRange(date.toString(), date.plusDays(1).toString());
+    }
+
+    @Override
+    public List<ArrivalNoticeRow> getMonthlyArrivalNotice(LocalDate arrivalDate) {
+        LocalDate monthStart = arrivalDate.withDayOfMonth(1);
+        return shipmentDetailsMapper.selectArrivalNoticeByDateRange(
+                monthStart.toString(), monthStart.plusMonths(1).toString());
     }
 
     @Override

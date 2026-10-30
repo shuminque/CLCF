@@ -4,6 +4,7 @@ import com.depository_manage.entity.ShipmentDetails;
 import com.depository_manage.pojo.ArrivalNoticeRow;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,8 @@ public interface ShipmentDetailsService {
     List<Map<String, String>> getMaterialOptions(String steelMill);
 
     List<ArrivalNoticeRow> getArrivalNotice(String arrivalDate);
+
+    List<ArrivalNoticeRow> getMonthlyArrivalNotice(LocalDate arrivalDate);
 
     ShipmentDetails getShipmentDetailById(int id);
     int countShipmentDetails(Map<String, Object> params);

@@ -68,7 +68,7 @@ test('blank fields render empty and fractional weights retain precision', () => 
 
 test('latest date wins; empty and failed responses cannot print stale materials', async () => {
     const events = {};
-    const fields = Object.fromEntries(['noticeArrivalDate', 'noticePreview', 'noticeStatus', 'noticePrintButton', 'noticeForm'].map(id =>
+    const fields = Object.fromEntries(['noticeArrivalDate', 'noticePreview', 'noticeStatus', 'noticePrintButton', 'noticeForm', 'noticeExportButton', 'noticeExportStatus'].map(id =>
         [id, {value: '', innerHTML: '', textContent: '', querySelectorAll() { return []; },
             addEventListener(type, handler) { events[id + ':' + type] = handler; }}]));
     const requests = [];

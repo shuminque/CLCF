@@ -38,7 +38,7 @@
 
     <!-- 到货日、到货点、贸易方式、客户、规格和钢厂相同的原始材料合为一项。
          炉号去重后用 / 连接；同一材料的后续出入库流水不重复统计。 -->
-    <select id="selectArrivalNotice" resultType="com.depository_manage.pojo.ArrivalNoticeRow">
+    <select id="selectArrivalNoticeByDateRange" resultType="com.depository_manage.pojo.ArrivalNoticeRow">
         SELECT s.arrival_date AS arrivalDate, s.delivery_point AS deliveryPoint,
                s.trade_mode AS tradeMode, s.customer, s.dimensions,
                s.steel_grade AS steelGrade, s.steel_mill AS steelMill,
@@ -47,7 +47,7 @@
                COUNT(*) AS bundleCount,
                COALESCE(SUM(CAST(s.weight AS DECIMAL(24, 6))), 0) AS weight
         FROM shipment_details s
-        WHERE s.arrival_date = #{arrivalDate}
+        WHERE s.arrival_date &gt;= #{startDate} AND s.arrival_date &lt; #{endDate}
           AND NOT EXISTS (
               SELECT 1 FROM shipment_details earlier
               WHERE s.unique_identifier IS NOT NULL AND s.unique_identifier != ''
@@ -56,7 +56,7 @@
           )
         GROUP BY s.arrival_date, s.delivery_point, s.trade_mode, s.customer,
                  s.dimensions, s.steel_grade, s.steel_mill
-        ORDER BY s.delivery_point, s.trade_mode, s.customer,
+        ORDER BY s.arrival_date, s.delivery_point, s.trade_mode, s.customer,
                  s.dimensions, s.steel_grade, s.steel_mill
     </select>
 

@@ -17,14 +17,20 @@ body {
 .notice-toolbar .layui-btn {
     margin: 0;
 }
+.notice-toolbar #noticeExportButton {
+    margin-left: auto;
+}
 .notice-toolbar button:disabled {
     opacity: .5;
     cursor: not-allowed;
 }
-#noticeStatus {
+#noticeStatus, #noticeExportStatus {
     color: #666;
     font-size: 14px;
     padding: 12px 20px;
+}
+#noticeExportStatus:empty {
+    display: none;
 }
 .notice-page {
     box-sizing: border-box;
@@ -134,7 +140,7 @@ body {
     body {
         background: #fff;
     }
-    .notice-toolbar, #noticeStatus {
+    .notice-toolbar, #noticeStatus, #noticeExportStatus {
         display: none;
     }
     #noticePreview {

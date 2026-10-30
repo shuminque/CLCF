@@ -96,6 +96,8 @@
         var preview = document.getElementById('noticePreview');
         var status = document.getElementById('noticeStatus');
         var printButton = document.getElementById('noticePrintButton');
+        var exportButton = document.getElementById('noticeExportButton');
+        var exportStatus = document.getElementById('noticeExportStatus');
         var requestVersion = 0;
         var loadedDate = '';
         var initialDate = new URLSearchParams(window.location.search).get('arrivalDate');
@@ -150,6 +152,51 @@
             loadNotice();
         });
         dateInput.addEventListener('change', loadNotice);
+        exportButton.addEventListener('click', function () {
+            if (exportButton.disabled) return Promise.resolve();
+            var date = dateInput.value;
+            if (!dateParts(date) || !dateInput.checkValidity()) {
+                exportStatus.textContent = '请先选择有效的到货日，导出该日期所在月份的全部明细。';
+                dateInput.reportValidity();
+                return Promise.resolve();
+            }
+            var month = date.slice(0, 7);
+            var monthLabel = date.slice(0, 4) + '年' + Number(date.slice(5, 7)) + '月';
+            exportButton.disabled = true;
+            exportButton.textContent = '正在导出…';
+            exportStatus.textContent = '正在导出' + monthLabel + '的全部到货明细…';
+            return fetch('/shipment/arrival-notice/export?arrivalDate=' + encodeURIComponent(date))
+                .then(function (response) {
+                    if (response.status === 204) {
+                        exportStatus.textContent = monthLabel + '没有到货明细可导出。';
+                        return null;
+                    }
+                    if (!response.ok || (response.headers.get('Content-Type') || '').split(';')[0] !==
+                            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+                        throw new Error('导出失败');
+                    }
+                    return response.blob();
+                })
+                .then(function (blob) {
+                    if (!blob) return;
+                    var url = window.URL.createObjectURL(blob);
+                    var link = document.createElement('a');
+                    link.href = url;
+                    link.download = '原材料到货通知_' + month + '_明细.xlsx';
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                    window.setTimeout(function () { window.URL.revokeObjectURL(url); }, 1000);
+                    exportStatus.textContent = monthLabel + '的全部到货明细已导出。';
+                })
+                .catch(function () {
+                    exportStatus.textContent = '导出失败，请确认登录状态并重试。';
+                })
+                .then(function () {
+                    exportButton.disabled = false;
+                    exportButton.textContent = '导出当月明细';
+                });
+        });
         printButton.addEventListener('click', function () {
             if (!printButton.disabled && loadedDate === dateInput.value) {
                 fitNoticePages(preview);

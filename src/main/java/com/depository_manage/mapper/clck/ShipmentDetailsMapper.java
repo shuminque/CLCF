@@ -14,7 +14,8 @@ public interface ShipmentDetailsMapper {
 
     List<Map<String, String>> selectMaterialOptions(@Param("steelMill") String steelMill);
 
-    List<ArrivalNoticeRow> selectArrivalNotice(@Param("arrivalDate") String arrivalDate);
+    List<ArrivalNoticeRow> selectArrivalNoticeByDateRange(@Param("startDate") String startDate,
+                                                       @Param("endDate") String endDate);
 
     int insertShipmentDetail(ShipmentDetails shipmentDetails);
 
