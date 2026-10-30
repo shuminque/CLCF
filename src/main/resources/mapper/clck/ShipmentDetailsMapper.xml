@@ -226,6 +226,76 @@
         </if>
     </select>
 
+    <!-- 到货查询使用独立口径；同一材料只取最早记录，且必须是入库或未操作。
+         去重不受当前筛选条件影响，防止后续流水被当作一次新的到货。
+         无材料 ID 的历史记录无法关联，分别保留。列表和总条数共用条件。 -->
+    <sql id="arrivalRecordsConditions">
+        WHERE (operation_type = '入库' OR operation_type IS NULL OR operation_type = '')
+          AND (
+              unique_identifier IS NULL OR TRIM(unique_identifier) = ''
+              OR id IN (
+                  SELECT MIN(original.id) FROM shipment_details original
+                  WHERE original.unique_identifier IS NOT NULL
+                    AND TRIM(original.unique_identifier) != ''
+                  GROUP BY original.unique_identifier
+              )
+          )
+        <if test="uniqueIdentifier != null and uniqueIdentifier != ''">
+            AND unique_identifier = #{uniqueIdentifier}
+        </if>
+        <if test="invoiceNumber != null and invoiceNumber != ''">
+            AND invoice_number = #{invoiceNumber}
+        </if>
+        <if test="customer != null and customer != ''">
+            AND customer = #{customer}
+        </if>
+        <if test="tradeMode != null and tradeMode != ''">
+            AND trade_mode = #{tradeMode}
+        </if>
+        <if test="steelGrade != null and steelGrade != ''">
+            AND steel_grade = #{steelGrade}
+        </if>
+        <if test="dimensions != null and dimensions != ''">
+            AND dimensions = #{dimensions}
+        </if>
+        <if test="steelMill != null and steelMill != ''">
+            AND steel_mill = #{steelMill}
+        </if>
+        <if test="supplierBatchNumber != null and supplierBatchNumber != ''">
+            AND supplier_batch_number LIKE CONCAT('%', #{supplierBatchNumber}, '%')
+        </if>
+        <if test="furnaceNumber != null and furnaceNumber != ''">
+            AND furnace_number LIKE CONCAT('%', #{furnaceNumber}, '%')
+        </if>
+        <if test="placementArea != null and placementArea != ''">
+            <choose>
+                <when test="placementArea == 'empty'">AND placement_area IS NULL</when>
+                <otherwise>AND placement_area = #{placementArea}</otherwise>
+            </choose>
+        </if>
+        <if test="purchaser != null and purchaser != ''">
+            AND purchaser = #{purchaser}
+        </if>
+        <if test="state != null and state != ''">
+            AND state = #{state}
+        </if>
+        <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+            AND DATE(arrival_date) BETWEEN #{startDate} AND #{endDate}
+        </if>
+    </sql>
+
+    <select id="selectArrivalRecords" resultMap="shipmentDetailsMap" parameterType="map">
+        SELECT * FROM shipment_details
+        <include refid="arrivalRecordsConditions"/>
+        ORDER BY id DESC
+        <if test="begin != null and size != null">LIMIT #{begin}, #{size}</if>
+    </select>
+
+    <select id="countArrivalRecords" resultType="int" parameterType="map">
+        SELECT COUNT(*) FROM shipment_details
+        <include refid="arrivalRecordsConditions"/>
+    </select>
+
     <!-- 更新操作 -->
     <update id="updateShipmentDetail">
         UPDATE shipment_details

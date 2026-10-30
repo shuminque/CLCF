@@ -66,6 +66,16 @@ public class ShipmentDetailsServiceImpl implements ShipmentDetailsService {
         return shipmentDetailsMapper.selectAllShipmentDetails(params);    }
 
     @Override
+    public List<ShipmentDetails> getArrivalRecords(Map<String, Object> params) {
+        return shipmentDetailsMapper.selectArrivalRecords(params);
+    }
+
+    @Override
+    public int countArrivalRecords(Map<String, Object> params) {
+        return shipmentDetailsMapper.countArrivalRecords(params);
+    }
+
+    @Override
     public boolean saveShipmentDetail(ShipmentDetails shipmentDetails) {
         return shipmentDetailsMapper.insertShipmentDetail(shipmentDetails) > 0;
     }

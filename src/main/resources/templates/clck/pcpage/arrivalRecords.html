@@ -352,7 +352,7 @@
         // 渲染表格
         var recordTable = table.render({
             elem: '#recordTable',
-            url: '/shipment',
+            url: '/shipment/arrivals',
             request: {
                 pageName:'page',
                 limitName:'size'
@@ -421,6 +421,10 @@
         });
         function customExport() {
             var data = table.cache['recordTable']; // 从表格缓存中获取当前表格的数据
+            if (!data || data.length === 0) {
+                layui.layer.msg('没有可导出的到货数据');
+                return;
+            }
             // 按指定字段排序
             data.sort((a, b) => {
                 return (a.operationType || "").localeCompare(b.operationType || "") ||
@@ -594,7 +598,7 @@
             }
             // 执行搜索重载
             recordTable.reload({
-                url: '/shipment',
+                url: '/shipment/arrivals',
                 where: req,
                 page: {curr: 1}
             });

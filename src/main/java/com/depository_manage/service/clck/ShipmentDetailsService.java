@@ -20,6 +20,8 @@ public interface ShipmentDetailsService {
     ShipmentDetails getShipmentDetailById(int id);
     int countShipmentDetails(Map<String, Object> params);
     List<ShipmentDetails> getAllShipmentDetails(Map<String, Object> params);
+    List<ShipmentDetails> getArrivalRecords(Map<String, Object> params);
+    int countArrivalRecords(Map<String, Object> params);
     boolean saveShipmentDetail(ShipmentDetails shipmentDetails);
     List<ShipmentDetails> saveAll(List<ShipmentDetails> shipmentDetailsList); // Change return type to List
     void updateShipmentDetail(ShipmentDetails shipmentDetails);

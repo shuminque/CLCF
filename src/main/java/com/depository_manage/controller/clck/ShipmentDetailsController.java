@@ -42,6 +42,22 @@ public class ShipmentDetailsController {
         return ResponseEntity.ok(shipmentDetailsService.getArrivalNotice(arrivalDate.toString()));
     }
 
+    @GetMapping("/arrivals")
+    public ResponseEntity<?> getArrivalRecords(@RequestParam Map<String, Object> params,
+                                              @RequestParam(defaultValue = "1") int page,
+                                              @RequestParam(defaultValue = "20") int size) {
+        params.put("begin", (page - 1) * size);
+        params.put("size", size);
+        List<ShipmentDetails> records = shipmentDetailsService.getArrivalRecords(params);
+        int count = shipmentDetailsService.countArrivalRecords(params);
+        Map<String, Object> response = new HashMap<>();
+        response.put("code", 0);
+        response.put("msg", "");
+        response.put("count", count);
+        response.put("data", records);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping
     public ResponseEntity<?> getAllRecords(  @RequestParam Map<String, Object> params,
                                              @RequestParam(defaultValue = "1") int page, // 页码通常是从1开始

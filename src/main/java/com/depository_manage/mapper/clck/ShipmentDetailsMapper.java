@@ -25,6 +25,10 @@ public interface ShipmentDetailsMapper {
 
     List<ShipmentDetails> selectAllShipmentDetails(Map<String,Object> params);
 
+    List<ShipmentDetails> selectArrivalRecords(Map<String, Object> params);
+
+    int countArrivalRecords(Map<String, Object> params);
+
     void updateShipmentDetail(ShipmentDetails shipmentDetails);
 
     int deleteShipmentDetail(@Param("id") int id);
