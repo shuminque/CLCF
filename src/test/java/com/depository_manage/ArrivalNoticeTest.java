@@ -108,6 +108,39 @@ public class ArrivalNoticeTest {
     }
 
     @Test
+    public void excludesMovementOnlyMaterialsAndKeepsInboundAndUnoperatedArrivals() throws Exception {
+        insert("261016-16", "2026-10-16", "ZAB", "一般贸易", "印尼NSK", "29.10", "SUJ2Z",
+                "山阳材", "700242", 1000.0, 1, "返库");
+        insert("261016-17", "2026-10-16", "ZAB", "一般贸易", "印尼NSK", "29.10", "SUJ2Z",
+                "山阳材", "700242", 795.0, 1, "返库");
+        insertSample("out-only", "2026-10-16", "后续流水", "炉号", 9000, "出库");
+        insertSample("transfer-only", "2026-10-16", "后续流水", "炉号", 9000, "转库");
+        insertSample(null, "2026-10-16", "后续流水", "炉号", 9000, "退货");
+        insertSample("inbound", "2026-10-16", "正常到货", "炉号", 100, "入库");
+        insertSample("unoperated-null", "2026-10-16", "正常到货", "炉号", 200, null);
+        insertSample("unoperated-empty", "2026-10-16", "正常到货", "炉号", 300, "");
+        List<ArrivalNoticeRow> rows = service.getArrivalNotice("2026-10-16");
+        assertEquals(1, rows.size());
+        assertEquals("正常到货", rows.get(0).getCustomer());
+        assertEquals(Long.valueOf(3), rows.get(0).getBundleCount());
+        assertEquals(0, new BigDecimal("600").compareTo(rows.get(0).getWeight()));
+        assertEquals(3, service.countArrivalRecords(Collections.emptyMap()));
+    }
+
+    @Test
+    public void doesNotTreatLaterInboundAsANewArrivalAfterEarlierMovementsOrArrivals() throws Exception {
+        insertSample("movement-first", "2026-10-15", "客户", "炉号", 1000, "返库");
+        insertSample("movement-first", "2026-10-16", "客户", "炉号", 1000, "入库");
+        insertSample("arrival-first", "2026-10-15", "客户", "炉号", 2000, "入库");
+        insertSample("arrival-first", "2026-10-16", "客户", "炉号", 2000, "入库");
+        assertTrue(service.getArrivalNotice("2026-10-16").isEmpty());
+        List<ArrivalNoticeRow> rows = service.getArrivalNotice("2026-10-15");
+        assertEquals(1, rows.size());
+        assertEquals(Long.valueOf(1), rows.get(0).getBundleCount());
+        assertEquals(0, new BigDecimal("2000").compareTo(rows.get(0).getWeight()));
+    }
+
+    @Test
     public void combinesFurnaceNumbersForMatchingPrintedFields() throws Exception {
         String[] fields = {"ZAB", "一般贸易", "客户原名", "30.40", "S2", "江阴", "炉号A"};
         insert("base", "2026-07-28", fields[0], fields[1], fields[2], fields[3], fields[4], fields[5], fields[6], 10.0, 50, null);
@@ -141,9 +174,11 @@ public class ArrivalNoticeTest {
         insertSample(null, "2026-07-28", "原客户", "炉号", 0.2, null);
         insertSample("", "2026-07-28", "原客户", "炉号", 0, null);
         insertSample("", "2026-07-28", "原客户", "炉号", 0, null);
+        insertSample(" ", "2026-07-28", "原客户", "炉号", 0.3, null);
+        insertSample(" ", "2026-07-28", "原客户", "炉号", 0.4, "入库");
         ArrivalNoticeRow row = service.getArrivalNotice("2026-07-28").get(0);
-        assertEquals(Long.valueOf(4), row.getBundleCount());
-        assertEquals(0, new BigDecimal("0.3").compareTo(row.getWeight()));
+        assertEquals(Long.valueOf(6), row.getBundleCount());
+        assertEquals(0, new BigDecimal("1.0").compareTo(row.getWeight()));
     }
 
     @Test

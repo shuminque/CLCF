@@ -36,8 +36,23 @@
         ORDER BY steel_grade, dimensions
     </select>
 
+    <!-- 到货查询、通知预览及导出共用原始到货口径。
+         先按材料 ID 在全表取最早记录，再保留入库和未操作；无材料 ID 的记录分别保留。 -->
+    <sql id="originalArrivalConditions">
+        (operation_type = '入库' OR operation_type IS NULL OR operation_type = '')
+        AND (
+            unique_identifier IS NULL OR TRIM(unique_identifier) = ''
+            OR id IN (
+                SELECT MIN(original.id) FROM shipment_details original
+                WHERE original.unique_identifier IS NOT NULL
+                  AND TRIM(original.unique_identifier) != ''
+                GROUP BY original.unique_identifier
+            )
+        )
+    </sql>
+
     <!-- 到货日、到货点、贸易方式、客户、规格和钢厂相同的原始材料合为一项。
-         炉号去重后用 / 连接；同一材料的后续出入库流水不重复统计。 -->
+         炉号去重后用 / 连接；返库等后续出入库流水不计为新的到货。 -->
     <select id="selectArrivalNoticeByDateRange" resultType="com.depository_manage.pojo.ArrivalNoticeRow">
         SELECT s.arrival_date AS arrivalDate, s.delivery_point AS deliveryPoint,
                s.trade_mode AS tradeMode, s.customer, s.dimensions,
@@ -48,12 +63,7 @@
                COALESCE(SUM(CAST(s.weight AS DECIMAL(24, 6))), 0) AS weight
         FROM shipment_details s
         WHERE s.arrival_date &gt;= #{startDate} AND s.arrival_date &lt; #{endDate}
-          AND NOT EXISTS (
-              SELECT 1 FROM shipment_details earlier
-              WHERE s.unique_identifier IS NOT NULL AND s.unique_identifier != ''
-                AND earlier.unique_identifier = s.unique_identifier
-                AND earlier.id &lt; s.id
-          )
+          AND <include refid="originalArrivalConditions"/>
         GROUP BY s.arrival_date, s.delivery_point, s.trade_mode, s.customer,
                  s.dimensions, s.steel_grade, s.steel_mill
         ORDER BY s.arrival_date, s.delivery_point, s.trade_mode, s.customer,
@@ -230,16 +240,7 @@
          去重不受当前筛选条件影响，防止后续流水被当作一次新的到货。
          无材料 ID 的历史记录无法关联，分别保留。列表和总条数共用条件。 -->
     <sql id="arrivalRecordsConditions">
-        WHERE (operation_type = '入库' OR operation_type IS NULL OR operation_type = '')
-          AND (
-              unique_identifier IS NULL OR TRIM(unique_identifier) = ''
-              OR id IN (
-                  SELECT MIN(original.id) FROM shipment_details original
-                  WHERE original.unique_identifier IS NOT NULL
-                    AND TRIM(original.unique_identifier) != ''
-                  GROUP BY original.unique_identifier
-              )
-          )
+        WHERE <include refid="originalArrivalConditions"/>
         <if test="uniqueIdentifier != null and uniqueIdentifier != ''">
             AND unique_identifier = #{uniqueIdentifier}
         </if>

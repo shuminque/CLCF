@@ -95,6 +95,8 @@ public class ArrivalNoticeMonthlyExportTest {
         insert("first-a", "2026-10-01", "炉号A", "0.1", "出库");
         insert("first-a", "2026-10-01", "炉号A", "0.1", "返库");
         insert("middle", "2026-10-25", "炉号中", "25.125", null);
+        insert("261016-16", "2026-10-16", "700242", "1000", "返库");
+        insert("261016-17", "2026-10-16", "700242", "795", "返库");
         insert("previous", "2026-09-30", "不应导出", "999", null);
         insert("next", "2026-11-01", "不应导出", "999", null);
         insert("previous-year", "2025-10-25", "不应导出", "999", null);
